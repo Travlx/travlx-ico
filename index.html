@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TravelX ICO | User Portal</title>
-    <!-- Stable Ethers.js v5 -->
+    <!-- Stable Web3 Libraries -->
     <script src="https://cloudflare.com"></script>
+    <script src="https://unpkg.com"></script>
+    <script src="https://unpkg.com"></script>
     <style>
         body { background-color: #05070a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
         .container { text-align: center; border: 1px solid #2d333b; padding: 40px 25px; border-radius: 28px; background: #0d1117; width: 100%; max-width: 360px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
@@ -21,14 +23,12 @@
 <body>
 
     <div class="container">
-        <!-- 1. AUTH SCREEN -->
         <div id="loginScreen">
             <h1 style="color: #58a6ff; font-size: 28px; margin-bottom: 10px;">TravelX ICO</h1>
             <p style="color: #8b949e; font-size: 14px; margin-bottom: 30px;">Connect Mobile or PC Wallet</p>
-            <button id="connectBtn" onclick="connect()" class="btn">Connect Wallet</button>
+            <button id="connectBtn" onclick="onConnect()" class="btn">Connect Wallet</button>
         </div>
 
-        <!-- 2. USER DASHBOARD -->
         <div id="dashboard">
             <h3 style="margin-top: 0; color: #f0f6fc; font-size: 18px; margin-bottom: 20px;">User Dashboard</h3>
             <div class="info-card">
@@ -40,73 +40,78 @@
                 <span id="userBalance" style="font-size: 20px; font-weight: bold;">0.000000 BNB</span>
             </div>
             <div style="padding-top: 5px;">
-                <span class="label">1 BNB = 10,000 TRVX</span>
+                <span class="label">Presale: 1 BNB = 10,000 TRVX</span>
                 <input type="number" id="bnbInput" oninput="calculate()" placeholder="Amount (BNB)" step="0.01">
                 <p style="font-size: 13px; color: #58a6ff; margin-bottom: 15px;">Receive: <span id="tokenOutput" style="font-weight: bold;">0</span> TRVX</p>
                 <button onclick="buyTokens()" class="btn btn-blue">Buy TRVX Tokens</button>
             </div>
-            <button onclick="window.location.reload()" style="background: none; border: none; color: #f85149; cursor: pointer; font-size: 11px; width: 100%; margin-top: 25px; text-decoration: underline;">Disconnect</button>
+            <button onclick="disconnect()" style="background: none; border: none; color: #f85149; cursor: pointer; font-size: 11px; width: 100%; margin-top: 25px; text-decoration: underline;">Disconnect</button>
         </div>
     </div>
 
     <script>
-        let signer, provider, currentAccount;
         const myWallet = "0x68211153222bf054Decb13928870523a0C4264d4";
         const rate = 10000;
+        let web3Modal, provider, signer;
+
+        // Initialize Web3Modal with WalletConnect
+        const providerOptions = {
+            walletconnect: {
+                package: WalletConnectProvider.default,
+                options: {
+                    rpc: { 56: "https://binance.org" }
+                }
+            }
+        };
+
+        web3Modal = new Web3Modal.default({
+            cacheProvider: false, 
+            providerOptions,
+            theme: "dark"
+        });
 
         function calculate() {
             const amount = document.getElementById('bnbInput').value;
             document.getElementById('tokenOutput').innerText = amount > 0 ? (amount * rate).toLocaleString() : 0;
         }
 
-        async function connect() {
-            // মোবাইল ইউজারদের জন্য সরাসরি মেটামাস্ক ডিপ লিঙ্ক
-            const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-            
-            if (isMobile && !window.ethereum) {
-                // আপনার ডোমেইন অনুযায়ী মেটামাস্ক অ্যাপ ওপেন করবে
-                const dappUrl = window.location.host + window.location.pathname;
-                window.location.href = `https://app.link{dappUrl}`;
-                return;
-            }
+        async function onConnect() {
+            try {
+                // এটি পপ-আপ ওপেন করবে যেখানে মেটামাস্ক অপশন থাকবে
+                const instance = await web3Modal.connect();
+                provider = new ethers.providers.Web3Provider(instance);
+                signer = provider.getSigner();
+                const address = await signer.getAddress();
 
-            if (window.ethereum) {
-                try {
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    currentAccount = accounts[0];
-                    provider = new ethers.providers.Web3Provider(window.ethereum);
-                    signer = provider.getSigner();
+                const balance = await provider.getBalance(address);
+                const balanceEth = ethers.utils.formatEther(balance);
 
-                    // ব্যালেন্স চেক
-                    const balance = await provider.getBalance(currentAccount);
-                    
-                    // UI আপডেট
-                    document.getElementById('loginScreen').style.display = 'none';
-                    document.getElementById('dashboard').style.display = 'block';
-                    document.getElementById('userAddress').innerText = currentAccount;
-                    document.getElementById('userBalance').innerText = parseFloat(ethers.utils.formatEther(balance)).toFixed(6) + " BNB";
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('userAddress').innerText = address;
+                document.getElementById('userBalance').innerText = parseFloat(balanceEth).toFixed(6) + " BNB";
 
-                } catch (error) {
-                    console.error("Connection rejected");
-                }
-            } else {
-                alert("Please open this site inside MetaMask Browser!");
+            } catch (e) {
+                console.log("Modal closed");
             }
         }
 
         async function buyTokens() {
             const amount = document.getElementById('bnbInput').value;
-            if (!amount || amount <= 0) return alert("Enter valid BNB amount!");
-
+            if (!amount || amount <= 0) return alert("Enter valid amount!");
             try {
                 const tx = await signer.sendTransaction({
                     to: myWallet,
                     value: ethers.utils.parseEther(amount.toString())
                 });
-                alert("Transaction Sent! Hash: " + tx.hash);
+                alert("Sent! Hash: " + tx.hash);
             } catch (err) {
-                alert("Transaction failed! Check gas fees.");
+                alert("Transaction failed!");
             }
+        }
+
+        function disconnect() {
+            window.location.reload();
         }
     </script>
 </body>
