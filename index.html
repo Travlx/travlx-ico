@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TravelX ICO | User Portal</title>
+    <!-- Ethers.js Library -->
     <script src="https://cloudflare.com"></script>
     <style>
         body { background-color: #05070a; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
         .container { text-align: center; border: 1px solid #2d333b; padding: 45px; border-radius: 28px; background: #0d1117; width: 380px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .btn { background-color: #238636; color: white; border: none; padding: 16px 30px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; width: 100%; transition: 0.3s; }
         .btn:hover { background-color: #2ea043; transform: translateY(-2px); }
-        .btn-blue { background-color: #21262d; border: 1px solid #30363d; color: #c9d1d9; }
-        .btn-blue:hover { background-color: #30363d; }
+        .btn-blue { background-color: #3b82f6; color: white; border: none; }
+        .btn-blue:hover { background-color: #2563eb; }
         #dashboard { display: none; text-align: left; }
         .info-card { background: #161b22; padding: 18px; border-radius: 14px; margin-bottom: 20px; border: 1px solid #30363d; }
         .label { color: #8b949e; font-size: 10px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; display: block; margin-bottom: 5px; }
@@ -45,8 +46,8 @@
 
             <div style="padding-top: 10px;">
                 <span class="label">Presale Purchase</span>
-                <input type="number" id="bnbInput" placeholder="Amount (BNB)">
-                <button class="btn btn-blue">Buy TRVX Tokens</button>
+                <input type="number" id="bnbInput" placeholder="Amount (BNB)" step="0.01">
+                <button id="buyBtn" onclick="buyTokens()" class="btn btn-blue">Buy TRVX Tokens</button>
             </div>
             
             <button onclick="window.location.reload()" style="background: none; border: none; color: #f85149; cursor: pointer; font-size: 11px; width: 100%; margin-top: 25px; text-decoration: underline;">Disconnect Wallet</button>
@@ -54,13 +55,17 @@
     </div>
 
     <script>
+        let signer;
+
         async function connect() {
             if (window.ethereum) {
                 try {
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const provider = new ethers.BrowserProvider(window.ethereum);
+                    const accounts = await provider.send("eth_requestAccounts", []);
+                    signer = await provider.getSigner();
                     const address = accounts[0];
                     
-                    const provider = new ethers.BrowserProvider(window.ethereum);
+                    // Fetch Balance
                     const balanceRaw = await provider.getBalance(address);
                     const balanceEth = ethers.formatEther(balanceRaw);
 
@@ -73,10 +78,42 @@
                     document.getElementById('userBalance').innerText = parseFloat(balanceEth).toFixed(4) + " BNB";
 
                 } catch (error) {
-                    console.error(error);
+                    console.error("Connection error:", error);
+                    alert("Wallet connection failed!");
                 }
             } else {
                 alert("Please install MetaMask!");
+            }
+        }
+
+        async function buyTokens() {
+            const amount = document.getElementById('bnbInput').value;
+            
+            if (!amount || amount <= 0) {
+                alert("Please enter a valid amount!");
+                return;
+            }
+
+            if (!signer) {
+                alert("Please connect your wallet first!");
+                return;
+            }
+
+            try {
+                // IMPORTANT: Replace the address below with your own wallet address
+                const tx = await signer.sendTransaction({
+                    to: "YOUR_RECEIVING_WALLET_ADDRESS", 
+                    value: ethers.parseEther(amount)
+                });
+
+                alert("Transaction Sent! Hash: " + tx.hash);
+                
+                // Wait for transaction confirmation
+                await tx.wait();
+                alert("Success! Payment received.");
+            } catch (error) {
+                console.error("Transaction error:", error);
+                alert("Transaction failed or rejected.");
             }
         }
 
@@ -84,4 +121,5 @@
     </script>
 </body>
 </html>
+
 
