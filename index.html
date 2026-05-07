@@ -3,81 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TravelX ICO | Official Presale</title>
+    <title>TravelX | Secure User Dashboard</title>
     <script src="https://tailwindcss.com"></script>
     <script src="https://cloudflare.com"></script>
     <style>
-        body { background: radial-gradient(circle at top right, #1e293b, #05070a); color: white; min-height: 100vh; font-family: sans-serif; }
-        .glass-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-radius: 24px; }
+        body { background: #05070a; color: white; min-height: 100vh; font-family: sans-serif; display: flex; align-items: center; justify-content: center; }
+        .glass-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-radius: 24px; width: 100%; max-width: 400px; padding: 40px; }
+        .token-input { background: rgba(0,0,0,0.4); border: 1px solid #1e293b; transition: 0.3s; }
+        .token-input:focus { border-color: #3b82f6; }
     </style>
 </head>
-<body class="p-6">
+<body>
 
-    <div class="max-w-4xl mx-auto text-center py-16">
-        <h1 class="text-6xl font-extrabold mb-6 tracking-tight">TravelX <span class="text-blue-500">ICO</span></h1>
-        
-        <!-- WALLET BUTTON -->
-        <div class="mb-12">
-            <button id="connectBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-full font-bold text-lg transition-all shadow-xl shadow-blue-500/20 active:scale-95">
-                Connect Wallet
-            </button>
-            <p id="statusLabel" class="mt-4 text-gray-400 font-mono text-sm"></p>
+    <!-- SECTION 1: Connect Wallet Screen -->
+    <div id="loginScreen" class="text-center">
+        <h1 class="text-4xl font-extrabold mb-4 tracking-tighter">TravelX <span class="text-blue-500">ICO</span></h1>
+        <p class="text-gray-500 mb-8 text-sm uppercase tracking-widest">Decentralized Travel Rewards</p>
+        <button id="connectBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-full font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95">
+            Connect Wallet
+        </button>
+    </div>
+
+    <!-- SECTION 2: User Dashboard (Hidden by Default) -->
+    <div id="userDashboard" class="hidden glass-card shadow-2xl">
+        <div class="flex justify-between items-center mb-8">
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">User Profile</span>
+            <button id="disconnectBtn" class="text-[10px] bg-red-500/10 text-red-500 border border-red-500/20 px-3 py-1 rounded-md hover:bg-red-500 hover:text-white transition">Exit</button>
         </div>
 
-        <!-- BUY CARD -->
-        <div class="glass-card p-10 max-w-md mx-auto shadow-2xl">
-            <h2 class="text-2xl font-bold mb-8 text-white uppercase tracking-widest">Presale Phase 1</h2>
-            <div class="space-y-4">
-                <input type="number" id="buyAmount" placeholder="0.0 BNB" class="w-full bg-black/40 border border-gray-700 rounded-2xl p-4 text-white text-xl outline-none focus:border-blue-500 transition">
-                <button id="buyBtn" class="w-full bg-white text-black font-black py-4 rounded-2xl hover:bg-gray-200 transition text-lg uppercase tracking-wider">
-                    Buy TRVX Now
-                </button>
+        <div class="space-y-6">
+            <div>
+                <p class="text-gray-500 text-[9px] uppercase mb-2 tracking-widest">Active Wallet</p>
+                <p id="displayAddress" class="text-blue-400 font-mono text-xs break-all bg-blue-500/5 p-3 rounded-xl border border-blue-500/10"></p>
             </div>
-            <p class="text-[11px] text-gray-500 mt-6 uppercase tracking-widest font-bold">Network: BNB Smart Chain (BSC)</p>
+
+            <div>
+                <p class="text-gray-500 text-[9px] uppercase mb-1 tracking-widest">Current Balance</p>
+                <p id="displayBalance" class="text-3xl font-bold tracking-tighter">0.0000 BNB</p>
+            </div>
+
+            <div class="pt-6 border-t border-white/5">
+                <p class="text-gray-500 text-[9px] uppercase mb-4 tracking-widest">Presale Purchase</p>
+                <input type="number" id="inputBNB" placeholder="Amount (BNB)" class="token-input w-full rounded-xl p-4 mb-4 text-white outline-none">
+                <button class="w-full bg-white text-black font-black py-4 rounded-xl hover:bg-gray-200 transition uppercase text-xs tracking-widest">Buy TRVX Tokens</button>
+            </div>
         </div>
     </div>
 
     <script>
-        let walletProvider = null;
-        let userSigner = null;
+        let provider;
 
-        async function connectWallet() {
+        async function connect() {
             if (window.ethereum) {
                 try {
-                    document.getElementById('connectBtn').innerText = "Connecting...";
-                    
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    
-                    walletProvider = new ethers.BrowserProvider(window.ethereum);
-                    userSigner = await walletProvider.getSigner();
-                    
+                    // Start Connection
+                    provider = new ethers.BrowserProvider(window.ethereum);
+                    const accounts = await provider.send("eth_requestAccounts", []);
                     const address = accounts[0];
-                    const shortAddr = address.substring(0, 6) + "..." + address.substring(38);
-                    
-                    document.getElementById('statusLabel').innerText = "Wallet: " + address;
-                    document.getElementById('connectBtn').innerText = "Connected: " + shortAddr;
-                    document.getElementById('connectBtn').className = "bg-green-600 text-white px-10 py-4 rounded-full font-bold text-lg shadow-lg shadow-green-500/20";
-                    
+
+                    // Switch UI
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    document.getElementById('userDashboard').classList.remove('hidden');
+
+                    // Set Address
+                    document.getElementById('displayAddress').innerText = address;
+
+                    // Get and Set Balance
+                    const balanceRaw = await provider.getBalance(address);
+                    const balanceEth = ethers.formatEther(balanceRaw);
+                    document.getElementById('displayBalance').innerText = parseFloat(balanceEth).toFixed(4) + " BNB";
+
                 } catch (error) {
-                    console.error(error);
-                    document.getElementById('connectBtn').innerText = "Connect Wallet";
-                    if (error.code === 4001) {
-                        alert("Connection rejected in MetaMask.");
-                    } else {
-                        alert("Connection failed! Please unlock MetaMask.");
-                    }
+                    console.error("User denied account access");
                 }
             } else {
-                alert("MetaMask not found!");
+                alert("Please install MetaMask!");
             }
         }
 
-        document.getElementById('connectBtn').addEventListener('click', connectWallet);
-
-        if (window.ethereum) {
-            window.ethereum.on('accountsChanged', () => window.location.reload());
-            window.ethereum.on('chainChanged', () => window.location.reload());
-        }
+        document.getElementById('connectBtn').onclick = connect;
+        document.getElementById('disconnectBtn').onclick = () => window.location.reload();
     </script>
 </body>
 </html>
