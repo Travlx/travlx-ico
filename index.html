@@ -3,56 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TravelX ICO | Web3 Launch</title>
+    <title>TravelX ICO | Official Presale</title>
     <script src="https://tailwindcss.com"></script>
     <script src="https://cloudflare.com"></script>
     <style>
         body { background: radial-gradient(circle at top right, #1e293b, #05070a); color: white; min-height: 100vh; font-family: sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
+        .glass-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-radius: 24px; }
     </style>
 </head>
 <body class="p-6">
-    <div class="max-w-4xl mx-auto text-center py-12">
-        <h1 class="text-5xl font-bold mb-4 tracking-tight">TravelX <span class="text-blue-500">ICO Launch</span></h1>
-        <p class="text-gray-400 mb-8">Secure your TRVX tokens on the BSC Network</p>
-        
-        <button id="connectBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg shadow-blue-500/20">
-            Connect Wallet
-        </button>
-        <p id="walletAddress" class="mt-4 text-green-400 font-mono text-sm"></p>
 
-        <div class="mt-12 glass p-8 rounded-3xl max-w-md mx-auto">
-            <h2 class="text-xl font-bold mb-6">Presale Purchase</h2>
-            <input type="number" id="bnbAmount" placeholder="BNB Amount" class="w-full bg-black/50 border border-gray-700 rounded-xl p-3 mb-4 outline-none focus:border-blue-500 transition text-white">
-            <button id="buyBtn" class="w-full bg-white text-black font-bold py-3 rounded-xl hover:bg-gray-200 transition">Buy TRVX Tokens</button>
-            <p class="text-[10px] text-gray-500 mt-4 italic">*Please make sure you are on BSC Mainnet</p>
+    <div class="max-w-4xl mx-auto text-center py-16">
+        <h1 class="text-6xl font-extrabold mb-6 tracking-tight">TravelX <span class="text-blue-500">ICO</span></h1>
+        
+        <!-- WALLET BUTTON -->
+        <div class="mb-12">
+            <button id="connectBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-full font-bold text-lg transition-all shadow-xl shadow-blue-500/20 active:scale-95">
+                Connect Wallet
+            </button>
+            <p id="statusLabel" class="mt-4 text-gray-400 font-mono text-sm"></p>
+        </div>
+
+        <!-- BUY CARD -->
+        <div class="glass-card p-10 max-w-md mx-auto shadow-2xl">
+            <h2 class="text-2xl font-bold mb-8 text-white uppercase tracking-widest">Presale Phase 1</h2>
+            <div class="space-y-4">
+                <input type="number" id="buyAmount" placeholder="0.0 BNB" class="w-full bg-black/40 border border-gray-700 rounded-2xl p-4 text-white text-xl outline-none focus:border-blue-500 transition">
+                <button id="buyBtn" class="w-full bg-white text-black font-black py-4 rounded-2xl hover:bg-gray-200 transition text-lg uppercase tracking-wider">
+                    Buy TRVX Now
+                </button>
+            </div>
+            <p class="text-[11px] text-gray-500 mt-6 uppercase tracking-widest font-bold">Network: BNB Smart Chain (BSC)</p>
         </div>
     </div>
 
     <script>
-        let signer = null;
+        let walletProvider = null;
+        let userSigner = null;
 
-        async function connect() {
+        async function connectWallet() {
             if (window.ethereum) {
                 try {
-                    const provider = new ethers.BrowserProvider(window.ethereum);
-                    const accounts = await provider.send("eth_requestAccounts", []);
-                    signer = await provider.getSigner();
+                    document.getElementById('connectBtn').innerText = "Connecting...";
                     
-                    const addr = accounts[0];
-                    document.getElementById('walletAddress').innerText = "Connected: " + addr.substring(0, 6) + "..." + addr.substring(38);
-                    document.getElementById('connectBtn').innerText = "Connected ✅";
-                    document.getElementById('connectBtn').classList.replace('bg-blue-600', 'bg-green-600');
-                } catch (err) {
-                    console.error(err);
-                    alert("Connection failed! Please check MetaMask.");
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    
+                    walletProvider = new ethers.BrowserProvider(window.ethereum);
+                    userSigner = await walletProvider.getSigner();
+                    
+                    const address = accounts[0];
+                    const shortAddr = address.substring(0, 6) + "..." + address.substring(38);
+                    
+                    document.getElementById('statusLabel').innerText = "Wallet: " + address;
+                    document.getElementById('connectBtn').innerText = "Connected: " + shortAddr;
+                    document.getElementById('connectBtn').className = "bg-green-600 text-white px-10 py-4 rounded-full font-bold text-lg shadow-lg shadow-green-500/20";
+                    
+                } catch (error) {
+                    console.error(error);
+                    document.getElementById('connectBtn').innerText = "Connect Wallet";
+                    if (error.code === 4001) {
+                        alert("Connection rejected in MetaMask.");
+                    } else {
+                        alert("Connection failed! Please unlock MetaMask.");
+                    }
                 }
             } else {
-                alert("MetaMask not found! Please install it.");
+                alert("MetaMask not found!");
             }
         }
 
-        document.getElementById('connectBtn').addEventListener('click', connect);
+        document.getElementById('connectBtn').addEventListener('click', connectWallet);
+
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', () => window.location.reload());
+            window.ethereum.on('chainChanged', () => window.location.reload());
+        }
     </script>
 </body>
 </html>
