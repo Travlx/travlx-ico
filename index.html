@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TravelX ICO | User Portal</title>
-    <!-- Ethers.js Library -->
+    <!-- Correct Ethers.js Library -->
     <script src="https://cloudflare.com"></script>
     <style>
         body { background-color: #05070a; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
@@ -27,7 +27,7 @@
         <div id="loginScreen">
             <h1 style="color: #58a6ff; font-size: 32px; margin-bottom: 10px;">TravelX ICO</h1>
             <p style="color: #8b949e; font-size: 14px; margin-bottom: 30px;">Connect your wallet to get started</p>
-            <button id="connectBtn" class="btn">Connect Wallet</button>
+            <button id="connectBtn" onclick="connect()" class="btn">Connect Wallet</button>
         </div>
 
         <!-- 2. USER DASHBOARD -->
@@ -40,13 +40,13 @@
             </div>
 
             <div class="info-card">
-                <span class="label">BNB Balance</span>
-                <span id="userBalance" style="font-size: 24px; font-weight: bold; color: #ffffff;">0.0000 BNB</span>
+                <span class="label">Balance</span>
+                <span id="userBalance" style="font-size: 24px; font-weight: bold; color: #ffffff;">0.0000</span>
             </div>
 
             <div style="padding-top: 10px;">
                 <span class="label">Presale Purchase</span>
-                <input type="number" id="bnbInput" placeholder="Amount (BNB)" step="0.01">
+                <input type="number" id="bnbInput" placeholder="Amount" step="0.01">
                 <button id="buyBtn" onclick="buyTokens()" class="btn btn-blue">Buy TRVX Tokens</button>
             </div>
             
@@ -62,23 +62,21 @@
                 try {
                     const provider = new ethers.BrowserProvider(window.ethereum);
                     const accounts = await provider.send("eth_requestAccounts", []);
-                    signer = await provider.getSigner();
-                    const address = accounts[0];
+                    const address = accounts[0]; 
                     
-                    // Fetch Balance
+                    signer = await provider.getSigner();
+                    
                     const balanceRaw = await provider.getBalance(address);
                     const balanceEth = ethers.formatEther(balanceRaw);
 
-                    // Switch UI
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('dashboard').style.display = 'block';
 
-                    // Set Data
                     document.getElementById('userAddress').innerText = address;
-                    document.getElementById('userBalance').innerText = parseFloat(balanceEth).toFixed(4) + " BNB";
+                    document.getElementById('userBalance').innerText = parseFloat(balanceEth).toFixed(4);
 
                 } catch (error) {
-                    console.error("Connection error:", error);
+                    console.error(error);
                     alert("Wallet connection failed!");
                 }
             } else {
@@ -94,32 +92,21 @@
                 return;
             }
 
-            if (!signer) {
-                alert("Please connect your wallet first!");
-                return;
-            }
-
             try {
-                // IMPORTANT: Replace the address below with your own wallet address
                 const tx = await signer.sendTransaction({
-                    to: "YOUR_RECEIVING_WALLET_ADDRESS", 
+                    to: "YOUR_WALLET_ADDRESS_HERE", // Replace with your wallet address
                     value: ethers.parseEther(amount)
                 });
 
                 alert("Transaction Sent! Hash: " + tx.hash);
-                
-                // Wait for transaction confirmation
                 await tx.wait();
-                alert("Success! Payment received.");
+                alert("Transaction Success!");
             } catch (error) {
-                console.error("Transaction error:", error);
-                alert("Transaction failed or rejected.");
+                console.error(error);
+                alert("Transaction failed!");
             }
         }
-
-        document.getElementById('connectBtn').onclick = connect;
     </script>
 </body>
 </html>
-
 
