@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TravelX ICO | User Portal</title>
-    <!-- Correct Ethers.js Library -->
+    <!-- Ethers.js Library -->
     <script src="https://cloudflare.com"></script>
     <style>
         body { background-color: #05070a; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
@@ -23,14 +23,14 @@
 <body>
 
     <div class="container">
-        <!-- 1. AUTH SCREEN -->
+        <!-- AUTH SCREEN -->
         <div id="loginScreen">
             <h1 style="color: #58a6ff; font-size: 32px; margin-bottom: 10px;">TravelX ICO</h1>
             <p style="color: #8b949e; font-size: 14px; margin-bottom: 30px;">Connect your wallet to get started</p>
-            <button id="connectBtn" onclick="connect()" class="btn">Connect Wallet</button>
+            <button id="connectBtn" class="btn">Connect Wallet</button>
         </div>
 
-        <!-- 2. USER DASHBOARD -->
+        <!-- USER DASHBOARD -->
         <div id="dashboard">
             <h3 style="margin-top: 0; color: #f0f6fc; font-size: 20px; margin-bottom: 25px;">User Dashboard</h3>
             
@@ -69,24 +69,25 @@
                     const balanceRaw = await provider.getBalance(address);
                     const balanceEth = ethers.formatEther(balanceRaw);
 
+                    // Switch UI immediately
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('dashboard').style.display = 'block';
 
+                    // Update UI data
                     document.getElementById('userAddress').innerText = address;
                     document.getElementById('userBalance').innerText = parseFloat(balanceEth).toFixed(4);
 
                 } catch (error) {
-                    console.error(error);
-                    alert("Wallet connection failed!");
+                    console.error("Connection error:", error);
+                    alert("Connection failed! Please approve the request in MetaMask.");
                 }
             } else {
-                alert("Please install MetaMask!");
+                alert("MetaMask not found! Please install MetaMask extension.");
             }
         }
 
         async function buyTokens() {
             const amount = document.getElementById('bnbInput').value;
-            
             if (!amount || amount <= 0) {
                 alert("Please enter a valid amount!");
                 return;
@@ -97,15 +98,16 @@
                     to: "YOUR_WALLET_ADDRESS_HERE", // Replace with your wallet address
                     value: ethers.parseEther(amount)
                 });
-
                 alert("Transaction Sent! Hash: " + tx.hash);
                 await tx.wait();
-                alert("Transaction Success!");
+                alert("Success! Payment confirmed.");
             } catch (error) {
-                console.error(error);
-                alert("Transaction failed!");
+                console.error("Payment error:", error);
+                alert("Transaction failed.");
             }
         }
+
+        document.getElementById('connectBtn').onclick = connect;
     </script>
 </body>
 </html>
