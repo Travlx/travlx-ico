@@ -67,7 +67,7 @@
                     signer = provider.getSigner();
                     const balance = await provider.getBalance(userAccount);
                     const balanceEth = ethers.utils.formatEther(balance);
-                    document.getElementById('userBalance').innerText = parseFloat(balanceEth).toFixed(6) + " BNB";
+                    document.getElementById('userBalance').innerText = parseFloat(balanceEth).toFixed(8) + " BNB";
 
                 } catch (e) {
                     console.log("Balance fetch error handled.");
