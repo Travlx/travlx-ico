@@ -23,7 +23,7 @@
 
         <div class="mt-12 glass p-8 rounded-3xl max-w-md mx-auto">
             <h2 class="text-xl font-bold mb-6">Presale Purchase</h2>
-            <input type="number" id="bnbAmount" placeholder="BNB Amount" class="w-full bg-black/50 border border-gray-700 rounded-xl p-3 mb-4 outline-none focus:border-blue-500 transition">
+            <input type="number" id="bnbAmount" placeholder="BNB Amount" class="w-full bg-black/50 border border-gray-700 rounded-xl p-3 mb-4 outline-none focus:border-blue-500 transition text-white">
             <button id="buyBtn" class="w-full bg-white text-black font-bold py-3 rounded-xl hover:bg-gray-200 transition">Buy TRVX Tokens</button>
             <p class="text-[10px] text-gray-500 mt-4 italic">*Please make sure you are on BSC Mainnet</p>
         </div>
@@ -31,25 +31,29 @@
 
     <script>
         let signer = null;
-async function connect() {
-    if (window.ethereum) {
-        try {
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            const accounts = await provider.send("eth_requestAccounts", []);
-            signer = await provider.getSigner();
 
-            const addr = accounts[0];
-            document.getElementById('walletAddress').innerText = "Connected: " + addr.substring(0, 6) + "..." + addr.substring(38);
-            document.getElementById('connectBtn').innerText = "Connected ✅";
-            document.getElementById('connectBtn').classList.replace('bg-blue-600', 'bg-green-600');
-        } catch (err) {
-            console.error(err);
-            alert("Connection failed! Please unlock MetaMask.");
+        async function connect() {
+            if (window.ethereum) {
+                try {
+                    const provider = new ethers.BrowserProvider(window.ethereum);
+                    const accounts = await provider.send("eth_requestAccounts", []);
+                    signer = await provider.getSigner();
+                    
+                    const addr = accounts[0];
+                    document.getElementById('walletAddress').innerText = "Connected: " + addr.substring(0, 6) + "..." + addr.substring(38);
+                    document.getElementById('connectBtn').innerText = "Connected ✅";
+                    document.getElementById('connectBtn').classList.replace('bg-blue-600', 'bg-green-600');
+                } catch (err) {
+                    console.error(err);
+                    alert("Connection failed! Please check MetaMask.");
+                }
+            } else {
+                alert("MetaMask not found! Please install it.");
+            }
         }
-    } else {
-        alert("MetaMask not found! Please install it.");
-    }
-}
-document.getElementById('connectBtn').addEventListener('click', connect);
-        
+
+        document.getElementById('connectBtn').addEventListener('click', connect);
+    </script>
+</body>
+</html>
 
