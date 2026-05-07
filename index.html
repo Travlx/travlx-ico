@@ -31,29 +31,25 @@
 
     <script>
         let signer = null;
+async function connect() {
+    if (window.ethereum) {
+        try {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const accounts = await provider.send("eth_requestAccounts", []);
+            signer = await provider.getSigner();
 
-        async function connect() {
-            if (window.ethereum) {
-                try {
-                    const provider = new ethers.BrowserProvider(window.ethereum);
-                    const accounts = await provider.send("eth_requestAccounts", []);
-                    signer = await provider.getSigner();
-                    
-                    const addr = accounts[0];
-                    document.getElementById('walletAddress').innerText = "Connected: " + addr.substring(0,6) + "..." + addr.substring(38);
-                    document.getElementById('connectBtn').innerText = "Connected ✅";
-                    document.getElementById('connectBtn').classList.replace('bg-blue-600', 'bg-green-600');
-                } catch (err) {
-                    console.error(err);
-                    alert("Connection failed!");
-                }
-            } else {
-                alert("MetaMask not found! Please install it.");
-            }
+            const addr = accounts[0];
+            document.getElementById('walletAddress').innerText = "Connected: " + addr.substring(0, 6) + "..." + addr.substring(38);
+            document.getElementById('connectBtn').innerText = "Connected ✅";
+            document.getElementById('connectBtn').classList.replace('bg-blue-600', 'bg-green-600');
+        } catch (err) {
+            console.error(err);
+            alert("Connection failed! Please unlock MetaMask.");
         }
-
-        document.getElementById('connectBtn').addEventListener('click', connect);
-    </script>
-</body>
-</html>
+    } else {
+        alert("MetaMask not found! Please install it.");
+    }
+}
+document.getElementById('connectBtn').addEventListener('click', connect);
+        
 
