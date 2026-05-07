@@ -44,11 +44,11 @@
 
             <div style="padding-top: 10px;">
                 <span class="label">Presale Purchase</span>
-                <input type="number" id="bnbInput" placeholder="Amount (BNB)" step="0.01">
+                <input type="number" id="bnbInput" placeholder="Amount" step="0.01">
                 <button onclick="buyTokens()" class="btn btn-blue">Buy TRVX Tokens</button>
             </div>
             
-            <button onclick="window.location.reload()" style="background: none; border: none; color: #f85149; cursor: pointer; font-size: 11px; width: 100%; margin-top: 25px; text-decoration: underline;">Disconnect Wallet</button>
+            <button onclick="window.location.reload()" style="background: none; border: none; color: #f85149; cursor: pointer; font-size: 11px; width: 100%; margin-top: 25px; text-decoration: underline;">Disconnect</button>
         </div>
     </div>
 
@@ -57,33 +57,33 @@
         const myWallet = "0x68211153222bf054Decb13928870523a0C4264d4";
 
         async function connect() {
-            if (window.ethereum) {
+            if (typeof window.ethereum !== 'undefined') {
                 try {
-                    // Request accounts directly from MetaMask
+                    // Direct MetaMask Request
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const account = accounts[0];
 
                     const provider = new ethers.providers.Web3Provider(window.ethereum);
                     signer = provider.getSigner();
 
-                    // Fetch balance
+                    // Fetch Balance
                     const balance = await provider.getBalance(account);
                     const balanceEth = ethers.utils.formatEther(balance);
 
-                    // Show Dashboard
+                    // Switch UI
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('dashboard').style.display = 'block';
 
-                    // Update UI
+                    // Update UI Data
                     document.getElementById('userAddress').innerText = account;
                     document.getElementById('userBalance').innerText = parseFloat(balanceEth).toFixed(4) + " BNB";
 
                 } catch (error) {
                     console.error(error);
-                    alert("Connection failed! Please open MetaMask and approve.");
+                    alert("Request failed. Please check MetaMask.");
                 }
             } else {
-                alert("MetaMask not found! Please install the extension.");
+                alert("MetaMask not detected.");
             }
         }
 
@@ -104,6 +104,4 @@
     </script>
 </body>
 </html>
-
-
 
