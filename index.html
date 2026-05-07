@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple ICO Launch</title>
+    <script src="https://tailwindcss.com"></script>
+    <!-- Ethers.js Library -->
+    <script src="https://cloudflare.com"></script>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+
+    <div class="max-w-md w-full bg-gray-800 p-8 rounded-2xl shadow-2xl text-center">
+        <h1 class="text-3xl font-bold mb-6">Token Sale</h1>
+        
+        <!-- Connect Wallet Button -->
+        <button id="connectBtn" onclick="connect()" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold mb-6 transition">
+            Connect Wallet
+        </button>
+        <p id="walletAddr" class="text-xs text-gray-400 mb-6 truncate"></p>
+
+        <!-- Buy Input and Button -->
+        <div class="space-y-4">
+            <input type="number" id="amount" placeholder="Amount of Tokens" class="w-full p-3 bg-gray-700 rounded-lg outline-none border border-gray-600 focus:border-blue-500">
+            
+            <button id="buyBtn" onclick="buy()" class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-bold transition">
+                Buy Tokens
+            </button>
+        </div>
+
+        <p class="text-[10px] text-gray-500 mt-6">Price: 0.001 BNB per Token</p>
+    </div>
+
+    <script>
+        // ১. কনফিগারেশন
+        const icoAddress = "YOUR_ICO_CONTRACT_ADDRESS"; 
+        const icoABI = PASTE_YOUR_ABI_HERE; // এখানে [ ] সহ পুরো ABI পেস্ট করুন
+
+        let signer = null;
+        const tokenPrice = 0.001; // আপনার কন্ট্রাক্টে দেওয়া দাম
+
+        // ২. কানেক্ট ওয়ালেট ফাংশন
+        async function connect() {
+            if (window.ethereum) {
+                try {
+                    const provider = new ethers.BrowserProvider(window.ethereum);
+                    const accounts = await provider.send("eth_requestAccounts", []);
+                    signer = await provider.getSigner();
+                    
+                    document.getElementById('walletAddr').innerText = "Wallet: " + accounts[0];
+                    document.getElementById('connectBtn').innerText = "Connected ✅";
+                } catch (err) {
+                    console.error("Connection failed", err);
+                }
+            } else {
+                alert("Please install MetaMask!");
+            }
+        }
+
+        // ৩. টোকেন বাই ফাংশন
+        async function buy() {
+            if (!signer) return alert("Connect wallet first!");
+            
+            const quantity = document.getElementById('amount').value;
+            if (!quantity || quantity <= 0) return alert("Enter valid quantity!");
+
+            const icoContract = new ethers.Contract(icoAddress, icoABI, signer);
+            
+            try {
+                // টোটাল দাম ক্যালকুলেট করা (Quantity * Price)
+                const totalCost = (quantity * tokenPrice).toString();
+                
+                const tx = await icoContract.buyTokens(quantity, {
+                    value: ethers.parseEther(totalCost)
+                });
+
+                alert("Transaction sent! Wait for confirmation...");
+                await tx.wait();
+                alert("Success! Tokens added to your wallet.");
+            } catch (err) {
+                console.error(err);
+                alert("Transaction failed. Check console for details.");
+            }
+        }
+    </script>
+</body>
+</html>
+
