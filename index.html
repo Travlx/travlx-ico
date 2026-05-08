@@ -1,121 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TravelX | Simple Referral Portal</title>
-    <script src="https://ethers.io"></script>
-    <script src="https://jsdelivr.net"></script>
-    <style>
-        :root { --primary: #00ff99; --bg: #0b0f19; --card: #111827; --text: #ffffff; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .dashboard { width: 100%; max-width: 400px; background: var(--card); border-radius: 24px; padding: 25px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .top-box { background: rgba(255,255,255,0.03); border-radius: 18px; padding: 18px; margin-bottom: 12px; text-align: left; border: 1px solid rgba(255,255,255,0.05); }
-        .label { color: #9ca3af; font-size: 11px; text-transform: uppercase; font-weight: bold; }
-        #walletAddress { color: var(--primary); font-family: 'Courier New', monospace; font-size: 15px; font-weight: bold; margin-top: 8px; word-break: break-all; }
-        button { width: 100%; padding: 14px; border: none; border-radius: 12px; background: var(--primary); color: #000; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
-        input { width: 100%; padding: 12px; border: none; border-radius: 10px; background: #0d1117; color: #fff; margin-top: 8px; outline: none; border: 1px solid #1f2937; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRVX Auto Payout | Pro Edition</title>
+
+<!-- ✅ FIXED LIBRARIES -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+body{
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    background:#0b0f19;
+    color:#fff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+.box{
+    width:100%;
+    max-width:420px;
+    background:#111827;
+    padding:25px;
+    border-radius:24px;
+    border:1px solid rgba(255,255,255,0.05);
+    box-shadow:0 10px 30px rgba(0,0,0,0.5);
+}
+input{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:12px;
+    background:#0d1117;
+    color:#fff;
+    outline:none;
+    border:1px solid #1f2937;
+    box-sizing:border-box;
+}
+button{
+    width:100%;
+    padding:14px;
+    margin-top:12px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:bold;
+}
+.primary{background:#00ff99;color:#000;}
+.blue{background:#2563eb;color:#fff;}
+.warn{background:transparent;color:#f59e0b;border:1px solid #f59e0b;}
+.small{font-size:13px;color:#9ca3af;margin-top:8px;display:flex;justify-content:space-between;}
+hr{border:0;border-top:1px solid #1f2937;margin:20px 0;}
+</style>
 </head>
+
 <body>
 
-<div id="dashboardPage" class="dashboard">
-    <div style="font-size: 22px; font-weight: bold; color: var(--primary); margin-bottom: 20px; text-align:center;">TravelX Investor Dashboard</div>
+<div class="box">
+<h2 style="text-align:center;color:#00ff99;margin-top:0;">TRVX Staking</h2>
 
-    <!-- ওয়ালেট অ্যাড্রেস (বড় এবং স্পষ্ট) -->
-    <div class="top-box">
-        <span class="label">Connected Wallet</span>
-        <div id="walletAddress">0x...</div>
+<div id="connectBtn">
+    <button class="primary" onclick="connect()">Connect Wallet</button>
+</div>
+
+<div id="dashboard" style="display:none;">
+
+    <div class="small">
+        <span>Wallet:</span>
+        <span id="wallet" style="color:#00ff99;font-family:monospace;">0x...</span>
     </div>
 
-    <!-- ব্যালেন্স গ্রিড -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-        <div class="top-box" style="margin-bottom:0;"><span class="label">My BNB</span><div id="bnbBalance" style="font-weight:bold;">0.0000</div></div>
-        <div class="top-box" style="margin-bottom:0;"><span class="label">My TRVX</span><div id="trvxBalance" style="color:var(--primary); font-weight:bold;">0.00</div></div>
+    <hr>
+
+    <label class="small">Enter TRVX Amount</label>
+    <input type="number" id="amount" placeholder="0.00">
+
+    <button class="blue" id="stakeBtn" onclick="stake()">Stake TRVX</button>
+    <button class="warn" onclick="withdraw()">Withdraw (Auto Payout)</button>
+
+    <hr>
+
+    <div class="small">
+        <span>Staked:</span>
+        <span><b id="staked">0</b> TRVX</span>
     </div>
 
-    <!-- টোকেন কেনা -->
-    <div class="top-box" style="border: 1px solid #2563eb;">
-        <span class="label" style="color: #60a5fa;">Purchase TRVX (1 BNB = 10k)</span>
-        <input type="number" id="bnbInput" oninput="updateLiveCalc()" placeholder="Amount in BNB">
-        <p style="font-size: 11px; margin-top: 8px; color: gray;">Receive: <span id="tokenPreview" style="color:var(--primary); font-weight:bold;">0</span> TRVX</p>
-        <button onclick="buyTokens()" style="background: #2563eb; color: white;">Confirm Purchase</button>
+    <div class="small">
+        <span>Pending Reward:</span>
+        <span style="color:#00ff99;"><b id="reward">0</b> TRVX</span>
     </div>
 
-    <!-- রেফারেল লিংক (Fixed & Clear) -->
-    <div class="top-box">
-        <span class="label">Your Referral Link (5% Bonus)</span>
-        <input type="text" id="refLink" readonly style="font-size: 10px; background: #0b0f19; color: var(--primary);">
-        <button onclick="copyRef()" style="background: #374151; color: white;">Copy Link</button>
-    </div>
+</div>
 </div>
 
 <script>
-    let currentAccount = "";
-    let provider, signer;
 
-    // --- CONFIGURATION ---
-    const masterAddress = "YOUR_MASTER_CONTRACT_ADDRESS";
-    const tokenAddress = "YOUR_TOKEN_CONTRACT_ADDRESS";
+let provider, signer, account;
 
-    async function connect() {
-        if (window.ethereum) {
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            currentAccount = accounts[0]; // সরাসরি প্রথম অ্যাড্রেস ফিক্স
-            provider = new ethers.providers.Web3Provider(window.ethereum);
-            signer = provider.getSigner();
-            updateUI();
-            setInterval(updateUI, 15000);
+// 🔧 CONFIG
+const contractAddress = "YOUR_STAKING_CONTRACT_ADDRESS";
+const tokenAddress = "YOUR_TOKEN_CONTRACT_ADDRESS";
+
+// ABIs
+const stakingAbi = [
+    "function stake(uint256)",
+    "function withdraw() returns(uint256)",
+    "function pendingReward(address) view returns(uint256)",
+    "function getStake(address) view returns(uint256,uint256)"
+];
+
+const tokenAbi = [
+    "function approve(address,uint256) returns(bool)",
+    "function allowance(address,address) view returns(uint256)"
+];
+
+// ================= CONNECT =================
+async function connect(){
+    try{
+        if(!window.ethereum){
+            Swal.fire("Error","MetaMask not installed","error");
+            return;
         }
+
+        const acc = await ethereum.request({method:"eth_requestAccounts"});
+        account = acc[0];
+
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+
+        document.getElementById("wallet").innerText =
+            account.slice(0,6)+"..."+account.slice(-4);
+
+        document.getElementById("connectBtn").style.display="none";
+        document.getElementById("dashboard").style.display="block";
+
+        updateAll();
+        setInterval(updateAll, 8000);
+
+    }catch(e){
+        console.log(e);
     }
+}
 
-    async function updateUI() {
-        if (!currentAccount) return;
-        try {
-            // ১. বড় অ্যাড্রেস ডিসপ্লে (১০+৮ ফরম্যাট)
-            document.getElementById('walletAddress').innerText = currentAccount.substring(0, 12) + "..." + currentAccount.slice(-10);
+// ================= CONTRACT =================
+function getStaking(){
+    return new ethers.Contract(contractAddress, stakingAbi, signer);
+}
+function getToken(){
+    return new ethers.Contract(tokenAddress, tokenAbi, signer);
+}
 
-            // ২. ব্যালেন্স ফেচ
-            const bnb = await provider.getBalance(currentAccount);
-            document.getElementById('bnbBalance').innerText = parseFloat(ethers.utils.formatEther(bnb)).toFixed(4);
+// ================= STAKE =================
+async function stake(){
+    const btn = document.getElementById("stakeBtn");
 
-            const tCon = new ethers.Contract(tokenAddress, ["function balanceOf(address) view returns (uint256)"], provider);
-            const trvxBal = await tCon.balanceOf(currentAccount);
-            document.getElementById('trvxBalance').innerText = parseFloat(ethers.utils.formatUnits(trvxBal, 18)).toLocaleString();
+    try{
+        const val = document.getElementById("amount").value;
 
-            // ৩. রেফারেল লিঙ্ক জেনারেট (FIXED)
-            document.getElementById('refLink').value = window.location.origin + window.location.pathname + "?ref=" + currentAccount;
-        } catch (e) { console.error(e); }
+        if(!val || val <= 0){
+            Swal.fire("Error","Enter valid amount","warning");
+            return;
+        }
+
+        const amount = ethers.utils.parseUnits(val.toString(),18);
+
+        const t = getToken();
+        const s = getStaking();
+
+        btn.innerText = "Processing...";
+        btn.disabled = true;
+
+        // check allowance
+        const allowance = await t.allowance(account, contractAddress);
+
+        if(allowance.lt(amount)){
+            const tx1 = await t.approve(contractAddress, ethers.constants.MaxUint256);
+            await tx1.wait();
+        }
+
+        const tx2 = await s.stake(amount);
+        await tx2.wait();
+
+        Swal.fire("Success","Staked Successfully","success");
+
+        document.getElementById("amount").value = "";
+
+    }catch(e){
+        console.log(e);
+        Swal.fire("Error","Stake Failed","error");
+    }finally{
+        btn.innerText = "Stake TRVX";
+        btn.disabled = false;
+        updateAll();
     }
+}
 
-    function updateLiveCalc() {
-        const val = document.getElementById('bnbInput').value;
-        document.getElementById('tokenPreview').innerText = val > 0 ? (val * 10000).toLocaleString() : 0;
+// ================= WITHDRAW =================
+async function withdraw(){
+    try{
+        const s = getStaking();
+
+        Swal.fire({
+            title:"Confirm Withdraw",
+            text:"Withdraw reward + payout",
+            icon:"question",
+            showCancelButton:true,
+            confirmButtonText:"Yes"
+        }).then(async (res)=>{
+            if(res.isConfirmed){
+                const tx = await s.withdraw();
+                await tx.wait();
+
+                Swal.fire("Success","Payout Done","success");
+                updateAll();
+            }
+        });
+
+    }catch(e){
+        console.log(e);
+        Swal.fire("Error","Nothing to withdraw","error");
     }
+}
 
-    async function buyTokens() {
-        const amt = document.getElementById('bnbInput').value;
-        if (!amt || amt <= 0) return Swal.fire('Error', 'Enter BNB', 'warning');
-        let ref = new URLSearchParams(window.location.search).get('ref') || "0x0000000000000000000000000000000000000000";
-        try {
-            Swal.fire({ title: 'Processing...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            const mCon = new ethers.Contract(masterAddress, ["function buyTokens(address) payable"], signer);
-            const tx = await mCon.buyTokens(ref, { value: ethers.utils.parseEther(amt.toString()) });
-            await tx.wait();
-            Swal.fire('Success', 'Tokens Purchased!', 'success');
-            updateUI();
-        } catch (err) { Swal.fire('Error', 'Failed', 'error'); }
+// ================= UPDATE =================
+async function updateAll(){
+    try{
+        if(!account || !provider) return;
+
+        const s = new ethers.Contract(contractAddress, stakingAbi, provider);
+
+        const r = await s.pendingReward(account);
+        const st = await s.getStake(account);
+
+        document.getElementById("reward").innerText =
+            parseFloat(ethers.utils.formatUnits(r || 0,18)).toFixed(4);
+
+        document.getElementById("staked").innerText =
+            parseFloat(ethers.utils.formatUnits(st[0] || 0,18)).toFixed(2);
+
+    }catch(e){
+        console.log("update error", e);
     }
+}
 
-    function copyRef() {
-        const copyText = document.getElementById("refLink");
-        copyText.select();
-        navigator.clipboard.writeText(copyText.value);
-        Swal.fire('Copied!', 'Link ready to share', 'success');
-    }
-
-    window.addEventListener('load', connect);
 </script>
+
 </body>
 </html>
-
