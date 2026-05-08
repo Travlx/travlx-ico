@@ -2,118 +2,140 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TravelX ICO | User Portal</title>
-    <!-- Stable Web3 Libraries -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelX ICO | Premium Portal</title>
     <script src="https://cloudflare.com"></script>
-    <script src="https://unpkg.com"></script>
-    <script src="https://unpkg.com"></script>
     <style>
-        body { background-color: #05070a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
-        .container { text-align: center; border: 1px solid #2d333b; padding: 40px 25px; border-radius: 28px; background: #0d1117; width: 100%; max-width: 360px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .btn { background-color: #238636; color: white; border: none; padding: 16px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; width: 100%; transition: 0.3s; margin-top: 10px; }
-        .btn:hover { background-color: #2ea043; transform: translateY(-2px); }
-        .btn-blue { background-color: #3b82f6; }
-        #dashboard { display: none; text-align: left; }
-        .info-card { background: #161b22; padding: 18px; border-radius: 14px; margin-bottom: 20px; border: 1px solid #30363d; }
-        .label { color: #8b949e; font-size: 10px; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 5px; }
-        input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #30363d; background: #010409; color: white; margin-bottom: 15px; outline: none; box-sizing: border-box; font-size: 16px; }
+        body { background-color: #05070a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .container { text-align: center; border: 1px solid #2d333b; padding: 40px; border-radius: 28px; background: #0d1117; width: 400px; box-shadow: 0 25px 60px rgba(0,0,0,0.6); transition: 0.5s ease-in-out; }
+        
+        /* Token Logo Animation */
+        .token-logo { width: 60px; height: 60px; background: linear-gradient(45deg, #58a6ff, #238636); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; box-shadow: 0 0 20px rgba(88, 166, 255, 0.4); animation: rotateLogo 5s infinite linear; }
+        @keyframes rotateLogo { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
+
+        .btn { background-color: #238636; color: white; border: none; padding: 16px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; width: 100%; transition: 0.3s; margin-top: 15px; }
+        .btn:hover { background-color: #2ea043; transform: scale(1.02); }
+        .btn-blue { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+        
+        #dashboard { display: none; text-align: left; animation: fadeIn 0.8s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .info-card { background: #161b22; padding: 18px; border-radius: 16px; margin-bottom: 15px; border: 1px solid #30363d; transition: 0.3s; }
+        .info-card:hover { border-color: #58a6ff; background: #1c2128; }
+        
+        .label { color: #8b949e; font-size: 10px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #30363d; background: #010409; color: white; margin-bottom: 10px; outline: none; box-sizing: border-box; }
+
+        /* Transaction History */
+        .history-title { font-size: 12px; color: #8b949e; margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #30363d; padding-bottom: 5px; }
+        #txList { list-style: none; padding: 0; max-height: 100px; overflow-y: auto; font-size: 11px; }
+        .tx-item { background: #0d1117; padding: 8px; border-radius: 8px; margin-bottom: 5px; border-left: 3px solid #238636; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div id="loginScreen">
-            <h1 style="color: #58a6ff; font-size: 28px; margin-bottom: 10px;">TravelX ICO</h1>
-            <p style="color: #8b949e; font-size: 14px; margin-bottom: 30px;">Connect Mobile or PC Wallet</p>
-            <button id="connectBtn" onclick="onConnect()" class="btn">Connect Wallet</button>
+            <div class="token-logo">X</div>
+            <h1 style="color: #58a6ff; font-size: 32px; margin-bottom: 5px;">TravelX</h1>
+            <p style="color: #8b949e; font-size: 14px; margin-bottom: 30px;">Premium ICO Portal</p>
+            <button id="connectBtn" onclick="connect()" class="btn">Connect Wallet</button>
         </div>
 
         <div id="dashboard">
-            <h3 style="margin-top: 0; color: #f0f6fc; font-size: 18px; margin-bottom: 20px;">User Dashboard</h3>
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                <div class="token-logo" style="width: 40px; height: 40px; font-size: 14px; margin: 0;">X</div>
+                <h3 style="margin: 0; color: #f0f6fc;">Investor Dashboard</h3>
+            </div>
+            
             <div class="info-card">
                 <span class="label">Wallet Address</span>
                 <span id="userAddress" style="color: #58a6ff; font-family: monospace; font-size: 11px; word-break: break-all;"></span>
             </div>
-            <div class="info-card">
-                <span class="label">BNB Balance</span>
-                <span id="userBalance" style="font-size: 20px; font-weight: bold;">0.000000 BNB</span>
+
+            <div class="info-card" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span class="label">BNB Balance</span>
+                    <span id="userBalance" style="font-size: 22px; font-weight: bold;">0.000000</span>
+                </div>
+                <div style="text-align: right;">
+                    <span class="label">Token Asset</span>
+                    <span style="color: #238636; font-weight: bold;">TRVX Verified</span>
+                </div>
             </div>
+
             <div style="padding-top: 5px;">
-                <span class="label">Presale: 1 BNB = 10,000 TRVX</span>
-                <input type="number" id="bnbInput" oninput="calculate()" placeholder="Amount (BNB)" step="0.01">
-                <p style="font-size: 13px; color: #58a6ff; margin-bottom: 15px;">Receive: <span id="tokenOutput" style="font-weight: bold;">0</span> TRVX</p>
-                <button onclick="buyTokens()" class="btn btn-blue">Buy TRVX Tokens</button>
+                <span class="label">Purchase Token (1 BNB = 10k TRVX)</span>
+                <input type="number" id="bnbInput" oninput="calculate()" placeholder="Amount in BNB">
+                <p style="font-size: 12px; color: #8b949e;">Estimated: <span id="tokenOutput" style="color: #58a6ff; font-weight: bold;">0</span> TRVX</p>
+                <button onclick="buyTokens()" class="btn btn-blue">Confirm Purchase</button>
             </div>
-            <button onclick="disconnect()" style="background: none; border: none; color: #f85149; cursor: pointer; font-size: 11px; width: 100%; margin-top: 25px; text-decoration: underline;">Disconnect</button>
+
+            <!-- Transaction History Section -->
+            <div class="history-title">Recent Transactions</div>
+            <div id="txList">
+                <div style="color: #484f58; text-align: center; padding: 10px;">No transactions yet</div>
+            </div>
+            
+            <button onclick="window.location.reload()" style="background: none; border: none; color: #f85149; cursor: pointer; font-size: 11px; width: 100%; margin-top: 20px; text-decoration: underline;">Logout & Disconnect</button>
         </div>
     </div>
 
     <script>
+        let signer, provider, currentAccount;
         const myWallet = "0x68211153222bf054Decb13928870523a0C4264d4";
         const rate = 10000;
-        let web3Modal, provider, signer;
-
-        // Initialize Web3Modal with WalletConnect
-        const providerOptions = {
-            walletconnect: {
-                package: WalletConnectProvider.default,
-                options: {
-                    rpc: { 56: "https://binance.org" }
-                }
-            }
-        };
-
-        web3Modal = new Web3Modal.default({
-            cacheProvider: false, 
-            providerOptions,
-            theme: "dark"
-        });
 
         function calculate() {
             const amount = document.getElementById('bnbInput').value;
             document.getElementById('tokenOutput').innerText = amount > 0 ? (amount * rate).toLocaleString() : 0;
         }
 
-        async function onConnect() {
-            try {
-                // এটি পপ-আপ ওপেন করবে যেখানে মেটামাস্ক অপশন থাকবে
-                const instance = await web3Modal.connect();
-                provider = new ethers.providers.Web3Provider(instance);
-                signer = provider.getSigner();
-                const address = await signer.getAddress();
+        async function connect() {
+            if (window.ethereum) {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    currentAccount = accounts[0];
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    signer = provider.getSigner();
+                    updateUI();
+                } catch (error) { alert("Connection failed!"); }
+            } else { alert("Install MetaMask!"); }
+        }
 
-                const balance = await provider.getBalance(address);
-                const balanceEth = ethers.utils.formatEther(balance);
-
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
-                document.getElementById('userAddress').innerText = address;
-                document.getElementById('userBalance').innerText = parseFloat(balanceEth).toFixed(6) + " BNB";
-
-            } catch (e) {
-                console.log("Modal closed");
-            }
+        async function updateUI() {
+            const balance = await provider.getBalance(currentAccount);
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('userAddress').innerText = currentAccount;
+            document.getElementById('userBalance').innerText = parseFloat(ethers.utils.formatEther(balance)).toFixed(6);
         }
 
         async function buyTokens() {
             const amount = document.getElementById('bnbInput').value;
-            if (!amount || amount <= 0) return alert("Enter valid amount!");
+            if (!amount || amount <= 0) return alert("Enter amount!");
             try {
                 const tx = await signer.sendTransaction({
                     to: myWallet,
                     value: ethers.utils.parseEther(amount.toString())
                 });
-                alert("Sent! Hash: " + tx.hash);
-            } catch (err) {
-                alert("Transaction failed!");
-            }
-        }
+                
+                // Add to History UI
+                const list = document.getElementById('txList');
+                if(list.innerText.includes("No transactions")) list.innerHTML = "";
+                const item = document.createElement('div');
+                item.className = "tx-item";
+                item.innerHTML = `<span>Buy TRVX</span> <span>${amount} BNB</span>`;
+                list.prepend(item);
 
-        function disconnect() {
-            window.location.reload();
+                alert("Transaction Sent! Hash: " + tx.hash);
+                await tx.wait();
+                updateUI();
+            } catch (err) { alert("Failed!"); }
         }
     </script>
 </body>
 </html>
+
+
 
