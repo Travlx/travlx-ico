@@ -3,256 +3,165 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TravelX Dashboard</title>
+<title>TravelX | Professional Dashboard</title>
 
+<!-- ✅ সঠিক লাইব্রেরি লিঙ্ক -->
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#0b0f19;
-  color:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  padding:20px;
-}
+:root { --primary: #00ff99; --bnb-yellow: #f3ba2f; --bg: #0b0f19; --card: #111827; --text: #ffffff; }
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+.container { width: 100%; max-width: 440px; background: var(--card); border-radius: 24px; padding: 25px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
 
-.container{
-  width:100%;
-  max-width:420px;
-  background:#111827;
-  border-radius:20px;
-  padding:20px;
-}
+/* 🌟 লোগো এনিমেশন */
+@keyframes glow { 0% { text-shadow:0 0 5px var(--primary); } 100% { text-shadow:0 0 20px var(--primary); } }
+h2 { text-align: center; color: var(--primary); animation: glow 2s infinite alternate; letter-spacing: 2px; }
 
-.logo{text-align:center;margin-bottom:15px;}
-.logo h1{color:#00ff99;}
+.box { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.05); }
+.label { font-size: 11px; color: #9ca3af; text-transform: uppercase; font-weight: bold; }
+.value { font-size: 17px; font-weight: bold; margin-top: 5px; word-break: break-all; }
 
-.box{
-  background:rgba(255,255,255,0.05);
-  padding:15px;
-  border-radius:15px;
-  margin-bottom:12px;
-}
+/* 💳 প্রিমিয়াম ট্রাভেল কার্ড */
+.travel-card { display: none; border: 1px solid var(--bnb-yellow); background: linear-gradient(135deg, #1e293b, #0f172a); position: relative; overflow: hidden; }
+.travel-card::after { content: "ELITE MEMBER"; position: absolute; right: -15px; top: 15px; background: var(--bnb-yellow); color: #000; font-size: 9px; padding: 2px 20px; transform: rotate(45deg); font-weight: bold; }
 
-.label{font-size:12px;color:#aaa;}
-.value{font-size:18px;font-weight:bold;margin-top:5px;word-break:break-all;}
-
-input{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border-radius:10px;
-  border:none;
-  background:#0d1117;
-  color:#fff;
-}
-
-button{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:10px;
-  font-weight:bold;
-  cursor:pointer;
-  margin-top:10px;
-}
-
-.primary{background:#00ff99;color:#000;}
-.blue{background:#2563eb;color:#fff;}
-
-.small{font-size:12px;color:#00ff99;margin-top:5px;}
+input { width: 100%; padding: 12px; margin-top: 10px; border-radius: 10px; border: 1px solid #1f2937; background: #0d1117; color: #fff; box-sizing: border-box; outline: none; }
+button { width: 100%; padding: 14px; border: none; border-radius: 12px; margin-top: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+button:hover { transform: scale(1.02); opacity: 0.9; }
+.primary { background: var(--primary); color: #000; }
+.blue { background: #2563eb; color: #fff; }
 </style>
 </head>
 
 <body>
 
 <div class="container">
+    <h2>TRAVELX SYSTEM</h2>
 
-  <div class="logo">
-    <h1>TRAVELX</h1>
-  </div>
+    <div id="connectArea" style="text-align:center;">
+        <button class="primary" onclick="connect()">Connect Web3 Wallet</button>
+    </div>
 
-  <div class="box">
-    <div class="label">Wallet</div>
-    <div class="value" id="wallet">Not Connected</div>
-  </div>
+    <div id="dashboardArea" style="display:none;">
+        <div class="box">
+            <div class="label">Connected Wallet</div>
+            <div class="value" id="wallet" style="color:var(--primary); font-family:monospace; font-size:14px;">0x...</div>
+        </div>
 
-  <div class="box">
-    <div class="label">Referral Link</div>
-    <input id="refLink" readonly>
-    <button class="blue" onclick="copyRef()">Copy Link</button>
-  </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <div class="box" style="margin-bottom:0;"><span class="label">BNB Balance</span><div id="bnb" class="value">0.0000</div></div>
+            <div class="box" style="margin-bottom:0;"><span class="label">TRVX Asset</span><div id="trvx" class="value" style="color:var(--primary);">0.00</div></div>
+        </div>
 
-  <div class="box">
-    <div class="label">BNB Balance</div>
-    <div class="value" id="bnb">0.0000</div>
-  </div>
+        <!-- 💳 ট্রাভেল কার্ড সেকশন -->
+        <div class="box travel-card" id="cardBox">
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="font-size: 28px;">💳</div>
+                <div>
+                    <div class="label" style="color:var(--bnb-yellow);">TravelX Privilege Pass</div>
+                    <div class="value" style="font-size: 14px;">Status: <span style="color:var(--primary);">ACTIVE (360 Days)</span></div>
+                    <div style="font-size:11px; color:#9ca3af;">Travel Discounts Enabled</div>
+                </div>
+            </div>
+        </div>
 
-  <div class="box">
-    <div class="label">TRVX Earned</div>
-    <div class="value" id="earned">0.0000</div>
-  </div>
+        <!-- স্ট্যাকিং ও ৫% রিওয়ার্ড -->
+        <div class="box" style="border: 1px dashed var(--bnb-yellow);">
+            <div style="display:flex; justify-content:space-between;">
+                <div><span class="label" style="color:var(--bnb-yellow);">Referral BNB</span><div id="earnings" class="value">0.0000 BNB</div></div>
+                <div style="text-align:right;"><span class="label" style="color:var(--bnb-yellow);">Direct Team</span><div id="refCount" class="value">0</div></div>
+            </div>
+        </div>
 
-  <div class="box">
-    <div class="label">Buy TRVX</div>
-    <input id="bnbInput" type="number" placeholder="Enter BNB">
-    <div class="small">Receive: <span id="preview">0</span> TRVX</div>
-    <button class="blue" onclick="buyTokens()">Buy Tokens</button>
-  </div>
+        <div class="box" style="border: 1px solid var(--primary);">
+            <span class="label">Stake BNB (Activate Elite Card)</span>
+            <input id="stakeInput" type="number" placeholder="Enter BNB to Stake">
+            <button class="primary" onclick="stake()">Stake & Activate Card</button>
+        </div>
 
-  <div class="box">
-    <div class="label">Stake TRVX</div>
-    <input id="stakeInput" type="number" placeholder="Enter Amount">
-    <button class="primary" onclick="stakeTokens()">Stake</button>
-  </div>
+        <!-- রেফারেল লিঙ্ক -->
+        <div class="box">
+            <span class="label">Invite Link (5% Instant BNB)</span>
+            <input id="refLink" readonly style="font-size:10px; color:var(--primary); background:transparent;">
+            <button class="blue" onclick="copyRef()">Copy Link</button>
+        </div>
 
-  <button class="primary" onclick="connectWallet()">Connect Wallet</button>
-
+        <button onclick="window.location.reload()" style="background:transparent; color:#ef4444; font-size:12px; text-decoration:underline; border:none;">Disconnect</button>
+    </div>
 </div>
 
 <script>
+let account, provider, signer;
+const CONTRACT_ADDRESS = "YOUR_CONTRACT_ADDRESS"; // এখানে আপনার কন্ট্রাক্ট অ্যাড্রেস বসান
 
-const CONTRACT_ADDRESS = "0xc7154D0B74d0804e1e637EBDB2d5dfb2F584AA81";
-const RATE = 10000;
+async function connect() {
+    if(!window.ethereum) return Swal.fire("Error","MetaMask Install করুন","error");
+    const accs = await ethereum.request({method:'eth_requestAccounts'});
+    account = accs[0];
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
 
-let provider, signer, user;
-let interval = null;
+    document.getElementById('connectArea').style.display = 'none';
+    document.getElementById('dashboardArea').style.display = 'block';
+    document.getElementById('refLink').value = window.location.origin + window.location.pathname + "?ref=" + account;
 
-/* LOADING */
-function loading(msg){
-  Swal.fire({
-    title: msg,
-    allowOutsideClick:false,
-    didOpen: () => Swal.showLoading()
-  });
-}
-
-/* CONNECT WALLET */
-async function connectWallet(){
-
-  if(!window.ethereum){
-    return Swal.fire("Error","MetaMask Install করুন","error");
-  }
-
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  const accounts = await provider.send("eth_requestAccounts",[]);
-  user = accounts[0];
-  signer = provider.getSigner();
-
-  document.getElementById("wallet").innerText =
-    user.slice(0,6)+"..."+user.slice(-4);
-
-  document.getElementById("refLink").value =
-    window.location.origin + "?ref=" + user;
-
-  update();
-
-  if(interval) clearInterval(interval);
-  interval = setInterval(update, 10000);
-}
-
-/* COPY */
-function copyRef(){
-  navigator.clipboard.writeText(document.getElementById("refLink").value);
-  Swal.fire("Copied","Referral link copied","success");
-}
-
-/* UPDATE */
-async function update(){
-  if(!user) return;
-
-  try{
-    const bal = await provider.getBalance(user);
-    document.getElementById("bnb").innerText =
-      Number(ethers.utils.formatEther(bal)).toFixed(4);
-
-    const abi = ["function totalBNBEarned(address) view returns(uint256)"];
-    const c = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
-
-    const earned = await c.totalBNBEarned(user);
-
-    document.getElementById("earned").innerText =
-      Number(ethers.utils.formatEther(earned)).toFixed(4);
-
-  }catch(e){}
-}
-
-/* PREVIEW */
-document.getElementById("bnbInput").addEventListener("input", e=>{
-  document.getElementById("preview").innerText =
-    Number(e.target.value || 0) * RATE;
-});
-
-/* BUY */
-async function buyTokens(){
-
-  const val = Number(document.getElementById("bnbInput").value);
-  if(val <= 0) return Swal.fire("Error","Invalid BNB","warning");
-
-  try{
-
-    loading("Buying Tokens...");
-
-    const ref = new URLSearchParams(location.search).get("ref");
-
-    const finalRef = ref ? ref : user;
-
-    const c = new ethers.Contract(
-      CONTRACT_ADDRESS,
-      ["function buyTokens(address) payable"],
-      signer
-    );
-
-    const tx = await c.buyTokens(finalRef,{
-      value: ethers.utils.parseEther(val.toString())
-    });
-
-    await tx.wait();
-
-    Swal.fire("Success","Purchased","success");
     update();
-
-  }catch(e){
-    Swal.fire("Error","Transaction Failed","error");
-  }
+    setInterval(update, 10000);
 }
 
-/* STAKE */
-async function stakeTokens(){
+async function update() {
+    if(!account) return;
+    try {
+        const bnbBal = await provider.getBalance(account);
+        document.getElementById('bnb').innerText = parseFloat(ethers.utils.formatEther(bnbBal)).toFixed(4);
+        document.getElementById('wallet').innerText = account.slice(0,10)+"..."+account.slice(-8);
 
-  const val = Number(document.getElementById("stakeInput").value);
-  if(val <= 0) return Swal.fire("Error","Invalid amount","warning");
+        const abi = [
+            "function balanceOf(address) view returns(uint256)",
+            "function getStake(address) view returns(uint256)",
+            "function referralEarned(address) view returns(uint256)",
+            "function referralCount(address) view returns(uint256)"
+        ];
+        const c = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
 
-  try{
+        const trvx = await c.balanceOf(account);
+        const staked = await c.getStake(account);
+        const earned = await c.referralEarned(account);
+        const count = await c.referralCount(account);
 
-    loading("Staking...");
+        document.getElementById('trvx').innerText = parseFloat(ethers.utils.formatUnits(trvx, 18)).toFixed(2);
+        document.getElementById('earnings').innerText = parseFloat(ethers.utils.formatEther(earned)).toFixed(4) + " BNB";
+        document.getElementById('refCount').innerText = count.toString();
 
-    const c = new ethers.Contract(
-      CONTRACT_ADDRESS,
-      ["function stake(uint256)"],
-      signer
-    );
-
-    const tx = await c.stake(
-      ethers.utils.parseEther(val.toString())
-    );
-
-    await tx.wait();
-
-    Swal.fire("Success","Staked","success");
-    update();
-
-  }catch(e){
-    Swal.fire("Error","Failed","error");
-  }
+        if(parseFloat(ethers.utils.formatEther(staked)) > 0) {
+            document.getElementById('cardBox').style.display = 'block';
+        }
+    } catch(e) { console.log(e); }
 }
 
+async function stake() {
+    const val = document.getElementById('stakeInput').value;
+    if(!val || val <= 0) return Swal.fire("Wait", "পরিমাণ লিখুন", "warning");
+
+    try {
+        Swal.fire({title:"Processing...", text:"Activating Travel Card", didOpen:()=>Swal.showLoading()});
+        const ref = new URLSearchParams(location.search).get("ref") || account;
+        const c = new ethers.Contract(CONTRACT_ADDRESS, ["function stake(address) payable"], signer);
+        
+        const tx = await c.stake(ref, { value: ethers.utils.parseEther(val.toString()) });
+        await tx.wait();
+
+        Swal.fire("Success", "Card Activated for 360 Days!", "success");
+        update();
+    } catch(e) { Swal.fire("Error", "Transaction Failed", "error"); }
+}
+
+function copyRef() {
+    navigator.clipboard.writeText(document.getElementById('refLink').value);
+    Swal.fire("Copied", "Share it to earn 5% BNB instantly!", "success");
+}
 </script>
-
 </body>
 </html>
+
