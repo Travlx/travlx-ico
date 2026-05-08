@@ -3,177 +3,256 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TravelX | Investor Dashboard</title>
+<title>TravelX Dashboard</title>
 
-<!-- ✅ FIXED LIBRARIES -->
-<script src="https://jsdelivr.net"></script>
-<script src="https://jsdelivr.net"></script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
-:root{ --primary:#00ff99; --bnb-yellow:#f3ba2f; --bg:#0b0f19; --card:#111827; --text:#ffffff; --dim:#9ca3af; }
-*{ margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
-body{ background:var(--bg); color:var(--text); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
-
-/* 🌟 লোগো এনিমেশন */
-@keyframes glowPulse {
-    0% { box-shadow: 0 0 10px rgba(0,255,153,0.3); transform: scale(1); }
-    50% { box-shadow: 0 0 25px rgba(0,255,153,0.6); transform: scale(1.05); }
-    100% { box-shadow: 0 0 10px rgba(0,255,153,0.3); transform: scale(1); }
-}
-.logo-circle {
-    width: 80px; height: 80px; border-radius: 50%;
-    background: linear-gradient(45deg, var(--primary), #00d4ff);
-    margin: 0 auto 20px; display: flex; justify-content: center; align-items: center;
-    font-size: 35px; font-weight: bold; color: #000;
-    animation: glowPulse 3s infinite ease-in-out;
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0b0f19;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  padding:20px;
 }
 
-.dashboard { width:100%; max-width:420px; background:var(--card); border-radius:24px; padding:25px; border:1px solid rgba(255,255,255,0.08); box-shadow:0 20px 50px rgba(0,0,0,0.5); text-align: center; }
-.top-box{ background:rgba(255,255,255,0.03); border-radius:18px; padding:15px; margin-bottom:12px; text-align:left; border:1px solid rgba(255,255,255,0.05); }
-.label{ color:var(--dim); font-size:11px; text-transform: uppercase; font-weight: bold; }
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-.stat-box { background:rgba(255,255,255,0.02); padding:12px; border-radius:15px; border:1px solid rgba(255,255,255,0.05); text-align: left; }
+.container{
+  width:100%;
+  max-width:420px;
+  background:#111827;
+  border-radius:20px;
+  padding:20px;
+}
 
-button{ width:100%; padding:14px; border:none; border-radius:12px; background:var(--primary); color:#000; font-weight:bold; cursor:pointer; margin-top:8px; transition:0.3s; }
-button:hover{ opacity: 0.8; transform: scale(1.02); }
-input{ width:100%; padding:12px; border-radius:10px; background:#0d1117; color:#fff; margin-top:8px; outline:none; border:1px solid #1f2937; box-sizing: border-box; }
-.mlm-box { border: 1px dashed var(--bnb-yellow); background: rgba(243, 186, 47, 0.05); }
-.hidden { display: none !important; }
+.logo{text-align:center;margin-bottom:15px;}
+.logo h1{color:#00ff99;}
+
+.box{
+  background:rgba(255,255,255,0.05);
+  padding:15px;
+  border-radius:15px;
+  margin-bottom:12px;
+}
+
+.label{font-size:12px;color:#aaa;}
+.value{font-size:18px;font-weight:bold;margin-top:5px;word-break:break-all;}
+
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:10px;
+  border:none;
+  background:#0d1117;
+  color:#fff;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+.primary{background:#00ff99;color:#000;}
+.blue{background:#2563eb;color:#fff;}
+
+.small{font-size:12px;color:#00ff99;margin-top:5px;}
 </style>
 </head>
 
 <body>
 
-<div class="dashboard">
-    <!-- লোগো অ্যানিমেশন -->
-    <div class="logo-circle">T</div>
-    <h2 style="color:var(--primary); margin-bottom:20px;">TravelX Investor Dashboard</h2>
+<div class="container">
 
-    <div id="connectScreen">
-        <button onclick="connect()">Connect Web3 Wallet</button>
-    </div>
+  <div class="logo">
+    <h1>TRAVELX</h1>
+  </div>
 
-    <div id="dashScreen" class="hidden">
-        <div class="top-box">
-            <span class="label">My Wallet Address</span>
-            <div id="addr" style="color:var(--primary); font-family:monospace; font-size:13px; margin-top:5px;">0x...</div>
-        </div>
+  <div class="box">
+    <div class="label">Wallet</div>
+    <div class="value" id="wallet">Not Connected</div>
+  </div>
 
-        <div class="stat-grid">
-            <div class="stat-box"><span class="label">BNB Balance</span><div id="bnb" style="font-weight:bold;">0.0000</div></div>
-            <div class="stat-box"><span class="label">TRVX Balance</span><div id="trvx" style="color:var(--primary); font-weight:bold;">0.00</div></div>
-        </div>
+  <div class="box">
+    <div class="label">Referral Link</div>
+    <input id="refLink" readonly>
+    <button class="blue" onclick="copyRef()">Copy Link</button>
+  </div>
 
-        <!-- 🌟 MLM Rewards Section -->
-        <div class="top-box mlm-box">
-            <span class="label" style="color:var(--bnb-yellow);">5% Affiliate Rewards</span>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-                <div id="earnedBNB" style="font-size:20px; font-weight:bold; color:var(--bnb-yellow);">0.0000 BNB</div>
-                <div style="text-align:right;"><span class="label">Active Team</span><div id="teamCount" style="font-weight:bold;">0</div></div>
-            </div>
-        </div>
+  <div class="box">
+    <div class="label">BNB Balance</div>
+    <div class="value" id="bnb">0.0000</div>
+  </div>
 
-        <!-- 🌟 Staking Section -->
-        <div class="top-box" style="border: 1px solid var(--primary);">
-            <span class="label">Staking Portal (18% APY)</span>
-            <div id="staked" style="font-size:20px; font-weight:bold; margin:8px 0;">0.00 TRVX</div>
-            <div style="font-size:12px; color:var(--primary); margin-bottom:10px;">Pending Reward: <span id="reward">0.0000</span> TRVX</div>
-            <input type="number" id="stakeAmt" placeholder="Amount to Stake">
-            <button onclick="stake()">Stake TRVX</button>
-        </div>
+  <div class="box">
+    <div class="label">TRVX Earned</div>
+    <div class="value" id="earned">0.0000</div>
+  </div>
 
-        <!-- Buy Tokens -->
-        <div class="top-box" style="border: 1px solid #2563eb;">
-            <span class="label" style="color:#60a5fa;">Purchase TRVX (1 BNB = 10k)</span>
-            <input type="number" id="buyAmt" placeholder="Amount in BNB">
-            <button onclick="buyTokens()" style="background:#2563eb; color:#fff;">Confirm Purchase</button>
-        </div>
+  <div class="box">
+    <div class="label">Buy TRVX</div>
+    <input id="bnbInput" type="number" placeholder="Enter BNB">
+    <div class="small">Receive: <span id="preview">0</span> TRVX</div>
+    <button class="blue" onclick="buyTokens()">Buy Tokens</button>
+  </div>
 
-        <!-- Referral Link -->
-        <div class="top-box">
-            <span class="label">Invite Link</span>
-            <input type="text" id="refLink" readonly style="font-size:10px; color:var(--primary); background:transparent;">
-            <button onclick="copyRef()" style="background:#333; color:#fff; font-size:12px;">Copy My Link</button>
-        </div>
+  <div class="box">
+    <div class="label">Stake TRVX</div>
+    <input id="stakeInput" type="number" placeholder="Enter Amount">
+    <button class="primary" onclick="stakeTokens()">Stake</button>
+  </div>
 
-        <button onclick="window.location.reload()" style="background:transparent; color:#ef4444; font-size:12px; text-decoration:underline; border:none;">Disconnect Wallet</button>
-    </div>
+  <button class="primary" onclick="connectWallet()">Connect Wallet</button>
+
 </div>
 
 <script>
-let account, provider, signer;
 
-// ✅ আপনার দেওয়া অ্যাড্রেসগুলো এখানে সেট করা হয়েছে
-const tokenAddr = "0xc7154D0B74d0804e1e637EBDB2d5dfb2F584AA81"; 
-const masterAddr = "0xc7154D0B74d0804e1e637EBDB2d5dfb2F584AA81"; // আপাতত একই অ্যাড্রেস
+const CONTRACT_ADDRESS = "0xc7154D0B74d0804e1e637EBDB2d5dfb2F584AA81";
+const RATE = 10000;
 
-const mAbi = [
-    "function totalBNBEarned(address) view returns (uint256)",
-    "function referralCount(address) view returns (uint256)",
-    "function pendingReward(address) view returns (uint256)",
-    "function getStake(address) view returns (uint256)",
-    "function buyTokens(address) payable",
-    "function stake(uint256)",
-    "function withdraw()"
-];
-const tAbi = ["function balanceOf(address) view returns (uint256)", "function approve(address,uint256) returns (bool)", "function allowance(address,address) view returns (uint256)"];
+let provider, signer, user;
+let interval = null;
 
-async function connect() {
-    if(!window.ethereum) return Swal.fire("MetaMask", "Please install MetaMask!", "error");
-    try {
-        const accs = await ethereum.request({method:'eth_requestAccounts'});
-        account = accs[0];
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
-
-        document.getElementById('connectScreen').classList.add('hidden');
-        document.getElementById('dashScreen').classList.remove('hidden');
-        
-        document.getElementById('refLink').value = window.location.origin + window.location.pathname + "?ref=" + account;
-        update();
-        setInterval(update, 10000);
-    } catch(e) { Swal.fire("Error", "Connection failed", "error"); }
+/* LOADING */
+function loading(msg){
+  Swal.fire({
+    title: msg,
+    allowOutsideClick:false,
+    didOpen: () => Swal.showLoading()
+  });
 }
 
-async function update() {
-    if(!account) return;
-    try {
-        const bnbBal = await provider.getBalance(account);
-        document.getElementById('bnb').innerText = parseFloat(ethers.utils.formatEther(bnbBal)).toFixed(4);
-        document.getElementById('addr').innerText = account.slice(0,10)+"..."+account.slice(-8);
+/* CONNECT WALLET */
+async function connectWallet(){
 
-        const t = new ethers.Contract(tokenAddr, tAbi, provider);
-        const trvx = await t.balanceOf(account);
-        document.getElementById('trvx').innerText = parseFloat(ethers.utils.formatUnits(trvx, 18)).toLocaleString();
-        
-        // মাস্টার কন্ট্রাক্ট ফাংশন কল (অ্যাড্রেস সচল থাকলে কাজ করবে)
-        const m = new ethers.Contract(masterAddr, mAbi, provider);
-        try {
-            const earned = await m.totalBNBEarned(account);
-            const count = await m.referralCount(account);
-            const reward = await m.pendingReward(account);
-            const staked = await m.getStake(account);
+  if(!window.ethereum){
+    return Swal.fire("Error","MetaMask Install করুন","error");
+  }
 
-            document.getElementById('earnedBNB').innerText = parseFloat(ethers.utils.formatEther(earned)).toFixed(4) + " BNB";
-            document.getElementById('teamCount').innerText = count.toString();
-            document.getElementById('reward').innerText = parseFloat(ethers.utils.formatUnits(reward, 18)).toFixed(4);
-            document.getElementById('staked').innerText = parseFloat(ethers.utils.formatUnits(staked, 18)).toFixed(2) + " TRVX";
-        } catch(e) { console.log("Master functions waiting for deployment..."); }
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  const accounts = await provider.send("eth_requestAccounts",[]);
+  user = accounts[0];
+  signer = provider.getSigner();
 
-    } catch(e) { console.log(e); }
+  document.getElementById("wallet").innerText =
+    user.slice(0,6)+"..."+user.slice(-4);
+
+  document.getElementById("refLink").value =
+    window.location.origin + "?ref=" + user;
+
+  update();
+
+  if(interval) clearInterval(interval);
+  interval = setInterval(update, 10000);
 }
 
-async function buyTokens() {
-    const val = document.getElementById('buyAmt').value;
-    if(!val) return Swal.fire("Wait", "Enter BNB amount", "warning");
-    Swal.fire("Processing", "Confirm in MetaMask", "info");
+/* COPY */
+function copyRef(){
+  navigator.clipboard.writeText(document.getElementById("refLink").value);
+  Swal.fire("Copied","Referral link copied","success");
 }
 
-function copyRef() {
-    navigator.clipboard.writeText(document.getElementById('refLink').value);
-    Swal.fire("Copied", "Referral link ready!", "success");
+/* UPDATE */
+async function update(){
+  if(!user) return;
+
+  try{
+    const bal = await provider.getBalance(user);
+    document.getElementById("bnb").innerText =
+      Number(ethers.utils.formatEther(bal)).toFixed(4);
+
+    const abi = ["function totalBNBEarned(address) view returns(uint256)"];
+    const c = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
+
+    const earned = await c.totalBNBEarned(user);
+
+    document.getElementById("earned").innerText =
+      Number(ethers.utils.formatEther(earned)).toFixed(4);
+
+  }catch(e){}
 }
+
+/* PREVIEW */
+document.getElementById("bnbInput").addEventListener("input", e=>{
+  document.getElementById("preview").innerText =
+    Number(e.target.value || 0) * RATE;
+});
+
+/* BUY */
+async function buyTokens(){
+
+  const val = Number(document.getElementById("bnbInput").value);
+  if(val <= 0) return Swal.fire("Error","Invalid BNB","warning");
+
+  try{
+
+    loading("Buying Tokens...");
+
+    const ref = new URLSearchParams(location.search).get("ref");
+
+    const finalRef = ref ? ref : user;
+
+    const c = new ethers.Contract(
+      CONTRACT_ADDRESS,
+      ["function buyTokens(address) payable"],
+      signer
+    );
+
+    const tx = await c.buyTokens(finalRef,{
+      value: ethers.utils.parseEther(val.toString())
+    });
+
+    await tx.wait();
+
+    Swal.fire("Success","Purchased","success");
+    update();
+
+  }catch(e){
+    Swal.fire("Error","Transaction Failed","error");
+  }
+}
+
+/* STAKE */
+async function stakeTokens(){
+
+  const val = Number(document.getElementById("stakeInput").value);
+  if(val <= 0) return Swal.fire("Error","Invalid amount","warning");
+
+  try{
+
+    loading("Staking...");
+
+    const c = new ethers.Contract(
+      CONTRACT_ADDRESS,
+      ["function stake(uint256)"],
+      signer
+    );
+
+    const tx = await c.stake(
+      ethers.utils.parseEther(val.toString())
+    );
+
+    await tx.wait();
+
+    Swal.fire("Success","Staked","success");
+    update();
+
+  }catch(e){
+    Swal.fire("Error","Failed","error");
+  }
+}
+
 </script>
+
 </body>
 </html>
-
