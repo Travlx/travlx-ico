@@ -1,219 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TravelX | 5% BNB Reward & Staking Portal</title>
-    
-    <!-- ✅ সঠিক লাইব্রেরি (এগুলো ছাড়া ড্যাশবোর্ড আসবে না) -->
-    <script src="https://jsdelivr.net"></script>
-    <script src="https://jsdelivr.net"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TravelX | Premium MLM & Staking</title>
 
-    <style>
-        :root { --primary: #00ff99; --bnb-yellow: #f3ba2f; --bg: #0b0f19; --card: #111827; --text: #ffffff; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .dashboard { width: 100%; max-width: 420px; background: var(--card); border-radius: 24px; padding: 25px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 12px; }
-        .stat-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 18px; padding: 15px; text-align: left; }
-        .top-box { background: rgba(255,255,255,0.03); border-radius: 18px; padding: 15px; margin-bottom: 12px; text-align: left; border: 1px solid rgba(255, 255, 255, 0.05); }
-        .label { color: #9ca3af; font-size: 11px; text-transform: uppercase; font-weight: bold; }
-        button { width: 100%; padding: 14px; border: none; border-radius: 12px; background: var(--primary); color: #000; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
-        input { width: 100%; padding: 12px; border: none; border-radius: 10px; background: #0d1117; color: #fff; margin-top: 8px; outline: none; border: 1px solid #1f2937; box-sizing: border-box; }
-        .affiliate-box { border: 1px dashed var(--bnb-yellow); background: rgba(243, 186, 47, 0.05); }
-        .hidden { display: none !important; }
-    </style>
+<!-- ✅ FIXED LIBRARIES -->
+<script src="https://jsdelivr.net"></script>
+<script src="https://jsdelivr.net"></script>
+
+<style>
+:root{ --primary:#00ff99; --bnb-yellow:#f3ba2f; --bg:#0b0f19; --card:#111827; --text:#ffffff; --dim:#9ca3af; }
+*{ margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
+body{ background:var(--bg); color:var(--text); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+
+/* 🌟 লোগো এনিমেশন ইফেক্ট */
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 10px rgba(0,255,153,0.2); transform: scale(1); }
+    50% { box-shadow: 0 0 25px rgba(0,255,153,0.5); transform: scale(1.05); }
+    100% { box-shadow: 0 0 10px rgba(0,255,153,0.2); transform: scale(1); }
+}
+
+.logo{ 
+    width:70px; height:70px; border-radius:50%; background:linear-gradient(45deg, var(--primary), #00bfff); 
+    display:flex; justify-content:center; align-items:center; margin:0 auto 20px; 
+    font-size:30px; font-weight:bold; color:#000; animation: pulseGlow 3s infinite ease-in-out;
+}
+
+.dashboard { width:100%; max-width:420px; background:var(--card); border-radius:24px; padding:25px; border:1px solid rgba(255,255,255,0.08); box-shadow:0 20px 50px rgba(0,0,0,0.5); }
+.top-box{ background:rgba(255,255,255,0.03); border-radius:18px; padding:15px; margin-bottom:12px; text-align:left; border:1px solid rgba(255,255,255,0.05); }
+.label{ color:var(--dim); font-size:11px; text-transform: uppercase; font-weight: bold; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.stat-box { background:rgba(255,255,255,0.02); padding:12px; border-radius:15px; border:1px solid rgba(255,255,255,0.05); }
+
+button{ width:100%; padding:14px; border:none; border-radius:12px; background:var(--primary); color:#000; font-weight:bold; cursor:pointer; margin-top:8px; transition:0.3s; }
+button:hover{ opacity: 0.8; transform: translateY(-2px); }
+input{ width:100%; padding:12px; border-radius:10px; background:#0d1117; color:#fff; margin-top:8px; outline:none; border:1px solid #1f2937; box-sizing: border-box; }
+
+.mlm-box { border: 1px dashed var(--bnb-yellow); background: rgba(243, 186, 47, 0.05); }
+</style>
 </head>
+
 <body>
 
-<div id="dashboardPage" class="dashboard">
-    <div style="font-size: 22px; font-weight: bold; color: var(--primary); margin-bottom: 20px; text-align:center;">TravelX Investor Dashboard</div>
+<div id="app" class="dashboard">
+    <div class="logo">T</div>
+    <h2 style="text-align:center; color:var(--primary); margin-bottom:20px;">TravelX Investor</h2>
 
-    <!-- Connect Wallet Section -->
-    <div id="connectArea" style="text-align:center;">
-        <button onclick="connect()">Connect Wallet</button>
+    <div id="connectScreen">
+        <button onclick="connect()">Connect Web3 Wallet</button>
     </div>
 
-    <!-- Main Dashboard Section -->
-    <div id="mainDashboard" class="hidden">
+    <div id="dashScreen" style="display:none;">
         <div class="top-box">
-            <span class="label">Connected Wallet</span>
-            <div id="walletAddress" style="color: var(--primary); font-family: monospace; font-size: 13px; margin-top: 5px;">0x...</div>
+            <span class="label">Wallet Address</span>
+            <div id="addr" style="color:var(--primary); font-family:monospace; font-size:14px; margin-top:5px;">0x...</div>
         </div>
 
         <div class="stat-grid">
-            <div class="stat-box">
-                <span class="label">My BNB</span>
-                <div id="bnbBalance" style="font-weight: bold; font-size: 16px; margin-top: 5px;">0.0000</div>
-            </div>
-            <div class="stat-box">
-                <span class="label">My TRVX</span>
-                <div id="trvxBalance" style="color: var(--primary); font-weight: bold; font-size: 16px; margin-top: 5px;">0.00</div>
+            <div class="stat-box"><span class="label">My BNB</span><div id="bnb" style="font-weight:bold;">0.0000</div></div>
+            <div class="stat-box"><span class="label">My TRVX</span><div id="trvx" style="color:var(--primary); font-weight:bold;">0.00</div></div>
+        </div>
+
+        <!-- 🌟 MLM & TEAM SECTION -->
+        <div class="top-box mlm-box">
+            <span class="label" style="color:var(--bnb-yellow);">MLM Rewards (Direct BNB)</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                <div id="earnedBNB" style="font-size:20px; font-weight:bold; color:var(--bnb-yellow);">0.0000 BNB</div>
+                <div style="text-align:right;"><span class="label">L1-L3 Team</span><div id="teamCount" style="font-weight:bold;">0</div></div>
             </div>
         </div>
 
-        <!-- 🌟 AFFILIATE & REFERRAL COUNT -->
-        <div class="stat-box affiliate-box" style="margin-bottom: 12px;">
-            <span class="label" style="color: var(--bnb-yellow);">Affiliate Program (5% BNB)</span>
-            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                <div>
-                    <span class="label" style="font-size:9px;">Referrals</span>
-                    <div id="referralCount" style="font-size: 22px; font-weight: bold; color: var(--bnb-yellow);">0</div>
-                </div>
-                <div style="text-align: right;">
-                    <span class="label" style="font-size:9px;">Earned BNB</span>
-                    <div id="bnbEarned" style="font-size: 18px; font-weight: bold; color: var(--primary);">0.0000</div>
-                    <div id="usdEarned" style="font-size: 12px; color: #9ca3af;">$0.00</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 🌟 STAKING PORTAL & REWARDS -->
-        <div class="top-box" style="border: 1px solid var(--primary); margin-top: 12px;">
+        <!-- 🌟 STAKING SECTION -->
+        <div class="top-box" style="border: 1px solid var(--primary);">
             <span class="label">Staking (18% APY)</span>
-            <div id="stakedDisplay" style="font-size: 18px; font-weight: bold; margin: 10px 0;">0.00 TRVX Staked</div>
-            
-            <div style="background: rgba(0, 255, 153, 0.05); padding: 10px; border-radius: 10px; margin-bottom: 10px;">
-                <span class="label" style="font-size:9px; color:var(--primary);">Pending Staking Reward</span>
-                <div style="font-size: 18px; font-weight: bold;"><span id="pendingReward">0.0000</span> TRVX</div>
-            </div>
-
-            <input type="number" id="stakeInput" placeholder="Amount to stake">
-            <button onclick="stakeTokens()">Stake TRVX</button>
-            <button onclick="withdraw()" style="background: transparent; color: #9ca3af; border: 1px solid #374151; margin-top: 8px;">Withdraw (All-in-One)</button>
+            <div id="staked" style="font-size:20px; font-weight:bold; margin:8px 0;">0.00 TRVX</div>
+            <div style="font-size:12px; color:var(--primary); margin-bottom:10px;">Pending: <span id="reward">0.0000</span> TRVX</div>
+            <input type="number" id="stakeAmt" placeholder="Amount to Stake">
+            <button onclick="stakeTokens()">Stake Now</button>
+            <button onclick="withdrawAll()" style="background:transparent; color:var(--dim); border:1px solid #333; font-size:12px;">Withdraw All</button>
         </div>
 
-        <!-- Purchase Tokens -->
+        <!-- BUY SECTION -->
         <div class="top-box" style="border: 1px solid #2563eb;">
-            <span class="label" style="color: #60a5fa;">Step 1: Purchase TRVX</span>
-            <input type="number" id="bnbInput" oninput="calc()" placeholder="Amount in BNB">
-            <p style="font-size: 12px; margin-top: 8px; color: #9ca3af;">Receive: <span id="preview" style="color: var(--primary); font-weight: bold;">0</span> TRVX</p>
-            <button onclick="buy()" style="background: #2563eb; color: white;">Confirm Purchase</button>
+            <span class="label" style="color:#60a5fa;">Buy TRVX (1 BNB = 10k)</span>
+            <input type="number" id="buyAmt" placeholder="BNB Amount">
+            <button onclick="buyTokens()" style="background:#2563eb; color:#fff;">Confirm Purchase</button>
         </div>
 
-        <!-- Referral Link -->
+        <!-- REFERRAL -->
         <div class="top-box">
             <span class="label">Your Invite Link</span>
-            <input type="text" id="refLink" readonly style="font-size: 10px; background: #0b0f19; color: var(--primary);">
-            <button onclick="copyRef()" style="background: #374151; color: white; margin-top:10px;">Copy Link</button>
+            <input type="text" id="refLink" readonly style="font-size:10px; color:var(--primary);">
+            <button onclick="copyRef()" style="background:#333; color:#fff; font-size:12px;">Copy Link</button>
         </div>
 
-        <button onclick="window.location.reload()" style="background:transparent; color:#ef4444; font-size:12px; text-decoration:underline; border:none;">Disconnect Wallet</button>
+        <button onclick="window.location.reload()" style="background:transparent; color:#ef4444; font-size:12px; text-decoration:underline; border:none;">Logout</button>
     </div>
 </div>
 
 <script>
-    let account, provider, signer;
+let account, provider, signer;
+const masterAddr = "YOUR_MASTER_ADDRESS";
+const tokenAddr = "YOUR_TOKEN_ADDRESS";
 
-    // 🔧 আপনার কন্ট্রাক্ট অ্যাড্রেসগুলো এখানে বসান
-    const masterAddr = "YOUR_MASTER_CONTRACT_ADDRESS"; 
-    const tokenAddr = "YOUR_TOKEN_CONTRACT_ADDRESS";
-    const bnbPrice = 600; // লাইভ বিএনবি প্রাইস
+// ABIs
+const mAbi = [
+    "function totalBNBEarned(address) view returns (uint256)",
+    "function referralCount(address) view returns (uint256)",
+    "function pendingReward(address) view returns (uint256)",
+    "function getStake(address) view returns (uint256)",
+    "function buyTokens(address) payable",
+    "function stake(uint256)",
+    "function withdraw()"
+];
+const tAbi = ["function balanceOf(address) view returns (uint256)", "function approve(address,uint256) returns (bool)", "function allowance(address,address) view returns (uint256)"];
 
-    // ABIs
-    const mABI = [
-        "function totalBNBEarned(address) view returns (uint256)",
-        "function referralCount(address) view returns (uint256)",
-        "function pendingReward(address) view returns (uint256)",
-        "function getStake(address) view returns (uint256)",
-        "function buyTokens(address) payable",
-        "function stake(uint256)",
-        "function withdraw()"
-    ];
-    const tABI = [
-        "function balanceOf(address) view returns (uint256)",
-        "function approve(address,uint256) returns (bool)",
-        "function allowance(address,address) view returns (uint256)"
-    ];
+async function connect() {
+    if(!window.ethereum) return Swal.fire("MetaMask", "Not found!", "error");
+    const accs = await ethereum.request({method:'eth_requestAccounts'});
+    account = accs[0];
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
 
-    async function connect() {
-        if (!window.ethereum) return Swal.fire("Error", "MetaMask install koren", "error");
-        const accs = await ethereum.request({ method: 'eth_requestAccounts' });
-        account = accs[0];
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
+    document.getElementById('connectScreen').style.display='none';
+    document.getElementById('dashScreen').style.display='block';
+    
+    document.getElementById('refLink').value = window.location.origin + window.location.pathname + "?ref=" + account;
+    update();
+    setInterval(update, 10000);
+}
 
-        document.getElementById('connectArea').style.display = 'none';
-        document.getElementById('mainDashboard').classList.remove('hidden');
-        
-        update();
-        setInterval(update, 10000); // ১০ সেকেন্ড পর পর আপডেট
-        document.getElementById('refLink').value = window.location.origin + window.location.pathname + "?ref=" + account;
-    }
+async function update() {
+    if(!account) return;
+    try {
+        const bnbBal = await provider.getBalance(account);
+        document.getElementById('bnb').innerText = parseFloat(ethers.utils.formatEther(bnbBal)).toFixed(4);
+        document.getElementById('addr').innerText = account.slice(0,10)+"..."+account.slice(-8);
 
-    async function update() {
-        if (!account) return;
-        try {
-            const bnb = await provider.getBalance(account);
-            document.getElementById('bnbBalance').innerText = parseFloat(ethers.utils.formatEther(bnb)).toFixed(4);
-            document.getElementById('walletAddress').innerText = account.slice(0,6)+"..."+account.slice(-4);
+        const m = new ethers.Contract(masterAddr, mAbi, provider);
+        const t = new ethers.Contract(tokenAddr, tAbi, provider);
 
-            const m = new ethers.Contract(masterAddr, mABI, provider);
-            const t = new ethers.Contract(tokenAddr, tABI, provider);
+        const trvx = await t.balanceOf(account);
+        const earned = await m.totalBNBEarned(account);
+        const count = await m.referralCount(account);
+        const reward = await m.pendingReward(account);
+        const staked = await m.getStake(account);
 
-            const trvx = await t.balanceOf(account);
-            const earned = await m.totalBNBEarned(account);
-            const count = await m.referralCount(account);
-            const reward = await m.pendingReward(account);
-            const staked = await m.getStake(account);
+        document.getElementById('trvx').innerText = parseFloat(ethers.utils.formatUnits(trvx, 18)).toLocaleString();
+        document.getElementById('earnedBNB').innerText = parseFloat(ethers.utils.formatEther(earned)).toFixed(4) + " BNB";
+        document.getElementById('teamCount').innerText = count.toString();
+        document.getElementById('reward').innerText = parseFloat(ethers.utils.formatUnits(reward, 18)).toFixed(4);
+        document.getElementById('staked').innerText = parseFloat(ethers.utils.formatUnits(staked, 18)).toFixed(2) + " TRVX";
+    } catch(e) { console.log(e); }
+}
 
-            document.getElementById('trvxBalance').innerText = parseFloat(ethers.utils.formatUnits(trvx, 18)).toFixed(2);
-            document.getElementById('bnbEarned').innerText = parseFloat(ethers.utils.formatEther(earned)).toFixed(4);
-            document.getElementById('usdEarned').innerText = "$" + (ethers.utils.formatEther(earned) * bnbPrice).toFixed(2);
-            document.getElementById('referralCount').innerText = count.toString();
-            document.getElementById('pendingReward').innerText = parseFloat(ethers.utils.formatUnits(reward, 18)).toFixed(4);
-            document.getElementById('stakedDisplay').innerText = parseFloat(ethers.utils.formatUnits(staked, 18)).toFixed(2) + " TRVX Staked";
-        } catch (e) { console.log(e); }
-    }
+async function buyTokens() {
+    const val = document.getElementById('buyAmt').value;
+    const ref = new URLSearchParams(window.location.search).get('ref') || "0x0000000000000000000000000000000000000000";
+    const m = new ethers.Contract(masterAddr, mAbi, signer);
+    await (await m.buyTokens(ref, {value: ethers.utils.parseEther(val)})).wait();
+    Swal.fire("Success", "Tokens Purchased!", "success");
+}
 
-    function calc() {
-        const v = document.getElementById('bnbInput').value;
-        document.getElementById('preview').innerText = (v * 10000).toLocaleString();
-    }
+async function stakeTokens() {
+    const val = document.getElementById('stakeAmt').value;
+    const amt = ethers.utils.parseUnits(val, 18);
+    const t = new ethers.Contract(tokenAddr, tAbi, signer);
+    const m = new ethers.Contract(masterAddr, mAbi, signer);
+    await (await t.approve(masterAddr, amt)).wait();
+    await (await m.stake(amt)).wait();
+    Swal.fire("Success", "Staked!", "success");
+}
 
-    function copyRef() {
-        const c = document.getElementById("refLink");
-        c.select();
-        document.execCommand("copy");
-        Swal.fire('Copied!', 'Invite link copied', 'success');
-    }
+async function withdrawAll() {
+    const m = new ethers.Contract(masterAddr, mAbi, signer);
+    await (await m.withdraw()).wait();
+    Swal.fire("Success", "Withdrawn!", "success");
+}
 
-    async function buy() {
-        const v = document.getElementById('bnbInput').value;
-        const ref = new URLSearchParams(window.location.search).get('ref') || "0x0000000000000000000000000000000000000000";
-        try {
-            const m = new ethers.Contract(masterAddr, mABI, signer);
-            const tx = await m.buyTokens(ref, { value: ethers.utils.parseEther(v.toString()) });
-            await tx.wait();
-            Swal.fire('Success', 'Tokens Purchased!', 'success');
-            update();
-        } catch (e) { Swal.fire('Error', 'Failed', 'error'); }
-    }
-
-    async function stakeTokens() {
-        const v = document.getElementById('stakeInput').value;
-        const amt = ethers.utils.parseUnits(v.toString(), 18);
-        try {
-            const t = new ethers.Contract(tokenAddr, tABI, signer);
-            const m = new ethers.Contract(masterAddr, mABI, signer);
-            
-            const allowance = await t.allowance(account, masterAddr);
-            if(allowance.lt(amt)) {
-                await (await t.approve(masterAddr, ethers.constants.MaxUint256)).wait();
-            }
-            await (await m.stake(amt)).wait();
-            Swal.fire('Success', 'Tokens Staked!', 'success');
-            update();
-        } catch (e) { Swal.fire('Error', 'Stake Failed', 'error'); }
-    }
-
-    async function withdraw() {
-        try {
-            const m = new ethers.Contract(masterAddr, mABI, signer);
-            await (await m.withdraw()).wait();
-            Swal.fire('Success', 'Withdrawn Everything!', 'success');
-            update();
-        } catch (e) { Swal.fire('Error', 'Nothing to withdraw', 'error'); }
-    }
+function copyRef() {
+    navigator.clipboard.writeText(document.getElementById('refLink').value);
+    Swal.fire("Copied", "Link ready!", "success");
+}
 </script>
 </body>
 </html>
