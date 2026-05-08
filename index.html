@@ -3,81 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TravelX | 3-Level MLM Pro Dashboard</title>
+    <title>TravelX | Simple Referral Portal</title>
     <script src="https://ethers.io"></script>
     <script src="https://jsdelivr.net"></script>
     <style>
-        :root { --primary: #00ff99; --bg: #0b0f19; --card: #111827; --text: #ffffff; --dim: #9ca3af; --blue: #3b82f6; }
+        :root { --primary: #00ff99; --bg: #0b0f19; --card: #111827; --text: #ffffff; }
         body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .dashboard { width: 100%; max-width: 430px; background: var(--card); border-radius: 26px; padding: 25px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 25px 60px rgba(0,0,0,0.6); }
-        .top-box { background: rgba(255,255,255,0.03); border-radius: 18px; padding: 18px; margin-bottom: 15px; text-align: left; border: 1px solid rgba(255,255,255,0.05); }
-        .label { color: var(--dim); font-size: 11px; text-transform: uppercase; font-weight: bold; }
+        .dashboard { width: 100%; max-width: 400px; background: var(--card); border-radius: 24px; padding: 25px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .top-box { background: rgba(255,255,255,0.03); border-radius: 18px; padding: 18px; margin-bottom: 12px; text-align: left; border: 1px solid rgba(255,255,255,0.05); }
+        .label { color: #9ca3af; font-size: 11px; text-transform: uppercase; font-weight: bold; }
         #walletAddress { color: var(--primary); font-family: 'Courier New', monospace; font-size: 15px; font-weight: bold; margin-top: 8px; word-break: break-all; }
-        .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 15px; }
-        .stat-box { background: #0d1117; padding: 15px; border-radius: 16px; border: 1px solid #1f2937; text-align: left; }
-        button { width: 100%; padding: 14px; border: none; border-radius: 14px; background: var(--primary); color: #000; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
-        input { width: 100%; padding: 14px; border-radius: 12px; background: #0d1117; color: #fff; margin-top: 10px; outline: none; border: 1px solid #1f2937; }
-        .mlm-box { border: 1px dashed #f3ba2f; background: rgba(243, 186, 47, 0.05); }
+        button { width: 100%; padding: 14px; border: none; border-radius: 12px; background: var(--primary); color: #000; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        input { width: 100%; padding: 12px; border: none; border-radius: 10px; background: #0d1117; color: #fff; margin-top: 8px; outline: none; border: 1px solid #1f2937; }
     </style>
 </head>
 <body>
 
 <div id="dashboardPage" class="dashboard">
-    <div style="font-size: 24px; font-weight: bold; color: var(--primary); margin-bottom: 20px; text-align:center;">TravelX MLM Dashboard</div>
+    <div style="font-size: 22px; font-weight: bold; color: var(--primary); margin-bottom: 20px; text-align:center;">TravelX Investor Dashboard</div>
 
-    <!-- ওয়ালেট অ্যাড্রেস (বড় ভিউ) -->
+    <!-- ওয়ালেট অ্যাড্রেস (বড় এবং স্পষ্ট) -->
     <div class="top-box">
         <span class="label">Connected Wallet</span>
         <div id="walletAddress">0x...</div>
     </div>
 
     <!-- ব্যালেন্স গ্রিড -->
-    <div class="stat-grid">
-        <div class="stat-box"><span class="label">My BNB</span><div id="bnbBalance" style="font-weight:bold; font-size:16px;">0.0000</div></div>
-        <div class="stat-box"><span class="label">My TRVX</span><div id="trvxBalance" style="color:var(--primary); font-weight:bold; font-size:16px;">0.00</div></div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+        <div class="top-box" style="margin-bottom:0;"><span class="label">My BNB</span><div id="bnbBalance" style="font-weight:bold;">0.0000</div></div>
+        <div class="top-box" style="margin-bottom:0;"><span class="label">My TRVX</span><div id="trvxBalance" style="color:var(--primary); font-weight:bold;">0.00</div></div>
     </div>
 
-    <!-- MLM ইনকাম ও টিম কাউন্ট -->
-    <div class="top-box mlm-box">
-        <span class="label" style="color: #f3ba2f;">Total MLM Rewards (Direct BNB)</span>
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 5px;">
-            <div id="mlmEarnings" style="font-size: 22px; font-weight: bold; color: #f3ba2f;">0.0000 BNB</div>
-            <span style="font-size: 10px; color: var(--dim);">3 LEVELS ACTIVE</span>
-        </div>
-    </div>
-
-    <div class="stat-grid">
-        <div class="stat-box" style="border-left: 3px solid var(--primary);"><span class="label">L1 Team</span><div id="l1Count" style="font-weight:bold;">0 Members</div></div>
-        <div class="stat-box" style="border-left: 3px solid var(--blue);"><span class="label">L2 & L3 Team</span><div id="lxCount" style="font-weight:bold;">0 Members</div></div>
-    </div>
-
-    <!-- বাই সেকশন -->
-    <div class="top-box" style="border: 1px solid var(--blue);">
-        <span class="label" style="color: var(--blue);">Step 1: Purchase TRVX</span>
+    <!-- টোকেন কেনা -->
+    <div class="top-box" style="border: 1px solid #2563eb;">
+        <span class="label" style="color: #60a5fa;">Purchase TRVX (1 BNB = 10k)</span>
         <input type="number" id="bnbInput" oninput="updateLiveCalc()" placeholder="Amount in BNB">
-        <p style="font-size: 11px; margin-top: 8px; color: var(--dim);">Receive: <span id="tokenPreview" style="color:var(--primary); font-weight:bold;">0</span> TRVX</p>
-        <button onclick="buyTokens()" style="background: var(--blue); color: white;">Confirm Purchase</button>
+        <p style="font-size: 11px; margin-top: 8px; color: gray;">Receive: <span id="tokenPreview" style="color:var(--primary); font-weight:bold;">0</span> TRVX</p>
+        <button onclick="buyTokens()" style="background: #2563eb; color: white;">Confirm Purchase</button>
     </div>
 
-    <!-- রেফারেল লিঙ্ক (FIXED) -->
+    <!-- রেফারেল লিংক (Fixed & Clear) -->
     <div class="top-box">
-        <span class="label">Your Invite Link (5% - 2% - 1%)</span>
+        <span class="label">Your Referral Link (5% Bonus)</span>
         <input type="text" id="refLink" readonly style="font-size: 10px; background: #0b0f19; color: var(--primary);">
-        <button onclick="copyRef()" style="background: #374151; color: white;">Copy My Link</button>
+        <button onclick="copyRef()" style="background: #374151; color: white;">Copy Link</button>
     </div>
 </div>
 
 <script>
-    let currentAccount = null;
+    let currentAccount = "";
     let provider, signer;
 
+    // --- CONFIGURATION ---
     const masterAddress = "YOUR_MASTER_CONTRACT_ADDRESS";
     const tokenAddress = "YOUR_TOKEN_CONTRACT_ADDRESS";
 
     async function connect() {
         if (window.ethereum) {
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            currentAccount = accounts[0]; // সঠিক অ্যাড্রেস ফরম্যাট ফিক্স
+            currentAccount = accounts[0]; // সরাসরি প্রথম অ্যাড্রেস ফিক্স
             provider = new ethers.providers.Web3Provider(window.ethereum);
             signer = provider.getSigner();
             updateUI();
@@ -88,25 +72,16 @@
     async function updateUI() {
         if (!currentAccount) return;
         try {
-            // ১. বড় অ্যাড্রেস ডিসপ্লে (১২+১০ ফরম্যাট)
-            const addrDisplay = currentAccount.substring(0, 12) + "..." + currentAccount.slice(-10);
-            document.getElementById('walletAddress').innerText = addrDisplay;
+            // ১. বড় অ্যাড্রেস ডিসপ্লে (১০+৮ ফরম্যাট)
+            document.getElementById('walletAddress').innerText = currentAccount.substring(0, 12) + "..." + currentAccount.slice(-10);
 
-            // ২. ব্যালেন্স ও টিম কাউন্ট ফেচ
+            // ২. ব্যালেন্স ফেচ
             const bnb = await provider.getBalance(currentAccount);
             document.getElementById('bnbBalance').innerText = parseFloat(ethers.utils.formatEther(bnb)).toFixed(4);
 
-            const mCon = new ethers.Contract(masterAddress, [
-                "function totalBNBEarned(address) view returns (uint256)",
-                "function userTeams(address) view returns (uint256 l1, uint256 l2, uint256 l3)"
-            ], provider);
-
-            const team = await mCon.userTeams(currentAccount);
-            document.getElementById('l1Count').innerText = team.l1.toString() + " Members";
-            document.getElementById('lxCount').innerText = (Number(team.l2) + Number(team.l3)).toString() + " Members";
-
-            const earned = await mCon.totalBNBEarned(currentAccount);
-            document.getElementById('mlmEarnings').innerText = parseFloat(ethers.utils.formatEther(earned)).toFixed(4) + " BNB";
+            const tCon = new ethers.Contract(tokenAddress, ["function balanceOf(address) view returns (uint256)"], provider);
+            const trvxBal = await tCon.balanceOf(currentAccount);
+            document.getElementById('trvxBalance').innerText = parseFloat(ethers.utils.formatUnits(trvxBal, 18)).toLocaleString();
 
             // ৩. রেফারেল লিঙ্ক জেনারেট (FIXED)
             document.getElementById('refLink').value = window.location.origin + window.location.pathname + "?ref=" + currentAccount;
@@ -120,13 +95,14 @@
 
     async function buyTokens() {
         const amt = document.getElementById('bnbInput').value;
+        if (!amt || amt <= 0) return Swal.fire('Error', 'Enter BNB', 'warning');
         let ref = new URLSearchParams(window.location.search).get('ref') || "0x0000000000000000000000000000000000000000";
         try {
-            Swal.fire({ title: 'Processing Purchase', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: 'Processing...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             const mCon = new ethers.Contract(masterAddress, ["function buyTokens(address) payable"], signer);
             const tx = await mCon.buyTokens(ref, { value: ethers.utils.parseEther(amt.toString()) });
             await tx.wait();
-            Swal.fire('Success', 'Multi-Level Commission Distributed!', 'success');
+            Swal.fire('Success', 'Tokens Purchased!', 'success');
             updateUI();
         } catch (err) { Swal.fire('Error', 'Failed', 'error'); }
     }
@@ -135,7 +111,7 @@
         const copyText = document.getElementById("refLink");
         copyText.select();
         navigator.clipboard.writeText(copyText.value);
-        Swal.fire('Copied!', 'Link ready to share!', 'success');
+        Swal.fire('Copied!', 'Link ready to share', 'success');
     }
 
     window.addEventListener('load', connect);
