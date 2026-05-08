@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TravelX | Full Investor Portal</title>
+<title>TravelX | Full ICO & Staking Portal</title>
 
-<!-- ✅ FIXED LIBRARIES -->
-<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- ✅ সঠিক লাইব্রেরি -->
+<script src="https://jsdelivr.net"></script>
+<script src="https://jsdelivr.net"></script>
 
 <style>
     :root{ --primary:#00ff99; --bnb-yellow:#f3ba2f; --bg:#0b0f19; --card:#111827; --text:#ffffff; --dim:#9ca3af; --blue:#2563eb; }
-    *{ margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+    *{ margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
     body{ background:var(--bg); color:var(--text); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
     
     .container { width:100%; max-width:440px; background:var(--card); border-radius:28px; padding:25px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 20px 60px rgba(0,0,0,0.6); text-align: center; }
@@ -21,19 +21,20 @@
     .logo h1 { font-size:30px; color:var(--primary); letter-spacing:4px; animation: glow 2s infinite alternate; margin-bottom: 20px; }
 
     .box{ background:rgba(255,255,255,0.03); padding:15px; border-radius:18px; margin-bottom:12px; text-align:left; border:1px solid rgba(255,255,255,0.05); }
-    .label{ color:var(--dim); font-size:11px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
-    .value{ font-size:18px; font-weight:bold; margin-top:5px; }
+    .label{ color:var(--dim); font-size:10px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
+    .value{ font-size:17px; font-weight:bold; margin-top:5px; }
 
-    /* 💳 ট্রাভেল কার্ড ডিজাইন (গোল্ডেন বর্ডার) */
+    /* 💳 ট্রাভেল কার্ড ডিজাইন */
     .travel-card { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid var(--bnb-yellow); display: none; margin-top: 10px; }
 
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
     input{ width:100%; padding:14px; border-radius:12px; background:#0d1117; color:#fff; margin-top:10px; outline:none; border:1px solid #1f2937; box-sizing: border-box; }
-    button{ width:100%; padding:14px; border:none; border-radius:14px; background:var(--primary); color:#000; font-weight:bold; cursor:pointer; margin-top:10px; transition:0.3s; }
+    button{ width:100%; padding:14px; border:none; border-radius:14px; background:var(--primary); color:#000; font-weight:bold; cursor:pointer; margin-top:10px; transition: 0.3s; }
     button:hover{ transform: scale(1.02); opacity: 0.9; }
     
+    .buy-box { border: 1px solid var(--blue); background: rgba(37, 99, 235, 0.03); }
     .blue-btn { background: var(--blue); color: #fff; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-    .small-text { font-size: 12px; color: var(--primary); margin-top: 8px; font-weight: bold; }
+    .preview-text { font-size: 12px; color: var(--primary); margin-top: 8px; font-weight: bold; }
 </style>
 </head>
 
@@ -42,19 +43,27 @@
 <div class="container">
     <div class="logo"><h1>TRAVELX</h1></div>
 
-    <div id="connectScreen">
+    <div id="connectArea">
         <button onclick="connect()">Connect Web3 Wallet</button>
     </div>
 
-    <div id="dashScreen" style="display:none;">
+    <div id="dashArea" style="display:none;">
         
-        <!-- ওয়ালেট ব্যালেন্স -->
+        <!-- ওয়ালেট ব্যালেন্স তথ্য -->
         <div class="grid">
             <div class="box" style="margin-bottom:0;"><span class="label">BNB Balance</span><div id="bnbBal" class="value">0.0000</div></div>
             <div class="box" style="margin-bottom:0;"><span class="label">TRVX Asset</span><div id="trvxBal" class="value" style="color:var(--primary);">0.00</div></div>
         </div>
 
-        <!-- 🌟 ৫% রিওয়ার্ড ও টিম কাউন্ট -->
+        <!-- 💰 টোকেন ক্রয় সেকশন (এখন আরও স্পষ্ট) -->
+        <div class="box buy-box">
+            <span class="label" style="color:#60a5fa;">Token Sale (1 BNB = 10,000 TRVX)</span>
+            <input type="number" id="buyAmount" oninput="calcTokens()" placeholder="Enter BNB to Buy Tokens">
+            <div class="preview-text">Estimated Receive: <span id="tokenPreview">0</span> TRVX</div>
+            <button class="blue-btn" onclick="buyTokens()">Buy TRVX Tokens</button>
+        </div>
+
+        <!-- 🌟 ৫% রেফারেল ইনকাম -->
         <div class="box" style="border: 1px dashed var(--bnb-yellow); background: rgba(243,186,47,0.03);">
             <div style="display: flex; justify-content: space-between;">
                 <div><span class="label" style="color:var(--bnb-yellow);">Team Size</span><div id="teamCount" class="value">0 Users</div></div>
@@ -62,47 +71,38 @@
             </div>
         </div>
 
-        <!-- 🌟 টোকেন কেনা (Step 1) -->
-        <div class="box" style="border: 1px solid var(--blue);">
-            <span class="label" style="color:#60a5fa;">Step 1: Buy TRVX (1 BNB = 10k)</span>
-            <input type="number" id="buyAmount" oninput="calcTokens()" placeholder="Enter BNB Amount">
-            <div class="small-text">Estimated Receive: <span id="tokenPreview">0</span> TRVX</div>
-            <button class="blue-btn" onclick="buyTokens()">Purchase Tokens</button>
-        </div>
-
-        <!-- 🌟 স্ট্যাকিং ও ট্রাভেল কার্ড (Step 2) -->
+        <!-- 🌟 স্ট্যাকিং পোর্টাল -->
         <div class="box" style="border: 1px solid var(--primary);">
-            <span class="label">Step 2: Stake & Activate Card</span>
+            <span class="label">Stake TRVX (Get Travel Card)</span>
             <input type="number" id="stakeAmount" placeholder="Enter TRVX to Stake">
             <button onclick="stake()">Activate Card & Stake</button>
         </div>
 
-        <!-- 💳 ডিজিটাল ট্রাভেল কার্ড -->
+        <!-- 💳 ডিজিটাল ট্রাভেল কার্ড (সোনালী পাস) -->
         <div id="travelCard" class="box travel-card">
             <div style="display: flex; gap: 15px; align-items: center;">
                 <div style="font-size: 30px;">💳</div>
                 <div style="text-align:left;">
                     <div class="label" style="color:var(--bnb-yellow);">TravelX Elite Pass</div>
-                    <div style="font-weight:bold; font-size:14px; color:#fff;">Status: <span style="color:var(--primary);">ACTIVE (360 Days)</span></div>
-                    <div style="font-size:10px; color:var(--dim);">Worldwide Discount Activated</div>
+                    <div style="font-weight:bold; font-size:14px; color:#fff;">Status: <span style="color:var(--primary);">ACTIVE</span></div>
+                    <div style="font-size:10px; color:var(--dim);">360 Days Travel Discount Active</div>
                 </div>
             </div>
         </div>
 
-        <!-- ইনভাইট লিঙ্ক -->
+        <!-- রেফারেল লিঙ্ক -->
         <div class="box">
-            <span class="label">Invite Link (5% Instant BNB)</span>
+            <span class="label">Your Invite Link (5% BNB Commission)</span>
             <input type="text" id="refLink" readonly style="font-size:10px; color:var(--primary); background:transparent;">
             <button style="background:#333; color:#fff; font-size:12px;" onclick="copyRef()">Copy Referral Link</button>
         </div>
 
-        <button onclick="window.location.reload()" style="background:transparent; color:#ef4444; font-size:12px; text-decoration:underline; border:none;">Logout / Disconnect</button>
+        <button onclick="window.location.reload()" style="background:transparent; color:#ef4444; font-size:12px; text-decoration:underline; border:none;">Disconnect Wallet</button>
     </div>
 </div>
 
 <script>
     let account, provider, signer;
-    // ✅ আপনার দেওয়া কন্ট্রাক্ট অ্যাড্রেস
     const CONTRACT_ADDRESS = "0xc7154D0B74d0804e1e637EBDB2d5dfb2F584AA81"; 
     const RATE = 10000;
 
@@ -113,8 +113,8 @@
         provider = new ethers.providers.Web3Provider(window.ethereum);
         signer = provider.getSigner();
 
-        document.getElementById('connectScreen').style.display = 'none';
-        document.getElementById('dashScreen').style.display = 'block';
+        document.getElementById('connectArea').style.display = 'none';
+        document.getElementById('dashArea').style.display = 'block';
         document.getElementById('refLink').value = window.location.origin + window.location.pathname + "?ref=" + account;
 
         update();
@@ -141,10 +141,9 @@
             const staked = await c.getStake(account);
 
             document.getElementById('trvxBal').innerText = parseFloat(ethers.utils.formatUnits(trvx, 18)).toLocaleString();
-            document.getElementById('earnedBNB').innerText = parseFloat(ethers.utils.formatEther(earn)).toFixed(4) + " BNB";
+            document.getElementById('earnedBNB').innerText = parseFloat(ethers.utils.formatEther(earn)).toFixed(4);
             document.getElementById('teamCount').innerText = team.toString();
 
-            // ট্রাভেল কার্ড শো করার লজিক (যদি স্ট্যাকিং থাকে)
             if(parseFloat(ethers.utils.formatUnits(staked, 18)) > 0) {
                 document.getElementById('travelCard').style.display = 'block';
             }
@@ -153,39 +152,45 @@
 
     function calcTokens() {
         const val = document.getElementById('buyAmount').value;
-        document.getElementById('tokenPreview').innerText = (val * RATE).toLocaleString();
+        document.getElementById('tokenPreview').innerText = (Number(val) * RATE).toLocaleString();
     }
 
     async function buyTokens() {
         const val = document.getElementById('buyAmount').value;
-        if(!val || val <= 0) return Swal.fire("Wait", "পরিমাণ লিখুন", "warning");
+        if(!val || val <= 0) return Swal.fire("Wait", "BNB পরিমাণ লিখুন", "warning");
         try {
-            Swal.fire({title: 'Processing...', text: 'Confirming Token Purchase', didOpen: () => Swal.showLoading()});
+            Swal.fire({title: 'Processing...', text: 'টোকেন কেনা হচ্ছে', didOpen: () => Swal.showLoading()});
             const ref = new URLSearchParams(location.search).get("ref") || account;
             const c = new ethers.Contract(CONTRACT_ADDRESS, ["function buyTokens(address) payable"], signer);
             const tx = await c.buyTokens(ref, { value: ethers.utils.parseEther(val.toString()) });
             await tx.wait();
-            Swal.fire("Success", "Tokens Bought & Reward Sent!", "success");
+            Swal.fire("Success", "টোকেন কেনা সফল হয়েছে এবং রেফারাল বোনাস পাঠানো হয়েছে।", "success");
             update();
         } catch(e) { Swal.fire("Error", "Transaction Failed", "error"); }
     }
 
     async function stake() {
         const val = document.getElementById('stakeAmount').value;
-        if(!val || val <= 0) return Swal.fire("Wait", "পরিমাণ লিখুন", "warning");
+        if(!val || val <= 0) return Swal.fire("Wait", "টোকেন পরিমাণ লিখুন", "warning");
         try {
             Swal.fire({title: 'Processing...', text: 'Confirming Stake', didOpen: () => Swal.showLoading()});
+            const amount = ethers.utils.parseUnits(val.toString(), 18);
+            
+            // Approve tokens first
+            const tokenCon = new ethers.Contract(CONTRACT_ADDRESS, ["function approve(address,uint256) returns(bool)"], signer);
+            await (await tokenCon.approve(CONTRACT_ADDRESS, amount)).wait();
+
             const c = new ethers.Contract(CONTRACT_ADDRESS, ["function stake(uint256)"], signer);
-            const tx = await c.stake(ethers.utils.parseUnits(val.toString(), 18));
+            const tx = await c.stake(amount);
             await tx.wait();
-            Swal.fire("Success", "Card Activated for 360 Days!", "success");
+            Swal.fire("Success", "Stake Done & Card Activated!", "success");
             update();
         } catch(e) { Swal.fire("Error", "Stake Failed", "error"); }
     }
 
     function copyRef() {
         navigator.clipboard.writeText(document.getElementById('refLink').value);
-        Swal.fire("Copied", "Invite link ready to share!", "success");
+        Swal.fire("Copied", "আপনার রেফারেল লিঙ্ক কপি হয়েছে।", "success");
     }
 </script>
 </body>
