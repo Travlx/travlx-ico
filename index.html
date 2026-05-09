@@ -3,266 +3,160 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TravelX Web3 MLM Dashboard</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<title>TravelX | TVX Staking Portal</title>
+
+<!-- Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <style>
-    body { background:#060b14; scroll-behavior: smooth; }
-    .glass { background:rgba(17,24,39,0.7); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.05);}
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
+:root{ --primary:#00ff99; --gold:#f3ba2f; --bg:#0b0f19; --card:#111827; --text:#9ca3af; }
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI', sans-serif; scroll-behavior: smooth;}
+body{background:var(--bg);color:#fff; line-height: 1.6;}
+
+nav{ display:flex; justify-content:space-between; padding:20px 8%; position:fixed; width:100%; top:0; background:rgba(11,15,25,0.9); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.nav-logo{color:var(--primary); font-weight:800; font-size: 24px; letter-spacing: 2px;}
+
+section{padding:100px 10%; text-align:center;}
+.hero{ min-height:100vh; display:flex; flex-direction:column; justify-content:center; background: radial-gradient(circle at center, #1e293b 0%, #0b0f19 100%); }
+
+.btn{ padding:15px 35px; background:var(--primary); border:none; border-radius:10px; cursor:pointer; font-weight:bold; transition: 0.3s; font-size: 16px; }
+.btn:hover{ transform: scale(1.05); box-shadow: 0 0 20px rgba(0,255,153,0.3); }
+
+.dashboard-container{padding-top:120px; background: #080b12; min-height: 100vh;}
+.card{ max-width:450px; margin:auto; background:var(--card); padding:30px; border-radius:30px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
+.box{ background:#0d1117; padding:18px; border-radius:15px; margin:12px 0; text-align: left; border: 1px solid rgba(255,255,255,0.05); }
+
+.hidden{display:none !important;}
+.label{font-size:10px; color:var(--text); text-transform: uppercase; font-weight: bold; letter-spacing: 1px;}
+.value{font-size:20px; font-weight:bold; margin-top:5px;}
+input{ width:100%; padding:14px; margin-top:10px; border-radius:10px; border:1px solid #1f2937; background:#0b0f19; color:#fff; outline: none; }
 </style>
 </head>
 
-<body class="text-white custom-scrollbar">
+<body>
 
-<div class="min-h-screen flex flex-col lg:flex-row">
-    <!-- SIDEBAR -->
-    <aside class="w-full lg:w-72 bg-[#0d1320] p-6 border-r border-white/10 flex flex-col justify-between">
-        <div>
-            <h1 class="text-3xl font-bold text-emerald-400">TRAVELX</h1>
-            <div class="mt-8 space-y-3">
-                <a href="#" class="block px-4 py-3 bg-emerald-400 text-black rounded-xl font-bold">Dashboard</a>
-                <a href="#buySection" class="block px-4 py-3 bg-white/5 rounded-xl hover:bg-white/10 transition">Buy TVX</a>
-                <a href="#stakeSection" class="block px-4 py-3 bg-white/5 rounded-xl hover:bg-white/10 transition">Stake Card</a>
-                <a href="#historySection" class="block px-4 py-3 bg-white/5 rounded-xl hover:bg-white/10 transition">History</a>
-            </div>
+<nav>
+  <div class="nav-logo">TRAVELX</div>
+  <div style="color:var(--primary); font-size: 12px; font-weight: bold;">INVESTOR PORTAL</div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+  <h1 style="font-size: 3.5rem; margin-bottom: 20px;">The Next Era of <span style="color: var(--primary);">Smart Travel</span></h1>
+  <p style="color: var(--text); max-width: 700px; margin: 0 auto 40px;">Stake TVX tokens to earn 18% APY and unlock global travel privileges through Expedia.</p>
+  <button class="btn" style="width: auto;" onclick="connect()">LAUNCH PORTAL</button>
+</section>
+
+<!-- Dashboard Section -->
+<section id="dashboard" class="dashboard-container">
+<h2 style="color:var(--primary); margin-bottom:40px;">INVESTOR PORTAL</h2>
+
+<div class="card">
+    <!-- কানেক্ট হওয়ার আগের বাটন -->
+    <div id="connectScreen">
+        <p style="color: var(--text); margin-bottom: 20px;">Securely connect your wallet to manage assets.</p>
+        <button class="btn" style="width: 100%;" onclick="connect()">Connect Web3 Wallet</button>
+    </div>
+
+    <!-- কানেক্ট হওয়ার পরের ড্যাশবোর্ড -->
+    <div id="dashboardContent" class="hidden">
+        <div class="box">
+            <div class="label">Connected Wallet</div>
+            <div id="userAddr" style="color:var(--primary); font-family:monospace; font-size: 13px;">0x...</div>
         </div>
-        <button onclick="logout()" class="mt-10 text-red-400 text-left px-4 hover:underline">Logout Wallet</button>
-    </aside>
 
-    <!-- MAIN -->
-    <main class="flex-1 p-6">
-        <!-- TOPBAR -->
-        <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
-            <div>
-                <h2 class="text-3xl font-bold">Investor Dashboard</h2>
-                <p class="text-gray-400 text-sm">Real-time Web3 MLM Ecosystem</p>
-            </div>
-            <div class="flex gap-2 items-center flex-wrap">
-                <div class="glass px-4 py-2 rounded-xl text-xs text-emerald-400" id="network">Disconnected</div>
-                <div class="glass px-4 py-2 rounded-xl font-mono text-xs" id="wallet">Not Connected</div>
-                <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-5 py-2 rounded-xl font-bold hover:scale-105 transition">Connect</button>
-            </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="box" style="margin:0;"><div class="label">BNB Balance</div><div id="bnbBal" class="value">0.0000</div></div>
+            <div class="box" style="margin:0;"><div class="label">TVX Assets</div><div id="tvxBal" class="value" style="color:var(--primary);">0.00</div></div>
         </div>
 
-        <!-- STATS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div class="glass p-5 rounded-2xl">
-                <p class="text-gray-400 text-xs uppercase">BNB Balance</p>
-                <h2 id="bnb" class="text-2xl font-bold mt-1">0.000</h2>
-            </div>
-            <div class="glass p-5 rounded-2xl">
-                <p class="text-gray-400 text-xs uppercase">Available Income</p>
-                <h2 id="income" class="text-2xl font-bold text-emerald-400 mt-1">$0.00</h2>
-            </div>
-            <div class="glass p-5 rounded-2xl">
-                <p class="text-gray-400 text-xs uppercase">Total Team</p>
-                <h2 id="teamCount" class="text-2xl font-bold mt-1">0</h2>
-            </div>
-            <div class="glass p-5 rounded-2xl border border-yellow-400/20">
-                <p class="text-gray-400 text-xs uppercase">VIP Rank</p>
-                <h2 id="rank" class="text-2xl font-bold text-yellow-400 mt-1">NONE</h2>
+        <div class="box" style="border: 1px dashed var(--gold);">
+            <div style="display:flex; justify-content:space-between">
+                <div><div class="label" style="color:var(--gold)">Referrals</div><div id="refCount" class="value">0</div></div>
+                <div style="text-align:right;"><div class="label" style="color:var(--gold)">BNB Earned</div><div id="refEarned" class="value">0.00</div></div>
             </div>
         </div>
 
-        <!-- ACTIONS: BUY & STAKE -->
-        <div class="grid lg:grid-cols-2 gap-6 mb-8">
-            <div id="buySection" class="glass p-6 rounded-3xl">
-                <h3 class="text-xl font-bold mb-4">Step 1: Buy TVX Tokens</h3>
-                <input type="number" id="buyAmount" placeholder="Amount in BNB" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 mb-4 outline-none focus:border-emerald-400">
-                <button onclick="buyToken()" class="w-full bg-yellow-500 text-black font-bold py-3 rounded-xl hover:bg-yellow-400 transition">Purchase TVX</button>
-            </div>
-
-            <div id="stakeSection" class="glass p-6 rounded-3xl border border-emerald-400/20">
-                <h3 class="text-xl font-bold mb-4">Step 2: Activate Card</h3>
-                <p class="text-sm text-gray-400 mb-4">Stake 100 TVX to activate card and 3-level commissions.</p>
-                <button onclick="stakeAndActivate()" class="w-full bg-emerald-400 text-black font-bold py-3 rounded-xl shadow-lg shadow-emerald-400/20">Stake & Activate</button>
-            </div>
+        <div class="box" style="border: 1px solid var(--primary);">
+            <div class="label">Stake TVX (18% APY)</div>
+            <input type="number" id="stakeInput" placeholder="Amount of TVX">
+            <button class="btn" style="width: 100%; margin-top: 15px;" onclick="stake()">Stake Now</button>
         </div>
 
-        <!-- WITHDRAWAL & REFERRAL -->
-        <div class="grid lg:grid-cols-2 gap-6 mb-8">
-            <div class="glass p-6 rounded-3xl flex flex-col justify-between">
-                <div>
-                    <h3 class="text-xl font-bold">Withdraw Earnings</h3>
-                    <p class="text-gray-400 text-sm mt-1">Minimum withdrawal: $10.00</p>
-                </div>
-                <button onclick="withdraw()" class="mt-6 w-full bg-white text-black font-bold py-3 rounded-xl hover:bg-emerald-100 transition">Withdraw to Wallet</button>
-            </div>
-
-            <div class="glass p-6 rounded-3xl">
-                <h3 class="text-xl font-bold mb-2">Referral Link</h3>
-                <div class="flex bg-black/40 rounded-xl p-2 border border-white/5">
-                    <input id="refLink" readonly value="Connect wallet to get link" class="bg-transparent flex-1 px-2 text-xs font-mono outline-none">
-                    <button onclick="copyRef()" class="bg-emerald-400 text-black px-4 py-2 rounded-lg text-xs font-bold">Copy</button>
-                </div>
-                <p class="text-[10px] text-gray-500 mt-2">* Share this link to earn 5% / 3% / 2% from 3 levels.</p>
-            </div>
+        <div class="box">
+            <div class="label">Your Invite Link</div>
+            <input type="text" id="refLink" readonly style="font-size:10px; background:transparent; border:none; color:var(--primary); margin-bottom: 8px;">
+            <button class="btn" style="background:#333; color:#fff; width:100%; font-size: 12px; padding: 10px;" onclick="copyRef()">Copy Referral Link</button>
         </div>
 
-        <!-- HISTORY -->
-        <div id="historySection" class="glass p-6 rounded-3xl">
-            <h3 class="text-xl font-bold mb-4">Recent Transactions</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
-                    <thead>
-                        <tr class="text-gray-500 border-b border-white/10">
-                            <th class="pb-3">Type</th>
-                            <th class="pb-3">Amount</th>
-                            <th class="pb-3">Date</th>
-                            <th class="pb-3">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="txList">
-                        <!-- Transactions will load here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+        <button onclick="window.location.reload()" style="background:transparent; color:#ef4444; border:none; text-decoration:underline; font-size:12px; margin-top:20px; cursor:pointer;">Logout / Disconnect</button>
+    </div>
 </div>
+</section>
 
 <script>
-// --- CONFIGURATION ---
-const RECEIVING_WALLET = "YOUR_RECEIVING_WALLET_HERE"; // আপনার ওয়ালেট এখানে দিন
-const TVX_RATE = 10000; 
-
 let account, provider, signer;
+const TVX_RATE = 10000; // আপনার টোকেনের কনভার্সন রেট
 
-// --- MLM DB LOGIC ---
-const getDB = () => JSON.parse(localStorage.getItem('tvx_final_db') || '{}');
-const saveDB = (db) => localStorage.setItem('tvx_final_db', JSON.stringify(db));
-
-function register(addr, sponsor) {
-    let db = getDB();
-    if (!db[addr]) {
-        db[addr] = { sponsor: sponsor || null, directs: [], income: 0, active: false, txs: [] };
-        if (sponsor && db[sponsor]) db[sponsor].directs.push(addr);
-        saveDB(db);
-    }
-}
-
-// --- WEB3 FUNCTIONS ---
 async function connect() {
-    if (!window.ethereum) return Swal.fire("Error", "Please install MetaMask", "error");
+    if(!window.ethereum) return Swal.fire("Error","MetaMask Needed","error");
+
     try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        account = accounts[0].toLowerCase();
+        const accounts = await window.ethereum.request({method:"eth_requestAccounts"});
+        
+        // ফিক্স: অ্যারের প্রথম অ্যাড্রেসটি সঠিকভাবে নেওয়া
+        account = accounts[0]; 
+
         provider = new ethers.providers.Web3Provider(window.ethereum);
         signer = provider.getSigner();
 
-        localStorage.setItem('connected', 'true');
-        const urlParams = new URLSearchParams(window.location.search);
-        register(account, urlParams.get('ref'));
+        // ১. UI পরিবর্তন (কানেক্ট স্ক্রিন লুকানো এবং ড্যাশবোর্ড দেখানো)
+        document.getElementById("connectScreen").classList.add("hidden");
+        document.getElementById("dashboardContent").classList.remove("hidden");
 
-        document.getElementById("wallet").innerText = account.slice(0,6)+"..."+account.slice(-4);
-        document.getElementById("connectBtn").classList.add("hidden");
-        document.getElementById("network").innerText = "BSC MAINNET";
+        // ২. অটো-স্ক্রল করে ড্যাশবোর্ড সেকশনে নিয়ে যাওয়া
+        window.location.href = "#dashboard";
+
+        // ৩. তথ্য দেখানো
+        document.getElementById("userAddr").innerText = account.substring(0,10)+"..."+account.slice(-8);
+        document.getElementById('refLink').value = window.location.origin + window.location.pathname + "?ref=" + account;
+
+        update();
+        setInterval(update, 10000); // ১০ সেকেন্ড পর পর অটো আপডেট
         
-        update(); setInterval(update, 10000);
-    } catch (e) { console.error(e); }
-}
-
-async function update() {
-    if (!account) return;
-    const bal = await provider.getBalance(account);
-    document.getElementById("bnb").innerText = parseFloat(ethers.utils.formatEther(bal)).toFixed(4);
-    document.getElementById("refLink").value = window.location.origin + window.location.pathname + "?ref=" + account;
-
-    let db = getDB();
-    const u = db[account];
-    if (u) {
-        document.getElementById("income").innerText = "$" + u.income.toFixed(2);
-        
-        // Team Calculation
-        let l1 = u.directs.length;
-        let l2 = 0, l3 = 0;
-        u.directs.forEach(d => {
-            if(db[d]) {
-                l2 += db[d].directs.length;
-                db[d].directs.forEach(dd => { if(db[dd]) l3 += db[dd].directs.length; });
-            }
-        });
-        let total = l1 + l2 + l3;
-        document.getElementById("teamCount").innerText = total;
-
-        // Rank Update
-        let r = "NONE";
-        if(total >= 175) r = "V3"; else if(total >= 75) r = "V2"; else if(total >= 25) r = "V1";
-        document.getElementById("rank").innerText = r;
-
-        // Tx History UI
-        let html = u.txs.map(t => `<tr class="border-b border-white/5"><td class="py-3 font-bold">${t.type}</td><td>${t.amt}</td><td class="text-gray-500">${t.date}</td><td class="text-emerald-400">${t.status}</td></tr>`).join('');
-        document.getElementById("txList").innerHTML = html || '<tr><td colspan="4" class="py-6 text-center text-gray-500">No activity</td></tr>';
+        Swal.fire("Connected", "Successfully accessed Investor Portal!", "success");
+    } catch(e) { 
+        console.error(e); 
+        Swal.fire("Error", "Connection failed", "error");
     }
 }
 
-async function buyToken() {
-    const amt = document.getElementById("buyAmount").value;
-    if(!amt) return;
+async function update(){
+    if(!account) return;
     try {
-        const tx = await signer.sendTransaction({ to: RECEIVING_WALLET, value: ethers.utils.parseEther(amt) });
-        await tx.wait();
-        addTx('BUY TVX', amt + ' BNB', 'Success');
-        Swal.fire("Success", "Tokens purchased successfully!", "success");
-    } catch(e) { Swal.fire("Failed", "Transaction error", "error"); }
-}
+        const balance = await provider.getBalance(account);
+        const bnb = parseFloat(ethers.utils.formatEther(balance));
+        document.getElementById("bnbBal").innerText = bnb.toFixed(4);
 
-function stakeAndActivate() {
-    Swal.fire({ title: 'Stake 100 TVX?', text: 'Activate card & MLM levels', icon: 'question', showCancelButton: true }).then(res => {
-        if(res.isConfirmed) {
-            let db = getDB();
-            if(db[account] && !db[account].active) {
-                db[account].active = true;
-                // Commission Logic
-                let up = db[account].sponsor;
-                for(let i=1; i<=3; i++) {
-                    if(!up || !db[up]) break;
-                    let comm = (i===1?5:i===2?3:2);
-                    db[up].income += (100 * comm / 100);
-                    db[up].txs.unshift({ type: 'BONUS', amt: '$'+(100*comm/100), date: new Date().toLocaleTimeString(), status: 'Received' });
-                    up = db[up].sponsor;
-                }
-                saveDB(db);
-                addTx('STAKE', '100 TVX', 'Active');
-                update();
-                Swal.fire("Activated", "Card and MLM now active!", "success");
-            } else {
-                Swal.fire("Already Active", "Your card is already active", "info");
-            }
-        }
-    });
-}
-
-function withdraw() {
-    let db = getDB();
-    if(db[account].income < 10) return Swal.fire("Low Balance", "Min withdraw $10", "warning");
-    const amt = db[account].income;
-    db[account].income = 0;
-    addTx('WITHDRAW', '$'+amt, 'Success');
-    Swal.fire("Success", "Withdrawal sent to wallet!", "success");
-}
-
-function addTx(type, amt, status) {
-    let db = getDB();
-    db[account].txs.unshift({ type, amt, date: new Date().toLocaleTimeString(), status });
-    saveDB(db);
-    update();
+        // TVX আনুমানিক ক্যালকুলেশন (BNB x RATE)
+        const tvx = bnb * TVX_RATE;
+        document.getElementById("tvxBal").innerText = tvx.toLocaleString();
+    } catch(e) { console.log(e); }
 }
 
 function copyRef() {
-    const link = document.getElementById("refLink");
+    const link = document.getElementById('refLink');
+    link.select();
     navigator.clipboard.writeText(link.value);
-    Swal.fire({ title: 'Copied!', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+    Swal.fire("Copied", "Invite link ready to share!", "success");
 }
 
-function logout() { localStorage.removeItem('connected'); window.location.reload(); }
-
-// Auto Reconnect
-window.addEventListener('load', () => { if(localStorage.getItem('connected') === 'true') connect(); });
+async function stake(){
+    Swal.fire("In Progress", "Stake logic will call your contract functions.", "info");
+}
 </script>
+
 </body>
 </html>
 
