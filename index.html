@@ -3,266 +3,213 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TravelX Web3 MLM Dashboard</title>
+<title>TravelX | Web3 MLM Portal</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <style>
-    body { background:#060b14; scroll-behavior: smooth; }
-    .glass { background:rgba(17,24,39,0.7); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.05);}
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
+body{background:#060b14;}
+.glass{background:rgba(17,24,39,0.7);backdrop-filter:blur(10px);}
 </style>
 </head>
 
-<body class="text-white custom-scrollbar">
+<body class="text-white p-6">
 
-<div class="min-h-screen flex flex-col lg:flex-row">
-    <!-- SIDEBAR -->
-    <aside class="w-full lg:w-72 bg-[#0d1320] p-6 border-r border-white/10 flex flex-col justify-between">
-        <div>
-            <h1 class="text-3xl font-bold text-emerald-400">TRAVELX</h1>
-            <div class="mt-8 space-y-3">
-                <a href="#" class="block px-4 py-3 bg-emerald-400 text-black rounded-xl font-bold">Dashboard</a>
-                <a href="#buySection" class="block px-4 py-3 bg-white/5 rounded-xl hover:bg-white/10 transition">Buy TVX</a>
-                <a href="#stakeSection" class="block px-4 py-3 bg-white/5 rounded-xl hover:bg-white/10 transition">Stake Card</a>
-                <a href="#historySection" class="block px-4 py-3 bg-white/5 rounded-xl hover:bg-white/10 transition">History</a>
-            </div>
-        </div>
-        <button onclick="logout()" class="mt-10 text-red-400 text-left px-4 hover:underline">Logout Wallet</button>
-    </aside>
+<div class="max-w-5xl mx-auto">
 
-    <!-- MAIN -->
-    <main class="flex-1 p-6">
-        <!-- TOPBAR -->
-        <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
-            <div>
-                <h2 class="text-3xl font-bold">Investor Dashboard</h2>
-                <p class="text-gray-400 text-sm">Real-time Web3 MLM Ecosystem</p>
-            </div>
-            <div class="flex gap-2 items-center flex-wrap">
-                <div class="glass px-4 py-2 rounded-xl text-xs text-emerald-400" id="network">Disconnected</div>
-                <div class="glass px-4 py-2 rounded-xl font-mono text-xs" id="wallet">Not Connected</div>
-                <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-5 py-2 rounded-xl font-bold hover:scale-105 transition">Connect</button>
-            </div>
-        </div>
+<!-- HEADER -->
+<div class="flex justify-between items-center mb-6">
+<h1 class="text-2xl font-bold text-emerald-400">TRAVELX</h1>
+<button onclick="connect()" class="bg-emerald-400 text-black px-4 py-2 rounded-xl font-bold">
+Connect Wallet
+</button>
+</div>
 
-        <!-- STATS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div class="glass p-5 rounded-2xl">
-                <p class="text-gray-400 text-xs uppercase">BNB Balance</p>
-                <h2 id="bnb" class="text-2xl font-bold mt-1">0.000</h2>
-            </div>
-            <div class="glass p-5 rounded-2xl">
-                <p class="text-gray-400 text-xs uppercase">Available Income</p>
-                <h2 id="income" class="text-2xl font-bold text-emerald-400 mt-1">$0.00</h2>
-            </div>
-            <div class="glass p-5 rounded-2xl">
-                <p class="text-gray-400 text-xs uppercase">Total Team</p>
-                <h2 id="teamCount" class="text-2xl font-bold mt-1">0</h2>
-            </div>
-            <div class="glass p-5 rounded-2xl border border-yellow-400/20">
-                <p class="text-gray-400 text-xs uppercase">VIP Rank</p>
-                <h2 id="rank" class="text-2xl font-bold text-yellow-400 mt-1">NONE</h2>
-            </div>
-        </div>
+<!-- STATS -->
+<div class="grid md:grid-cols-3 gap-4">
 
-        <!-- ACTIONS: BUY & STAKE -->
-        <div class="grid lg:grid-cols-2 gap-6 mb-8">
-            <div id="buySection" class="glass p-6 rounded-3xl">
-                <h3 class="text-xl font-bold mb-4">Step 1: Buy TVX Tokens</h3>
-                <input type="number" id="buyAmount" placeholder="Amount in BNB" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 mb-4 outline-none focus:border-emerald-400">
-                <button onclick="buyToken()" class="w-full bg-yellow-500 text-black font-bold py-3 rounded-xl hover:bg-yellow-400 transition">Purchase TVX</button>
-            </div>
+<div class="glass p-4 rounded-xl">
+BNB: <span id="bnb">0</span>
+</div>
 
-            <div id="stakeSection" class="glass p-6 rounded-3xl border border-emerald-400/20">
-                <h3 class="text-xl font-bold mb-4">Step 2: Activate Card</h3>
-                <p class="text-sm text-gray-400 mb-4">Stake 100 TVX to activate card and 3-level commissions.</p>
-                <button onclick="stakeAndActivate()" class="w-full bg-emerald-400 text-black font-bold py-3 rounded-xl shadow-lg shadow-emerald-400/20">Stake & Activate</button>
-            </div>
-        </div>
+<div class="glass p-4 rounded-xl">
+TVX: <span id="tvx">0</span>
+</div>
 
-        <!-- WITHDRAWAL & REFERRAL -->
-        <div class="grid lg:grid-cols-2 gap-6 mb-8">
-            <div class="glass p-6 rounded-3xl flex flex-col justify-between">
-                <div>
-                    <h3 class="text-xl font-bold">Withdraw Earnings</h3>
-                    <p class="text-gray-400 text-sm mt-1">Minimum withdrawal: $10.00</p>
-                </div>
-                <button onclick="withdraw()" class="mt-6 w-full bg-white text-black font-bold py-3 rounded-xl hover:bg-emerald-100 transition">Withdraw to Wallet</button>
-            </div>
+<div class="glass p-4 rounded-xl">
+Income: <span id="income">0</span>
+</div>
 
-            <div class="glass p-6 rounded-3xl">
-                <h3 class="text-xl font-bold mb-2">Referral Link</h3>
-                <div class="flex bg-black/40 rounded-xl p-2 border border-white/5">
-                    <input id="refLink" readonly value="Connect wallet to get link" class="bg-transparent flex-1 px-2 text-xs font-mono outline-none">
-                    <button onclick="copyRef()" class="bg-emerald-400 text-black px-4 py-2 rounded-lg text-xs font-bold">Copy</button>
-                </div>
-                <p class="text-[10px] text-gray-500 mt-2">* Share this link to earn 5% / 3% / 2% from 3 levels.</p>
-            </div>
-        </div>
+</div>
 
-        <!-- HISTORY -->
-        <div id="historySection" class="glass p-6 rounded-3xl">
-            <h3 class="text-xl font-bold mb-4">Recent Transactions</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
-                    <thead>
-                        <tr class="text-gray-500 border-b border-white/10">
-                            <th class="pb-3">Type</th>
-                            <th class="pb-3">Amount</th>
-                            <th class="pb-3">Date</th>
-                            <th class="pb-3">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="txList">
-                        <!-- Transactions will load here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+<!-- BUY -->
+<div class="glass p-6 mt-6 rounded-xl">
+<h2 class="font-bold mb-2">Buy TVX</h2>
+
+<input id="bnbInput" type="number"
+class="w-full p-3 bg-black/40 rounded-xl"
+placeholder="Enter BNB">
+
+<p class="text-sm mt-2 text-gray-400">
+You get: <span id="preview" class="text-emerald-400">0 TVX</span>
+</p>
+
+<button onclick="buy()" class="w-full bg-yellow-400 text-black py-3 rounded-xl mt-3 font-bold">
+BUY
+</button>
+</div>
+
+<!-- ACTIVATE -->
+<div class="glass p-6 mt-6 rounded-xl">
+<h2 class="font-bold">Activation (100$ TVX)</h2>
+<button onclick="activate()" class="w-full bg-emerald-400 text-black py-3 rounded-xl font-bold mt-3">
+Activate Card
+</button>
+</div>
+
+<!-- WITHDRAW -->
+<div class="glass p-6 mt-6 rounded-xl flex justify-between items-center">
+<div>
+<p class="text-gray-400">Withdrawable BNB</p>
+<h2 class="text-3xl text-emerald-400 font-bold">$<span id="bal">0</span></h2>
+</div>
+
+<button onclick="withdraw()" class="bg-white text-black px-6 py-3 rounded-xl font-bold">
+Withdraw
+</button>
+</div>
+
 </div>
 
 <script>
-// --- CONFIGURATION ---
-const RECEIVING_WALLET = "YOUR_RECEIVING_WALLET_HERE"; // আপনার ওয়ালেট এখানে দিন
-const TVX_RATE = 10000; 
 
-let account, provider, signer;
+const RECEIVER="YOUR_WALLET_ADDRESS";
+const RATE=10000;
+const TVX_USD=0.01;
 
-// --- MLM DB LOGIC ---
-const getDB = () => JSON.parse(localStorage.getItem('tvx_final_db') || '{}');
-const saveDB = (db) => localStorage.setItem('tvx_final_db', JSON.stringify(db));
+let account,provider,signer;
+let BNB_USD=600;
 
-function register(addr, sponsor) {
-    let db = getDB();
-    if (!db[addr]) {
-        db[addr] = { sponsor: sponsor || null, directs: [], income: 0, active: false, txs: [] };
-        if (sponsor && db[sponsor]) db[sponsor].directs.push(addr);
-        saveDB(db);
-    }
+// DB
+const db=()=>JSON.parse(localStorage.getItem("travelx_db_v2")||"{}");
+const save=d=>localStorage.setItem("travelx_db_v2",JSON.stringify(d));
+
+// REGISTER
+function register(a){
+let d=db();
+if(!d[a]){
+d[a]={sponsor:null,tvx:0,bnb:0,active:false};
+save(d);
+}
 }
 
-// --- WEB3 FUNCTIONS ---
-async function connect() {
-    if (!window.ethereum) return Swal.fire("Error", "Please install MetaMask", "error");
-    try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        account = accounts[0].toLowerCase();
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
+// CONNECT
+async function connect(){
+if(!window.ethereum) return Swal.fire("Error","Install MetaMask","error");
 
-        localStorage.setItem('connected', 'true');
-        const urlParams = new URLSearchParams(window.location.search);
-        register(account, urlParams.get('ref'));
+let acc=await window.ethereum.request({method:"eth_requestAccounts"});
+account=acc[0].toLowerCase();
 
-        document.getElementById("wallet").innerText = account.slice(0,6)+"..."+account.slice(-4);
-        document.getElementById("connectBtn").classList.add("hidden");
-        document.getElementById("network").innerText = "BSC MAINNET";
-        
-        update(); setInterval(update, 10000);
-    } catch (e) { console.error(e); }
+provider=new ethers.providers.Web3Provider(window.ethereum);
+signer=provider.getSigner();
+
+register(account);
+
+update();
+setInterval(update,8000);
 }
 
-async function update() {
-    if (!account) return;
-    const bal = await provider.getBalance(account);
-    document.getElementById("bnb").innerText = parseFloat(ethers.utils.formatEther(bal)).toFixed(4);
-    document.getElementById("refLink").value = window.location.origin + window.location.pathname + "?ref=" + account;
+// BUY
+async function buy(){
+let bnb=document.getElementById("bnbInput").value;
+if(!bnb) return;
 
-    let db = getDB();
-    const u = db[account];
-    if (u) {
-        document.getElementById("income").innerText = "$" + u.income.toFixed(2);
-        
-        // Team Calculation
-        let l1 = u.directs.length;
-        let l2 = 0, l3 = 0;
-        u.directs.forEach(d => {
-            if(db[d]) {
-                l2 += db[d].directs.length;
-                db[d].directs.forEach(dd => { if(db[dd]) l3 += db[dd].directs.length; });
-            }
-        });
-        let total = l1 + l2 + l3;
-        document.getElementById("teamCount").innerText = total;
+let tx=await signer.sendTransaction({
+to:RECEIVER,
+value:ethers.utils.parseEther(bnb)
+});
 
-        // Rank Update
-        let r = "NONE";
-        if(total >= 175) r = "V3"; else if(total >= 75) r = "V2"; else if(total >= 25) r = "V1";
-        document.getElementById("rank").innerText = r;
+await tx.wait();
 
-        // Tx History UI
-        let html = u.txs.map(t => `<tr class="border-b border-white/5"><td class="py-3 font-bold">${t.type}</td><td>${t.amt}</td><td class="text-gray-500">${t.date}</td><td class="text-emerald-400">${t.status}</td></tr>`).join('');
-        document.getElementById("txList").innerHTML = html || '<tr><td colspan="4" class="py-6 text-center text-gray-500">No activity</td></tr>';
-    }
+let d=db();
+let tvx=bnb*RATE;
+
+d[account].tvx+=tvx;
+
+// MLM 5-3-2
+let sponsor=d[account].sponsor;
+
+for(let i=1;i<=3;i++){
+if(!sponsor||!d[sponsor]) break;
+
+let rate=(i===1?0.05:i===2?0.03:0.02);
+
+// 50% TVX
+d[sponsor].tvx += tvx*0.5*rate;
+
+// 50% BNB (internal)
+d[sponsor].bnb += (tvx*0.5*rate)*TVX_USD/BNB_USD;
+
+sponsor=d[sponsor].sponsor;
 }
 
-async function buyToken() {
-    const amt = document.getElementById("buyAmount").value;
-    if(!amt) return;
-    try {
-        const tx = await signer.sendTransaction({ to: RECEIVING_WALLET, value: ethers.utils.parseEther(amt) });
-        await tx.wait();
-        addTx('BUY TVX', amt + ' BNB', 'Success');
-        Swal.fire("Success", "Tokens purchased successfully!", "success");
-    } catch(e) { Swal.fire("Failed", "Transaction error", "error"); }
+save(d);
+
+Swal.fire("Success","TVX Purchased","success");
+update();
 }
 
-function stakeAndActivate() {
-    Swal.fire({ title: 'Stake 100 TVX?', text: 'Activate card & MLM levels', icon: 'question', showCancelButton: true }).then(res => {
-        if(res.isConfirmed) {
-            let db = getDB();
-            if(db[account] && !db[account].active) {
-                db[account].active = true;
-                // Commission Logic
-                let up = db[account].sponsor;
-                for(let i=1; i<=3; i++) {
-                    if(!up || !db[up]) break;
-                    let comm = (i===1?5:i===2?3:2);
-                    db[up].income += (100 * comm / 100);
-                    db[up].txs.unshift({ type: 'BONUS', amt: '$'+(100*comm/100), date: new Date().toLocaleTimeString(), status: 'Received' });
-                    up = db[up].sponsor;
-                }
-                saveDB(db);
-                addTx('STAKE', '100 TVX', 'Active');
-                update();
-                Swal.fire("Activated", "Card and MLM now active!", "success");
-            } else {
-                Swal.fire("Already Active", "Your card is already active", "info");
-            }
-        }
-    });
+// PREVIEW
+document.getElementById("bnbInput").oninput=(e)=>{
+document.getElementById("preview").innerText=
+(e.target.value*RATE)+" TVX";
 }
 
-function withdraw() {
-    let db = getDB();
-    if(db[account].income < 10) return Swal.fire("Low Balance", "Min withdraw $10", "warning");
-    const amt = db[account].income;
-    db[account].income = 0;
-    addTx('WITHDRAW', '$'+amt, 'Success');
-    Swal.fire("Success", "Withdrawal sent to wallet!", "success");
+// ACTIVATE
+function activate(){
+let d=db();
+
+if(!d[account] || d[account].tvx < 100/TVX_USD){
+return Swal.fire("Error","Need $100 TVX (10,000 TVX)","error");
 }
 
-function addTx(type, amt, status) {
-    let db = getDB();
-    db[account].txs.unshift({ type, amt, date: new Date().toLocaleTimeString(), status });
-    saveDB(db);
-    update();
+d[account].active=true;
+save(d);
+
+Swal.fire("Success","Card Activated","success");
 }
 
-function copyRef() {
-    const link = document.getElementById("refLink");
-    navigator.clipboard.writeText(link.value);
-    Swal.fire({ title: 'Copied!', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+// WITHDRAW
+function withdraw(){
+let d=db();
+
+if(!d[account] || d[account].bnb<=0)
+return Swal.fire("Empty","No balance","info");
+
+let amt=d[account].bnb;
+d[account].bnb=0;
+
+save(d);
+
+document.getElementById("bal").innerText=amt;
+
+Swal.fire("Success","Withdraw Requested","success");
 }
 
-function logout() { localStorage.removeItem('connected'); window.location.reload(); }
+// UPDATE
+function update(){
+let d=db();
+let u=d[account];
+if(!u) return;
 
-// Auto Reconnect
-window.addEventListener('load', () => { if(localStorage.getItem('connected') === 'true') connect(); });
+document.getElementById("tvx").innerText=u.tvx.toLocaleString();
+document.getElementById("income").innerText=u.bnb.toFixed(6);
+document.getElementById("bal").innerText=(u.bnb*BNB_USD).toFixed(2);
+}
+
 </script>
+
 </body>
 </html>
-
