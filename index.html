@@ -3,250 +3,213 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TravelX | Advanced Web3 MLM</title>
+<title>TravelX | Web3 MLM Portal</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
-    body { background:#060b14; scroll-behavior: smooth; }
-    .glass { background:rgba(13,19,32,0.8); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.05); }
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
+body{background:#060b14;}
+.glass{background:rgba(17,24,39,0.7);backdrop-filter:blur(10px);}
 </style>
 </head>
 
-<body class="text-white p-4 md:p-10 custom-scrollbar">
+<body class="text-white p-6">
 
 <div class="max-w-5xl mx-auto">
 
 <!-- HEADER -->
-<div class="flex justify-between items-center mb-8">
-    <div>
-        <h1 class="text-3xl font-black text-emerald-400 tracking-tighter">TRAVELX</h1>
-        <p class="text-[10px] text-gray-500 font-mono uppercase" id="status">Disconnected</p>
-    </div>
-    <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-2 rounded-xl font-bold hover:scale-105 transition-all">
-        Connect Wallet
-    </button>
-    <div id="walletDisplay" class="hidden glass px-4 py-2 rounded-xl font-mono text-emerald-400 text-sm">0x...</div>
+<div class="flex justify-between items-center mb-6">
+<h1 class="text-2xl font-bold text-emerald-400">TRAVELX</h1>
+<button onclick="connect()" class="bg-emerald-400 text-black px-4 py-2 rounded-xl font-bold">
+Connect Wallet
+</button>
 </div>
 
 <!-- STATS -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div class="glass p-5 rounded-2xl">
-        <p class="text-gray-400 text-xs uppercase tracking-widest">BNB Balance</p>
-        <h2 id="bnbBal" class="text-2xl font-bold mt-1">0.0000</h2>
-    </div>
+<div class="grid md:grid-cols-3 gap-4">
 
-    <div class="glass p-5 rounded-2xl border border-emerald-400/10">
-        <p class="text-gray-400 text-xs uppercase tracking-widest">TVX Assets</p>
-        <h2 id="tvxBal" class="text-2xl font-bold mt-1 text-emerald-400">0</h2>
-    </div>
-
-    <div class="glass p-5 rounded-2xl border border-blue-400/10">
-        <p class="text-blue-400/60 text-xs uppercase tracking-widest">MLM Income (BNB)</p>
-        <h2 id="income" class="text-2xl font-bold mt-1">0.000000</h2>
-    </div>
+<div class="glass p-4 rounded-xl">
+BNB: <span id="bnb">0</span>
 </div>
 
-<!-- BUY SECTION -->
-<div class="glass p-8 mt-6 rounded-[32px] border border-white/5">
-    <h2 class="font-bold text-xl mb-4">Step 1: Buy TVX Tokens</h2>
-    <div class="flex flex-col md:flex-row gap-4">
-        <div class="flex-1">
-            <input id="bnbInput" type="number" step="0.01" class="w-full p-4 bg-black/40 rounded-2xl border border-white/10 outline-none focus:border-emerald-400 transition-all" placeholder="Enter BNB Amount">
-            <p class="text-xs text-gray-500 mt-2 ml-2 uppercase">Estimate: <span id="preview" class="text-emerald-400 font-bold">0 TVX</span></p>
-        </div>
-        <button onclick="buy()" class="md:w-48 w-full bg-yellow-500 text-black px-8 py-4 rounded-2xl font-black hover:bg-yellow-400 transition-all">BUY NOW</button>
-    </div>
+<div class="glass p-4 rounded-xl">
+TVX: <span id="tvx">0</span>
 </div>
 
-<!-- ACTIVATION & EXPEDIA -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-    <div class="glass p-8 rounded-[32px] flex flex-col justify-between border border-emerald-400/20">
-        <div>
-            <h2 class="font-bold text-xl mb-2 text-emerald-400">Step 2: Activation</h2>
-            <p class="text-gray-400 text-sm mb-6">Stake 10,000 TVX ($100) to activate MLM Card & Expedia VIP Access.</p>
-        </div>
-        <button id="activateBtn" onclick="activate()" class="w-full bg-emerald-400 text-black py-4 rounded-2xl font-black hover:scale-[1.02] transition-all">ACTIVATE CARD</button>
-    </div>
-
-    <div id="expediaBox" class="hidden glass p-8 rounded-[32px] border border-blue-400/30 bg-gradient-to-br from-blue-500/10 to-transparent">
-        <h2 class="font-bold text-xl mb-2">Expedia Global</h2>
-        <p class="text-gray-400 text-sm mb-6">Travel status active! Access 1M+ Hotels and Flights worldwide.</p>
-        <a href="https://expedia.com" target="_blank" class="block text-center w-full bg-white text-black py-4 rounded-2xl font-black hover:bg-blue-100 transition-all">GO TO EXPEDIA</a>
-    </div>
+<div class="glass p-4 rounded-xl">
+Income: <span id="income">0</span>
 </div>
 
-<!-- REFERRAL & WITHDRAW -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-    <div class="glass p-8 rounded-[32px]">
-        <h2 class="font-bold text-xl mb-2">Invite Link</h2>
-        <div class="flex bg-black/40 rounded-xl p-2 border border-white/5 mt-4">
-            <input id="refInput" readonly value="Connect wallet..." class="bg-transparent flex-1 px-3 text-xs font-mono outline-none text-emerald-400">
-            <button onclick="copyRef()" class="bg-emerald-400 text-black px-5 py-2 rounded-lg text-xs font-bold">Copy</button>
-        </div>
-    </div>
+</div>
 
-    <div class="glass p-8 rounded-[32px] flex flex-col justify-between border border-blue-400/10">
-        <p class="text-gray-400 text-sm uppercase">Withdrawable Value</p>
-        <h1 class="text-4xl text-emerald-400 font-black mt-2">$<span id="usdBal">0.00</span></h1>
-        <button onclick="withdraw()" class="w-full bg-white text-black py-3 rounded-xl font-bold mt-4">WITHDRAW</button>
-    </div>
+<!-- BUY -->
+<div class="glass p-6 mt-6 rounded-xl">
+<h2 class="font-bold mb-2">Buy TVX</h2>
+
+<input id="bnbInput" type="number"
+class="w-full p-3 bg-black/40 rounded-xl"
+placeholder="Enter BNB">
+
+<p class="text-sm mt-2 text-gray-400">
+You get: <span id="preview" class="text-emerald-400">0 TVX</span>
+</p>
+
+<button onclick="buy()" class="w-full bg-yellow-400 text-black py-3 rounded-xl mt-3 font-bold">
+BUY
+</button>
+</div>
+
+<!-- ACTIVATE -->
+<div class="glass p-6 mt-6 rounded-xl">
+<h2 class="font-bold">Activation (100$ TVX)</h2>
+<button onclick="activate()" class="w-full bg-emerald-400 text-black py-3 rounded-xl font-bold mt-3">
+Activate Card
+</button>
+</div>
+
+<!-- WITHDRAW -->
+<div class="glass p-6 mt-6 rounded-xl flex justify-between items-center">
+<div>
+<p class="text-gray-400">Withdrawable BNB</p>
+<h2 class="text-3xl text-emerald-400 font-bold">$<span id="bal">0</span></h2>
+</div>
+
+<button onclick="withdraw()" class="bg-white text-black px-6 py-3 rounded-xl font-bold">
+Withdraw
+</button>
 </div>
 
 </div>
 
 <script>
-// ================= CONFIG =================
-const RECEIVER = "YOUR_WALLET_ADDRESS"; // এখানে আপনার অ্যাড্রেস দিন
-const RATE = 10000;    
-const TVX_USD = 0.01;  
-let BNB_USD = 600;
 
-let account, provider, signer;
+const RECEIVER="YOUR_WALLET_ADDRESS";
+const RATE=10000;
+const TVX_USD=0.01;
 
-// ================= DB =================
-const db = () => JSON.parse(localStorage.getItem("tvx_v6_db") || "{}");
-const save = d => localStorage.setItem("tvx_v6_db", JSON.stringify(d));
+let account,provider,signer;
+let BNB_USD=600;
 
-// ================= API =================
-async function getBNBPrice(){
-    try {
-        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd");
-        const data = await res.json();
-        BNB_USD = data.binancecoin.usd;
-    } catch(e){ BNB_USD = 600; }
+// DB
+const db=()=>JSON.parse(localStorage.getItem("travelx_db_v2")||"{}");
+const save=d=>localStorage.setItem("travelx_db_v2",JSON.stringify(d));
+
+// REGISTER
+function register(a){
+let d=db();
+if(!d[a]){
+d[a]={sponsor:null,tvx:0,bnb:0,active:false};
+save(d);
+}
 }
 
-// ================= CONNECT =================
+// CONNECT
 async function connect(){
-    if(!window.ethereum) return Swal.fire("Error","Install MetaMask","error");
+if(!window.ethereum) return Swal.fire("Error","Install MetaMask","error");
 
-    const accs = await ethereum.request({ method: "eth_requestAccounts" });
-    account = accs[0].toLowerCase();
+let acc=await window.ethereum.request({method:"eth_requestAccounts"});
+account=acc[0].toLowerCase();
 
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    signer = provider.getSigner();
+provider=new ethers.providers.Web3Provider(window.ethereum);
+signer=provider.getSigner();
 
-    localStorage.setItem("tvx_connected", "true");
+register(account);
 
-    // UI Updates
-    document.getElementById("connectBtn").classList.add("hidden");
-    document.getElementById("walletDisplay").classList.remove("hidden");
-    document.getElementById("walletDisplay").innerText = account.slice(0,6)+"..."+account.slice(-4);
-    document.getElementById("status").innerText = "CONNECTED • BSC MAINNET";
-
-    // Auto Register
-    let d = db();
-    if(!d[account]){
-        let ref = new URLSearchParams(location.search).get("ref");
-        d[account] = { tvx:0, bnb:0, active:false, sponsor: (ref && d[ref]) ? ref : null };
-        save(d);
-    }
-
-    update();
-    setInterval(update, 15000);
+update();
+setInterval(update,8000);
 }
 
-// ================= UPDATE =================
-async function update(){
-    if(!account) return;
-    await getBNBPrice();
-
-    let d = db();
-    let u = d[account];
-    const bal = await provider.getBalance(account);
-
-    document.getElementById("bnbBal").innerText = parseFloat(ethers.utils.formatEther(bal)).toFixed(4);
-    document.getElementById("tvxBal").innerText = u.tvx.toLocaleString();
-    document.getElementById("income").innerText = u.bnb.toFixed(6);
-    document.getElementById("usdBal").innerText = (u.bnb * BNB_USD).toFixed(2);
-    document.getElementById("refInput").value = window.location.origin + window.location.pathname + "?ref=" + account;
-
-    if(u.active){
-        document.getElementById("expediaBox").classList.remove("hidden");
-        document.getElementById("activateBtn").innerText = "CARD ACTIVATED";
-        document.getElementById("activateBtn").disabled = true;
-        document.getElementById("activateBtn").classList.add("bg-gray-800", "text-gray-500");
-    }
-}
-
-// ================= BUY =================
+// BUY
 async function buy(){
-    let amt = document.getElementById("bnbInput").value;
-    if(!amt || amt <= 0) return Swal.fire("Wait", "Enter BNB amount", "warning");
+let bnb=document.getElementById("bnbInput").value;
+if(!bnb) return;
 
-    try {
-        const tx = await signer.sendTransaction({
-            to: RECEIVER,
-            value: ethers.utils.parseEther(amt)
-        });
-
-        Swal.fire({ title: 'Processing', text: 'Blockchain confirming...', icon: 'info', showConfirmButton: false });
-        await tx.wait();
-
-        let d = db();
-        let tvxPurchased = amt * RATE;
-        d[account].tvx += tvxPurchased;
-
-        // 50/50 Hybrid MLM Logic (3 Levels)
-        let sponsor = d[account].sponsor;
-        for (let i = 1; i <= 3; i++) {
-            if (!sponsor || !d[sponsor]) break;
-            let comm = (i === 1 ? 0.05 : i === 2 ? 0.03 : 0.02);
-            // 50% TVX
-            d[sponsor].tvx += (tvxPurchased * 0.5 * comm);
-            // 50% BNB
-            d[sponsor].bnb += ((tvxPurchased * 0.5 * comm) * TVX_USD) / BNB_USD;
-            sponsor = d[sponsor].sponsor;
-        }
-
-        save(d);
-        update();
-        Swal.fire("Success", `Received ${tvxPurchased.toLocaleString()} TVX!`, "success");
-    } catch(e) { Swal.fire("Error", "Transaction failed", "error"); }
-}
-
-// ================= ACTIVATE =================
-function activate(){
-    let d = db();
-    if(d[account].tvx < 10000) return Swal.fire("Insufficient", "10,000 TVX required", "error");
-
-    d[account].active = true;
-    save(d);
-    Swal.fire("Success", "Expedia Access Unlocked!", "success");
-    update();
-}
-
-// ================= WITHDRAW =================
-function withdraw(){
-    let d = db();
-    if(d[account].bnb <= 0) return Swal.fire("Empty", "No balance", "info");
-    d[account].bnb = 0;
-    save(d);
-    update();
-    Swal.fire("Success", "Withdrawal processed!", "success");
-}
-
-function copyRef(){
-    const input = document.getElementById("refInput");
-    navigator.clipboard.writeText(input.value);
-    Swal.fire({ title: 'Copied!', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
-}
-
-document.getElementById("bnbInput").oninput = (e)=>{
-    document.getElementById("preview").innerText = (e.target.value * RATE).toLocaleString() + " TVX";
-};
-
-// Auto Reconnect
-window.addEventListener('load', () => {
-    if (localStorage.getItem("tvx_connected") === "true") connect();
+let tx=await signer.sendTransaction({
+to:RECEIVER,
+value:ethers.utils.parseEther(bnb)
 });
 
+await tx.wait();
+
+let d=db();
+let tvx=bnb*RATE;
+
+d[account].tvx+=tvx;
+
+// MLM 5-3-2
+let sponsor=d[account].sponsor;
+
+for(let i=1;i<=3;i++){
+if(!sponsor||!d[sponsor]) break;
+
+let rate=(i===1?0.05:i===2?0.03:0.02);
+
+// 50% TVX
+d[sponsor].tvx += tvx*0.5*rate;
+
+// 50% BNB (internal)
+d[sponsor].bnb += (tvx*0.5*rate)*TVX_USD/BNB_USD;
+
+sponsor=d[sponsor].sponsor;
+}
+
+save(d);
+
+Swal.fire("Success","TVX Purchased","success");
+update();
+}
+
+// PREVIEW
+document.getElementById("bnbInput").oninput=(e)=>{
+document.getElementById("preview").innerText=
+(e.target.value*RATE)+" TVX";
+}
+
+// ACTIVATE
+function activate(){
+let d=db();
+
+if(!d[account] || d[account].tvx < 100/TVX_USD){
+return Swal.fire("Error","Need $100 TVX (10,000 TVX)","error");
+}
+
+d[account].active=true;
+save(d);
+
+Swal.fire("Success","Card Activated","success");
+}
+
+// WITHDRAW
+function withdraw(){
+let d=db();
+
+if(!d[account] || d[account].bnb<=0)
+return Swal.fire("Empty","No balance","info");
+
+let amt=d[account].bnb;
+d[account].bnb=0;
+
+save(d);
+
+document.getElementById("bal").innerText=amt;
+
+Swal.fire("Success","Withdraw Requested","success");
+}
+
+// UPDATE
+function update(){
+let d=db();
+let u=d[account];
+if(!u) return;
+
+document.getElementById("tvx").innerText=u.tvx.toLocaleString();
+document.getElementById("income").innerText=u.bnb.toFixed(6);
+document.getElementById("bal").innerText=(u.bnb*BNB_USD).toFixed(2);
+}
+
 </script>
+
 </body>
 </html>
-
