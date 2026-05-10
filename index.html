@@ -63,7 +63,7 @@
             <div class="glass p-5 rounded-2xl border-l-4 border-yellow-500 bg-yellow-500/5">
                 <p class="text-yellow-500 text-[10px] font-bold uppercase italic">Stake Reward (18%)</p>
                 <h3 id="stakeProfit" class="text-xl font-black mt-1 text-yellow-500">0.00 TVX</h3>
-                <button onclick="withdraw()" class="mt-2 text-[10px] bg-yellow-500 text-black px-3 py-1 rounded-lg font-bold uppercase">Withdraw</button>
+                <button onclick="Swal.fire('Info', 'Smart Contract not connected', 'info')" class="mt-2 text-[10px] bg-yellow-500 text-black px-3 py-1 rounded-lg font-bold uppercase">Withdraw</button>
             </div>
             <div class="glass p-5 rounded-2xl border-l-4 border-blue-500">
                 <p class="text-gray-500 text-[10px] font-bold uppercase italic">MLM Income (BNB)</p>
@@ -71,12 +71,13 @@
             </div>
         </div>
 
-        <!-- REFERRAL LINK -->
-        <div class="glass p-6 rounded-[35px] border border-emerald-400/20 mb-10">
-            <h3 class="text-lg font-black mb-2 uppercase italic text-emerald-400">Your Referral Link</h3>
-            <div class="flex flex-col sm:flex-row gap-3">
-                <input id="refLink" readonly type="text" value="Connect wallet to see link" class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs font-mono text-emerald-400">
-                <button onclick="copyRef()" class="bg-emerald-400 text-black px-8 py-3 rounded-xl font-black text-xs uppercase hover:bg-emerald-500">Copy Link</button>
+        <!-- REFERRAL LINK (FIXED) -->
+        <div class="glass p-8 rounded-[35px] border border-emerald-400/20 mb-8">
+            <h3 class="text-xl font-black mb-2 uppercase italic text-emerald-400">Your Referral Link</h3>
+            <p class="text-gray-500 text-xs mb-4">Connect wallet to generate your unique link.</p>
+            <div class="flex flex-col sm:flex-row gap-2">
+                <input id="refLink" readonly type="text" placeholder="Connect wallet to see link" class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs font-mono text-emerald-400 focus:outline-none">
+                <button onclick="copyRef()" class="bg-emerald-400 text-black px-6 py-3 rounded-xl font-black text-xs uppercase hover:bg-emerald-500 transition-all">Copy Link</button>
             </div>
         </div>
 
@@ -90,7 +91,6 @@
                     <p class="mt-4 text-xs font-black italic text-emerald-400">$500 BONUS</p>
                     <button disabled class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20">Locked</button>
                 </div>
-                <!-- V2, V3 etc -->
             </div>
         </div>
     </main>
@@ -98,71 +98,88 @@
 
 <script>
     let provider, signer, address;
-    let referrer = "0x0000000000000000000000000000000000000000";
 
-    // ১. ইউআরএল থেকে রেফারেল ডিটেক্ট করা
-    window.onload = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const ref = urlParams.get('ref');
-        if (ref && ethers.utils.isAddress(ref)) {
-            referrer = ref;
-            localStorage.setItem('tx_ref', ref);
-        }
-    };
-
-    // ২. ওয়ালেট কানেক্ট লজিক
+    // ১. ওয়ালেট কানেক্ট ফাংশন (FIXED)
     async function connect() {
-        if (window.ethereum) {
+        if (typeof window.ethereum !== 'undefined') {
             try {
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                await provider.send("eth_requestAccounts", []);
-                signer = provider.getSigner();
-                address = await signer.getAddress();
+                // Request accounts
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                address = accounts[0];
                 
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+
                 updateUI();
-                Swal.fire({ icon: 'success', title: 'Connected!', background: '#0d1320', color: '#fff', confirmButtonColor: '#10b981' });
-            } catch (e) { console.error(e); }
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Connected',
+                    text: 'Wallet: ' + address.slice(0,6) + '...' + address.slice(-4),
+                    background: '#0d1320',
+                    color: '#fff',
+                    confirmButtonColor: '#10b981'
+                });
+            } catch (error) {
+                console.error("User denied account access");
+            }
         } else {
-            Swal.fire('Install MetaMask!', '', 'error');
+            Swal.fire('MetaMask Not Found', 'Please install MetaMask extension', 'error');
         }
     }
 
-    // ৩. ড্যাশবোর্ড ডাটা ও রেফারেল লিংক আপডেট
+    // ২. ইন্টারফেস আপডেট ফাংশন (FIXED)
     async function updateUI() {
+        if (!address) return;
+
+        // ব্যালেন্স দেখানো
         const balance = await provider.getBalance(address);
-        document.getElementById('bnbBal').innerText = parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
+        const bnbVal = ethers.utils.formatEther(balance);
+        document.getElementById('bnbBal').innerText = parseFloat(bnbVal).toFixed(4);
+
+        // ওয়ালেট ডিসপ্লে
         document.getElementById('walletDisplay').innerText = address.slice(0,6) + "..." + address.slice(-4);
         document.getElementById('walletDisplay').classList.remove('hidden');
         document.getElementById('connectBtn').classList.add('hidden');
-        
-        // রেফারেল লিংক তৈরি
-        const currentUrl = window.location.origin + window.location.pathname;
-        document.getElementById('refLink').value = currentUrl + "?ref=" + address;
+
+        // রেফারেল লিংক জেনারেশন (FIXED Logic)
+        const baseUrl = window.location.href.split('?')[0];
+        const fullRefLink = baseUrl + "?ref=" + address;
+        document.getElementById('refLink').value = fullRefLink;
     }
 
-    // ৪. কপি সিস্টেম
+    // ৩. কপি করার ফাংশন (FIXED)
     function copyRef() {
         const copyText = document.getElementById("refLink");
-        if(address) {
-            copyText.select();
-            navigator.clipboard.writeText(copyText.value);
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Link Copied!', showConfirmButton: false, timer: 1500 });
-        } else {
-            Swal.fire('Connect Wallet First', '', 'warning');
+        
+        if (!address) {
+            Swal.fire('Warning', 'Please connect wallet first!', 'warning');
+            return;
         }
+
+        // আধুনিক কপি পদ্ধতি
+        navigator.clipboard.writeText(copyText.value).then(() => {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Link Copied!',
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }).catch(err => {
+            // ব্যাকআপ কপি পদ্ধতি
+            copyText.select();
+            document.execCommand("copy");
+        });
     }
 
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('sidebar-folded');
     }
 
-    function withdraw() {
-        if(!address) return Swal.fire('Connect Wallet', '', 'info');
-        Swal.fire('Withdrawal', 'Smart Contract not integrated yet.', 'info');
-    }
-
     function logout() {
-        window.location.reload();
+        window.location.href = window.location.pathname; // রিফ্রেশ ও ডিসকানেক্ট
     }
 </script>
 
