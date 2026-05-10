@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TravelX | Professional Web3 MLM</title>
+    <title>TravelX | Final Professional Web3 MLM</title>
     <script src="https://tailwindcss.com"></script>
     <script src="https://jsdelivr.net"></script>
     <script src="https://jsdelivr.net"></script>
@@ -14,34 +14,23 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
         #sidebar { transition: transform 0.3s ease-in-out; }
         @media (max-width: 1024px) { .sidebar-folded { transform: translateX(-100%); } }
-        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
     </style>
 </head>
 <body class="text-white font-sans custom-scrollbar overflow-x-hidden">
 
 <div class="min-h-screen flex flex-col lg:flex-row relative">
 
-    <!-- MOBILE TOP -->
-    <div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-[100]">
-        <h1 class="text-2xl font-black text-emerald-400 italic">TRAVELX</h1>
-        <button onclick="toggleSidebar()" class="p-2 bg-emerald-400/10 rounded-lg text-emerald-400">
-            <svg xmlns="http://w3.org" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
-        </button>
-    </div>
-
     <!-- SIDEBAR -->
     <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-[99] flex flex-col">
         <h1 class="text-3xl font-black text-emerald-400 mb-10 italic">TRAVELX</h1>
         <nav class="space-y-3 flex-1 text-sm font-bold">
-            <a href="#" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black">Dashboard</a>
-            <a href="#buySection" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Buy & Swap</a>
-            <a href="#rewards" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">VIP Rewards</a>
-            <a href="#reports" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Reports</a>
+            <a href="#" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black text-center">Dashboard</a>
+            <a href="#rewards" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition text-center">VIP Rewards</a>
         </nav>
         <div class="mt-auto pt-6 border-t border-white/5 text-center">
             <h4 class="font-bold text-[10px] text-emerald-400 uppercase italic">Rank Status</h4>
-            <p class="text-xl font-black mt-1 uppercase text-yellow-500" id="sideRank">NONE</p>
-            <button onclick="logout()" class="mt-6 text-red-500 text-xs font-bold uppercase hover:underline">Disconnect</button>
+            <p id="sideRank" class="text-xl font-black mt-1 uppercase text-yellow-500">NONE</p>
+            <button onclick="window.location.reload()" class="mt-6 text-red-500 text-xs font-bold uppercase hover:underline">Disconnect</button>
         </div>
     </aside>
 
@@ -58,33 +47,30 @@
 
         <!-- STATS GRID -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div class="glass p-5 rounded-2xl border-l-4 border-white"><p class="text-gray-500 text-[10px] font-bold uppercase">BNB Balance</p><h3 id="bnbBal" class="text-xl font-black mt-1">0.0000</h3></div>
-            <div class="glass p-5 rounded-2xl border-l-4 border-emerald-400"><p class="text-gray-500 text-[10px] font-bold uppercase">TVX Assets</p><h3 id="tvxBal" class="text-xl font-black mt-1 text-emerald-400">0</h3></div>
-            <div class="glass p-5 rounded-2xl border-l-4 border-yellow-500 bg-yellow-500/5">
-                <p class="text-yellow-500 text-[10px] font-bold uppercase italic">Stake Reward (18%)</p>
+            <div class="glass p-5 rounded-2xl border-l-4 border-white text-center"><p class="text-gray-500 text-[10px] font-bold uppercase">BNB Balance</p><h3 id="bnbBal" class="text-xl font-black mt-1">0.0000</h3></div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-emerald-400 text-center"><p class="text-gray-500 text-[10px] font-bold uppercase">TVX Assets</p><h3 id="tvxBal" class="text-xl font-black mt-1 text-emerald-400">0</h3></div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-yellow-500 bg-yellow-500/5 text-center">
+                <p class="text-yellow-500 text-[10px] font-bold uppercase italic">Stake Reward</p>
                 <h3 id="stakeProfit" class="text-xl font-black mt-1 text-yellow-500">0.00 TVX</h3>
                 <button onclick="Swal.fire('Info', 'Smart Contract not connected', 'info')" class="mt-2 text-[10px] bg-yellow-500 text-black px-3 py-1 rounded-lg font-bold uppercase">Withdraw</button>
             </div>
-            <div class="glass p-5 rounded-2xl border-l-4 border-blue-500">
-                <p class="text-gray-500 text-[10px] font-bold uppercase italic">MLM Income (BNB)</p>
-                <h3 id="income" class="text-xl font-black mt-1 text-blue-400">0.0000</h3>
-            </div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-blue-500 text-center"><p class="text-gray-500 text-[10px] font-bold uppercase italic">MLM Income</p><h3 id="income" class="text-xl font-black mt-1 text-blue-400">0.0000</h3></div>
         </div>
 
-        <!-- REFERRAL LINK (FIXED) -->
-        <div class="glass p-8 rounded-[35px] border border-emerald-400/20 mb-8">
-            <h3 class="text-xl font-black mb-2 uppercase italic text-emerald-400">Your Referral Link</h3>
-            <p class="text-gray-500 text-xs mb-4">Connect wallet to generate your unique link.</p>
-            <div class="flex flex-col sm:flex-row gap-2">
-                <input id="refLink" readonly type="text" placeholder="Connect wallet to see link" class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs font-mono text-emerald-400 focus:outline-none">
-                <button onclick="copyRef()" class="bg-emerald-400 text-black px-6 py-3 rounded-xl font-black text-xs uppercase hover:bg-emerald-500 transition-all">Copy Link</button>
+        <!-- REFERRAL LINK BOX (কার্ডের নিচে) -->
+        <div class="glass p-8 rounded-[35px] border border-emerald-400/20 mb-10 shadow-xl shadow-emerald-500/5">
+            <h3 class="text-xl font-black mb-2 uppercase italic text-emerald-400">Invite & Earn</h3>
+            <p class="text-gray-400 text-xs mb-4 uppercase font-bold">Connect your wallet to get your referral link</p>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <input id="refLink" readonly type="text" placeholder="Wallet Not Connected" class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs font-mono text-emerald-400 focus:outline-none focus:border-emerald-400/50 transition-all">
+                <button onclick="copyRef()" class="bg-emerald-400 text-black px-8 py-3 rounded-xl font-black text-xs uppercase hover:bg-emerald-500 transition-all active:scale-95">Copy Link</button>
             </div>
         </div>
 
         <!-- REWARDS -->
         <div id="rewards" class="mb-10">
             <h3 class="text-xl font-black mb-6 uppercase italic text-emerald-400">🏆 VIP Rewards</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
                 <div class="glass p-6 rounded-[35px] border border-white/5 relative">
                     <h4 class="font-black text-xl italic uppercase">V1 VIP</h4>
                     <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase italic">25 Team + 5 Directs</p>
@@ -97,89 +83,55 @@
 </div>
 
 <script>
-    let provider, signer, address;
+    let provider, address;
 
-    // ১. ওয়ালেট কানেক্ট ফাংশন (FIXED)
     async function connect() {
         if (typeof window.ethereum !== 'undefined') {
             try {
-                // Request accounts
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                address = accounts[0];
-                
+                address = accounts[0]; // ইউজার অ্যাড্রেস সেট
                 provider = new ethers.providers.Web3Provider(window.ethereum);
-                signer = provider.getSigner();
 
                 updateUI();
-                
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Connected',
-                    text: 'Wallet: ' + address.slice(0,6) + '...' + address.slice(-4),
-                    background: '#0d1320',
-                    color: '#fff',
-                    confirmButtonColor: '#10b981'
-                });
-            } catch (error) {
-                console.error("User denied account access");
-            }
+                Swal.fire({ icon: 'success', title: 'Connected!', background: '#0d1320', color: '#fff', confirmButtonColor: '#10b981' });
+            } catch (err) { console.error(err); }
         } else {
             Swal.fire('MetaMask Not Found', 'Please install MetaMask extension', 'error');
         }
     }
 
-    // ২. ইন্টারফেস আপডেট ফাংশন (FIXED)
     async function updateUI() {
         if (!address) return;
 
-        // ব্যালেন্স দেখানো
+        // ব্যালেন্স আপডেট
         const balance = await provider.getBalance(address);
-        const bnbVal = ethers.utils.formatEther(balance);
-        document.getElementById('bnbBal').innerText = parseFloat(bnbVal).toFixed(4);
+        document.getElementById('bnbBal').innerText = parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
 
-        // ওয়ালেট ডিসপ্লে
+        // ওয়ালেট ডিসপ্লে আপডেট
         document.getElementById('walletDisplay').innerText = address.slice(0,6) + "..." + address.slice(-4);
         document.getElementById('walletDisplay').classList.remove('hidden');
         document.getElementById('connectBtn').classList.add('hidden');
 
-        // রেফারেল লিংক জেনারেশন (FIXED Logic)
-        const baseUrl = window.location.href.split('?')[0];
-        const fullRefLink = baseUrl + "?ref=" + address;
-        document.getElementById('refLink').value = fullRefLink;
+        // রেফারেল লিংক জেনারেশন
+        const currentUrl = window.location.origin + window.location.pathname;
+        document.getElementById('refLink').value = currentUrl + "?ref=" + address;
     }
 
-    // ৩. কপি করার ফাংশন (FIXED)
     function copyRef() {
         const copyText = document.getElementById("refLink");
-        
         if (!address) {
-            Swal.fire('Warning', 'Please connect wallet first!', 'warning');
+            Swal.fire('Connect Wallet', 'Please connect your wallet first', 'warning');
             return;
         }
-
-        // আধুনিক কপি পদ্ধতি
+        
+        // ক্লিপবোর্ডে কপি লজিক
         navigator.clipboard.writeText(copyText.value).then(() => {
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'success',
-                title: 'Link Copied!',
-                showConfirmButton: false,
-                timer: 2000
-            });
-        }).catch(err => {
-            // ব্যাকআপ কপি পদ্ধতি
-            copyText.select();
-            document.execCommand("copy");
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Link Copied!', showConfirmButton: false, timer: 1500 });
         });
     }
 
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('sidebar-folded');
-    }
-
-    function logout() {
-        window.location.href = window.location.pathname; // রিফ্রেশ ও ডিসকানেক্ট
     }
 </script>
 
