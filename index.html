@@ -259,28 +259,71 @@ async function connect() {
         if(ref && d[ref.toLowerCase()]) d[ref.toLowerCase()].directs.push(account);
         save(d);
     }
-    document.getElementById("connectBtn").classList.add("hidden");
-    document.getElementById("walletDisplay").classList.remove("hidden");
-    document.getElementById("walletDisplay").innerText = account.slice(0,6)+"..."+account.slice(-4);
-    update(); setInterval(update, 10000);
-    function updateRefLink() {
-    if (!account) return;
+    // ১. কানেক্ট হওয়ার পর UI এবং রেফারেল লিঙ্ক আপডেট করার ফাংশন
+function updateUIAfterConnect(address) {
+    // কানেক্ট বাটনের টেক্সট পরিবর্তন (অ্যাড্রেস ছোট করে দেখানো)
+    const btn = document.getElementById('connectBtn');
+    if(btn) btn.innerText = address.substring(0, 6) + "..." + address.substring(address.length - 4);
+    
+    // রেফারেল লিঙ্ক তৈরি ও বক্সে বসানো
+    const baseUrl = window.location.origin; 
+    const fullLink = `${baseUrl}?ref=${address}`;
+    const refInput = document.getElementById('refLink');
+    if(refInput) refInput.value = fullLink;
 
-    const link = window.location.origin + "?ref=" + account;
-
-    const el = document.getElementById("refLink");
-    if (el) el.value = link;
+    // ওয়ালেট ডিসপ্লে এলিমেন্ট থেকে 'hidden' ক্লাস সরানো
+    const walletDisplay = document.getElementById('walletDisplay');
+    if(walletDisplay) {
+        walletDisplay.innerText = address;
+        walletDisplay.classList.remove('hidden');
+    }
 }
 
+// ২. মেইন কানেক্ট ফাংশন (LocalStorage ব্যবহার করা হয়েছে রিফ্রেশ ফিক্সের জন্য)
+async function connect() {
+    if (window.ethereum) {
+        try {
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const address = accounts[0];
+            
+            // ব্রাউজার মেমোরিতে অ্যাড্রেস সেভ করা যাতে রিফ্রেশ করলে না যায়
+            localStorage.setItem('userWallet', address);
+            
+            updateUIAfterConnect(address);
+            Swal.fire("Connected!", "Wallet successfully linked.", "success");
+        } catch (err) {
+            console.error("Connection failed", err);
+        }
+    } else {
+        Swal.fire("Error", "Please install MetaMask!", "error");
+    }
+}
+
+// ৩. অটো-কানেক্ট (পেজ রিফ্রেশ করলে এটি স্বয়ংক্রিয়ভাবে কাজ করবে)
+window.addEventListener('load', async () => {
+    const savedWallet = localStorage.getItem('userWallet');
+    if (savedWallet && window.ethereum) {
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) {
+            updateUIAfterConnect(accounts[0]);
+        } else {
+            // যদি মেটামাস্ক থেকে ম্যানুয়ালি ডিসকানেক্ট করা থাকে
+            localStorage.removeItem('userWallet');
+        }
+    }
+});
+
+// ৪. রেফারেল লিঙ্ক কপি করার ফাংশন
 function copyRef() {
-    const el = document.getElementById("refLink");
-    if (!el) return;
+    const copyText = document.getElementById("refLink");
+    if (!copyText.value) return Swal.fire("Error", "Connect wallet first!", "error");
 
-    el.select();
-    document.execCommand("copy");
-
-    Swal.fire("Copied!", "Referral link copied", "success");
+    copyText.select();
+    navigator.clipboard.writeText(copyText.value);
+    Swal.fire("Copied!", "Referral link copied to clipboard.", "success");
 }
+
+
 }
 
 async function update() {
