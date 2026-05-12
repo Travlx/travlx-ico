@@ -220,7 +220,24 @@ async function connect() {
     document.getElementById("walletDisplay").classList.remove("hidden");
     document.getElementById("walletDisplay").innerText = account.slice(0,6)+"..."+account.slice(-4);
     update(); setInterval(update, 10000);
-    updateRefLink();
+    function updateRefLink() {
+    if (!account) return;
+
+    const link = window.location.origin + "?ref=" + account;
+
+    const el = document.getElementById("refLink");
+    if (el) el.value = link;
+}
+
+function copyRef() {
+    const el = document.getElementById("refLink");
+    if (!el) return;
+
+    el.select();
+    document.execCommand("copy");
+
+    Swal.fire("Copied!", "Referral link copied", "success");
+}
 }
 
 async function update() {
