@@ -3,106 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TravelX | Final Professional Web3 MLM</title>
+    <title>TravelX Dashboard</title>
 
-    <!-- ✅ Correct Libraries -->
+    <!-- LIBRARIES -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        body { background-color: #060b14; scroll-behavior: smooth; }
-        .glass { background: rgba(13, 19, 32, 0.95); border: 1px solid rgba(255,255,255,0.05); }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
-        #sidebar { transition: transform 0.3s ease-in-out; }
-        @media (max-width: 1024px) {
-            .sidebar-folded { transform: translateX(-100%); }
+        body { background:#060b14; }
+        .glass { background:rgba(13,19,32,.95); border:1px solid rgba(255,255,255,.05); }
+        #sidebar { transition:.3s ease; z-index:100; }
+        @media(max-width:1024px){
+            .sidebar-folded { transform:translateX(-100%); }
         }
     </style>
 </head>
 
-<body class="text-white font-sans custom-scrollbar overflow-x-hidden">
+<body class="text-white overflow-x-hidden">
 
-<div class="min-h-screen flex flex-col lg:flex-row relative">
+<div class="min-h-screen flex">
 
     <!-- SIDEBAR -->
-    <aside id="sidebar" class="w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-[99] flex flex-col">
-        
-        <div class="flex justify-between items-center mb-10">
-            <h1 class="text-3xl font-black text-emerald-400 italic">TRAVELX</h1>
-            <button onclick="toggleSidebar()" class="lg:hidden text-white text-2xl">×</button>
+    <aside id="sidebar" class="w-72 bg-[#0d1320] p-6 fixed lg:sticky h-screen flex flex-col sidebar-folded lg:transform-none">
+        <div class="flex justify-between items-center">
+            <h1 class="text-3xl font-black text-emerald-400">TRAVELX</h1>
+            <button onclick="toggleSidebar()" class="lg:hidden text-2xl text-white">×</button>
         </div>
 
-        <nav class="space-y-3 flex-1 text-sm font-bold">
-            <a href="#" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black text-center">Dashboard</a>
-            <a href="#rewards" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition text-center">VIP Rewards</a>
+        <nav class="mt-10 flex-1 space-y-3">
+            <a class="block bg-emerald-400 text-black p-3 rounded-xl text-center font-bold">Dashboard</a>
+            <a href="#rewards" class="block bg-white/5 p-3 rounded-xl text-center">VIP Rewards</a>
         </nav>
 
-        <div class="mt-auto pt-6 border-t border-white/5 text-center">
-            <h4 class="font-bold text-[10px] text-emerald-400 uppercase italic">Rank Status</h4>
-            <p id="sideRank" class="text-xl font-black mt-1 uppercase text-yellow-500">NONE</p>
-            <button onclick="window.location.reload()" class="mt-6 text-red-500 text-xs font-bold uppercase hover:underline">Disconnect</button>
+        <div class="text-center border-t border-white/10 pt-4">
+            <p class="text-yellow-400">Rank Status</p>
+            <p id="sideRank" class="text-xl font-black">NONE</p>
         </div>
-
     </aside>
 
-    <!-- MAIN -->
-    <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden">
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 p-6 lg:p-10 w-full">
 
-        <!-- TOPBAR -->
+        <!-- TOP BAR -->
         <div class="flex justify-between items-center mb-8">
-            <div>
-                <h2 class="text-2xl lg:text-4xl font-black italic uppercase">Investor Portal</h2>
-                <p class="text-gray-500 text-xs lg:text-sm">Earn 18% APY & Global Rewards</p>
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 bg-white/10 rounded-lg">☰</button>
+                <div>
+                    <h2 class="text-2xl lg:text-3xl font-black uppercase">Investor Portal</h2>
+                    <p class="text-gray-400 text-xs">Earn 18% APY & Global Rewards</p>
+                </div>
             </div>
 
-            <div class="flex gap-3 items-center">
-                <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-4 lg:px-6 py-2 lg:py-3 rounded-2xl font-black text-xs lg:text-base">
-                    Connect
-                </button>
-
-                <div id="walletDisplay" class="hidden glass px-4 py-2 rounded-xl text-emerald-400 text-xs font-mono"></div>
+            <div class="flex gap-3">
+                <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-5 py-2 rounded-xl font-bold">Connect</button>
+                <div id="walletDisplay" class="hidden glass px-4 py-2 rounded-xl text-emerald-400 text-xs font-mono border border-emerald-400/20">0x...</div>
             </div>
         </div>
 
-        <!-- STATS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-
-            <div class="glass p-5 rounded-2xl text-center">
-                <p class="text-gray-500 text-[10px] uppercase">BNB Balance</p>
+        <!-- STATS GRID -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10 text-center">
+            <div class="glass p-5 rounded-2xl">
+                <p class="text-gray-500 text-[10px] uppercase font-bold">BNB Balance</p>
                 <h3 id="bnbBal" class="text-xl font-black mt-1">0.0000</h3>
             </div>
-
-            <div class="glass p-5 rounded-2xl text-center">
-                <p class="text-gray-500 text-[10px] uppercase">TVX Assets</p>
+            <div class="glass p-5 rounded-2xl">
+                <p class="text-gray-500 text-[10px] uppercase font-bold">TVX Assets</p>
                 <h3 id="tvxBal" class="text-xl font-black mt-1 text-emerald-400">0</h3>
             </div>
-
-            <div class="glass p-5 rounded-2xl text-center border border-yellow-500/20">
-                <p class="text-yellow-500 text-[10px] uppercase">Stake Reward</p>
-                <h3 id="stakeProfit" class="text-xl font-black mt-1 text-yellow-500">0.00 TVX</h3>
-                <button class="mt-2 text-[10px] bg-yellow-500 text-black px-3 py-1 rounded-lg font-bold uppercase">
-                    Withdraw
-                </button>
+            <div class="glass p-5 rounded-2xl border border-yellow-500/20">
+                <p class="text-yellow-500 text-[10px] uppercase font-bold">Stake Reward</p>
+                <h3 id="stakeProfit" class="text-xl font-black mt-1 text-yellow-500">0.00</h3>
             </div>
-
-            <div class="glass p-5 rounded-2xl text-center">
-                <p class="text-gray-500 text-[10px] uppercase">MLM Income</p>
-                <h3 id="income" class="text-xl font-black mt-1 text-blue-400">0.0000</h3>
+            <div class="glass p-5 rounded-2xl border border-blue-500/20">
+                <p class="text-blue-400 text-[10px] uppercase font-bold">MLM Income</p>
+                <h3 id="income" class="text-xl font-black mt-1 text-blue-400">0.00</h3>
             </div>
-
         </div>
 
-        <!-- REF -->
-        <div class="glass p-6 rounded-2xl mb-10">
+        <!-- REFERRAL SECTION -->
+        <div class="glass p-6 lg:p-8 rounded-[30px] border border-emerald-400/10">
             <h3 class="text-xl font-black text-emerald-400 uppercase">Invite & Earn</h3>
-
-            <div class="flex flex-col sm:flex-row gap-3 mt-4">
-                <input id="refLink" readonly class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs font-mono text-emerald-400">
-                <button onclick="copyRef()" class="bg-emerald-400 text-black px-6 py-3 rounded-xl font-black text-xs uppercase">
-                    Copy
-                </button>
+            <p class="text-gray-400 text-xs mt-1 mb-6">CONNECT WALLET TO GENERATE YOUR LINK</p>
+            
+            <div class="flex flex-col sm:flex-row gap-3">
+                <input id="refLink" readonly type="text" placeholder="Wallet Not Connected" 
+                    class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-xs font-mono text-emerald-400 outline-none">
+                <button onclick="copyRef()" class="bg-emerald-400 text-black px-10 py-4 rounded-xl font-bold uppercase hover:bg-emerald-500 transition-all">Copy Link</button>
             </div>
         </div>
 
@@ -113,70 +100,73 @@
 let provider, address;
 
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('sidebar-folded');
+    document.getElementById("sidebar").classList.toggle("sidebar-folded");
 }
 
 async function connect() {
-    if (!window.ethereum) {
-        Swal.fire('Error', 'MetaMask Not Found', 'error');
-        return;
-    }
+    if (typeof window.ethereum !== 'undefined') {
+        try {
+            const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+            address = accounts[0];
+            provider = new ethers.providers.Web3Provider(window.ethereum);
 
-    try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        address = accounts[0];
-
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-
-        updateUI();
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Connected',
-            background: '#0d1320',
-            color: '#fff',
-            confirmButtonColor: '#10b981'
-        });
-
-    } catch (err) {
-        console.error(err);
+            updateUI();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Connected!',
+                text: 'Wallet: ' + address.slice(0,6) + "..." + address.slice(-4),
+                background: '#0d1320',
+                color: '#fff',
+                confirmButtonColor: '#10b981'
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    } else {
+        Swal.fire('Error', 'Please install MetaMask!', 'error');
     }
 }
 
 async function updateUI() {
+    if (!address) return;
+
+    // Balance update
     const balance = await provider.getBalance(address);
+    document.getElementById('bnbBal').innerText = parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
 
-    document.getElementById('bnbBal').innerText =
-        parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
-
+    // Display updates
+    document.getElementById('walletDisplay').innerText = address.slice(0,6) + "..." + address.slice(-4);
     document.getElementById('walletDisplay').classList.remove('hidden');
-    document.getElementById('walletDisplay').innerText =
-        address.slice(0, 6) + "..." + address.slice(-4);
-
     document.getElementById('connectBtn').classList.add('hidden');
 
-    const url = window.location.origin + window.location.pathname;
-    document.getElementById('refLink').value = url + "?ref=" + address;
+    // Referral link generation
+    const currentUrl = window.location.origin + window.location.pathname;
+    document.getElementById('refLink').value = currentUrl + "?ref=" + address;
 }
 
 function copyRef() {
+    const copyText = document.getElementById("refLink");
     if (!address) {
-        Swal.fire('Warning', 'Connect wallet first', 'warning');
+        Swal.fire('Warning', 'Connect your wallet first!', 'warning');
         return;
     }
-
-    navigator.clipboard.writeText(document.getElementById("refLink").value);
-
-    Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: 'Copied!',
-        timer: 1500,
-        showConfirmButton: false
+    
+    navigator.clipboard.writeText(copyText.value).then(() => {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Link Copied!',
+            showConfirmButton: false,
+            timer: 1500,
+            background: '#0d1320',
+            color: '#fff'
+        });
     });
 }
 </script>
 
 </body>
 </html>
+
