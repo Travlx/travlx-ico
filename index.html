@@ -3,148 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TravelX | Final Dashboard</title>
+    <title>TravelX | Nexus Elite Dashboard</title>
+    
     <script src="https://tailwindcss.com"></script>
-    <script src="https://cloudflare.com"></script>
     <script src="https://jsdelivr.net"></script>
+    <script src="https://jsdelivr.net"></script>
+    <link href="https://googleapis.com" rel="stylesheet">
+
     <style>
-        body { background: #060b14; color: white; font-family: sans-serif; }
-        .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; p: 20px; }
+        :root { --primary: #00ff88; --secondary: #00d4ff; --bg: #020617; }
+        body { background: radial-gradient(circle at 10% 20%, rgba(0, 212, 255, 0.05) 0%, transparent 40%), 
+                           radial-gradient(circle at 90% 80%, rgba(0, 255, 136, 0.05) 0%, transparent 40%), var(--bg);
+               color: #f8fafc; font-family: 'Quicksand', sans-serif; overflow-x: hidden; }
+        .font-nexus { font-family: 'Syncopate', sans-serif; }
+        
+        /* Modern Glass Card */
+        .nexus-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 32px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .nexus-card:hover { border-color: var(--primary); box-shadow: 0 0 30px rgba(0, 255, 136, 0.1); transform: translateY(-5px); }
+        
+        /* Sidebar Transition */
+        #sidebar { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar-hidden { transform: translateX(-105%); }
+        @media (min-width: 1024px) { #sidebar { transform: translateX(0); } .main-wrap { margin-left: 20rem; } }
+
+        /* Neon Glow Button */
+        .btn-glow { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: #000; font-weight: 800; border-radius: 16px; box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3); transition: 0.3s; }
+        .btn-glow:hover { box-shadow: 0 0 25px var(--primary); letter-spacing: 1px; }
+
+        /* Animated Progress */
+        .shimmer { overflow: hidden; position: relative; }
+        .shimmer::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); animation: shim 2s infinite; }
+        @keyframes shim { 100% { left: 100%; } }
     </style>
 </head>
-<body class="p-5">
+<body>
 
-    <div class="max-w-4xl mx-auto space-y-6">
-        <!-- Header -->
-        <div class="flex justify-between items-center glass p-6">
-            <h1 class="text-2xl font-black text-emerald-400">TRAVELX</h1>
-            <button id="connectBtn" onclick="connect()" class="bg-emerald-500 text-black px-6 py-2 rounded-xl font-bold">Connect</button>
-            <button id="logoutBtn" onclick="logout()" class="hidden bg-red-500 text-white px-6 py-2 rounded-xl font-bold">Logout</button>
+    <!-- OVERLAY -->
+    <div id="overlay" onclick="toggleSide()" class="fixed inset-0 bg-black/80 z-40 hidden lg:hidden"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar-hidden w-80 bg-[#0f172a] border-r border-white/5 fixed top-0 left-0 h-screen p-8 flex flex-col z-50">
+        <div class="mb-12 flex justify-between items-center">
+            <h1 class="text-2xl font-nexus font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#00ff88] to-[#00d4ff]">TRAVELX</h1>
+            <button onclick="toggleSide()" class="lg:hidden text-gray-500 text-3xl">&times;</button>
         </div>
 
-        <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="glass p-6 text-center">
-                <p class="text-gray-400 text-xs uppercase">Your Balance</p>
-                <h2 id="userBalance" class="text-2xl font-bold">0.0000 BNB</h2>
-            </div>
-            <div class="glass p-6 text-center">
-                <p class="text-gray-400 text-xs uppercase">TVX Preview</p>
-                <h2 id="previewTVX" class="text-2xl font-bold text-emerald-400">0 TVX</h2>
-            </div>
-            <div class="glass p-6 text-center">
-                <button onclick="withdraw()" class="w-full bg-yellow-500 text-black py-3 rounded-xl font-black">WITHDRAW</button>
-            </div>
-        </div>
+        <nav class="space-y-4 flex-1">
+            <a href="#" class="flex items-center gap-4 px-6 py-4 bg-gradient-to-r from-emerald-500/20 to-transparent border-l-4 border-emerald-500 text-emerald-400 rounded-r-xl font-bold"><span>📊</span> Dashboard</a>
+            <button onclick="showNetwork()" class="w-full flex items-center gap-4 px-6 py-4 text-gray-400 hover:bg-white/5 rounded-xl transition font-semibold"><span>🕸️</span> My Network</button>
+            <a href="#" class="flex items-center gap-4 px-6 py-4 text-gray-400 hover:bg-white/5 rounded-xl transition font-semibold"><span>💱</span> Internal Swap</a>
+            <a href="#" class="flex items-center gap-4 px-6 py-4 text-gray-400 hover:bg-white/5 rounded-xl transition font-semibold"><span>📋</span> Transaction</a>
+        </nav>
 
-        <!-- Swap/Input Section -->
-        <div class="glass p-8">
-            <h3 class="mb-4 font-bold italic">Investment Preview</h3>
-            <input id="bnbInput" oninput="updatePreview()" type="number" placeholder="Enter BNB Amount" class="w-full bg-black/50 border border-white/10 p-4 rounded-xl mb-4">
+        <div class="mt-auto p-6 nexus-card bg-emerald-500/5 text-center">
+            <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest mb-1">Your Rank</p>
+            <h4 id="sideRank" class="text-white font-nexus text-sm italic">UNRANKED</h4>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-wrap min-h-screen">
+        <header class="p-6 lg:p-10 flex justify-between items-center bg-[#020617]/50 backdrop-blur-xl sticky top-0 z-40 border-b border-white/5">
+            <button onclick="toggleSide()" class="lg:hidden text-emerald-400 text-2xl">☰</button>
+            <h2 class="hidden md:block font-nexus text-sm tracking-[0.3em] text-gray-500">Elite <span class="text-white">Portal v2.0</span></h2>
+            <button id="connBtn" onclick="connect()" class="btn-glow px-8 py-3 text-[10px] tracking-widest">CONNECT WALLET</button>
+        </header>
+
+        <main class="p-6 lg:p-12 space-y-8 max-w-7xl mx-auto">
             
-            <h3 class="mb-4 font-bold italic">Swap TVX to BNB</h3>
-            <input id="swapInput" oninput="updateSwapPreview()" type="number" placeholder="Enter TVX Amount" class="w-full bg-black/50 border border-white/10 p-4 rounded-xl">
-            <p class="mt-2 text-sm text-gray-400">You will get: <span id="swapPreviewBNB" class="text-emerald-400 font-mono">0.0000 BNB</span></p>
-        </div>
+            <!-- STATS SECTION -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="nexus-card p-8 shimmer">
+                    <p class="text-gray-500 text-[11px] font-bold uppercase tracking-widest mb-2">BNB Balance</p>
+                    <h2 id="bnbVal" class="text-3xl font-nexus font-bold">0.0000</h2>
+                </div>
+                <div class="nexus-card p-8 border-b-4 border-secondary">
+                    <p class="text-secondary text-[11px] font-bold uppercase tracking-widest mb-2">TVX Assets</p>
+                    <h2 id="tvxVal" class="text-3xl font-nexus font-bold">0.00</h2>
+                </div>
+                <div class="nexus-card p-8 border-b-4 border-yellow-500">
+                    <p class="text-yellow-500 text-[11px] font-bold uppercase tracking-widest mb-2">Staked Balance</p>
+                    <h2 id="stakedVal" class="text-3xl font-nexus font-bold">0.00</h2>
+                </div>
+                <div class="nexus-card p-8 border-b-4 border-primary">
+                    <p class="text-primary text-[11px] font-bold uppercase tracking-widest mb-2">Daily Earning</p>
+                    <h2 id="earnVal" class="text-3xl font-nexus font-bold">0.0000</h2>
+                    <span class="text-[10px] text-gray-600 font-bold">25% APY LOADED</span>
+                </div>
+            </div>
+
+            <!-- SWAP & CARD -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <div class="nexus-card p-10 space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-nexus text-xs tracking-widest text-primary">NEXUS SWAP</h3>
+                        <span class="text-[10px] text-gray-500">Rate: 1 BNB = 20k TVX</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
+                            <label class="text-[10px] text-gray-500 font-bold uppercase">From BNB</label>
+                            <input type="number" id="inBnb" oninput="calc()" placeholder="0.0" class="w-full bg-transparent text-2xl font-bold outline-none mt-2">
+                        </div>
+                        <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
+                            <label class="text-[10px] text-gray-500 font-bold uppercase">To TVX</label>
+                            <input type="number" readonly id="outTvx" placeholder="0.0" class="w-full bg-transparent text-2xl font-bold outline-none mt-2 text-primary">
+                        </div>
+                        <button onclick="swp()" class="w-full btn-glow py-5 rounded-2xl text-xs uppercase tracking-[0.2em]">Swap Assets</button>
+                    </div>
+                </div>
+
+                <div class="nexus-card p-10 bg-gradient-to-br from-emerald-500/10 to-blue-500/10 border-2 border-primary/20 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-nexus text-xs tracking-widest text-white mb-6">VIP CARD ACTIVATION</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-8 italic">Stake <span class="text-white font-bold">$100 (200,000 TVX)</span> to trigger VIP Protocols and 3-Level Affiliate Passive Income.</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="w-full bg-white/5 h-1 rounded-full overflow-hidden">
+                            <div id="prog" class="bg-primary h-full transition-all duration-1000" style="width: 15%"></div>
+                        </div>
+                        <button onclick="act()" class="w-full bg-white text-black py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary transition-all">Activate VIP Status</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REFERRAL -->
+            <div class="nexus-card p-10">
+                <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-4">Affiliate Nexus Link</p>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <input id="refIn" readonly value="Connect Wallet..." class="flex-1 bg-black/40 border border-white/5 p-5 rounded-2xl text-primary font-mono text-xs outline-none">
+                    <button onclick="cp()" class="btn-glow px-12 py-5 rounded-2xl text-xs uppercase">Copy Link</button>
+                </div>
+            </div>
+
+        </main>
     </div>
 
 <script>
-// --- ১. গ্লোবাল কনফিগারেশন ---
-let account;
-const BNB_USD = 400; 
-const RATE = 1000;   // 1 BNB = 1000 TVX
-const TVX_USD = 0.4; // 1 TVX = 0.4 USD
+    let addr, prov;
+    const RATE = 20000;
 
-// --- ২. ডাটাবেস ফাংশন ---
-function db() {
-    let data = localStorage.getItem("travelx_db");
-    return data ? JSON.parse(data) : {};
-}
-
-function save(data) {
-    localStorage.setItem("travelx_db", JSON.stringify(data));
-}
-
-// --- ৩. কোর ফাংশনালিটি ---
-async function connect() {
-    if (window.ethereum) {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        account = accounts[0];
-        
-        let d = db();
-        if (!d[account]) {
-            d[account] = { bnb: 0, active: true, txHistory: [], claimed: [] };
-            save(d);
-        }
-
-        localStorage.setItem("connected", "true");
-        update();
-        
-        document.getElementById("connectBtn").classList.add("hidden");
-        document.getElementById("logoutBtn").classList.remove("hidden");
-        Swal.fire("Connected", account.slice(0,6)+'...'+account.slice(-4), "success");
-    } else {
-        Swal.fire("Error", "Install MetaMask", "error");
+    function toggleSide() {
+        document.getElementById('sidebar').classList.toggle('sidebar-hidden');
+        document.getElementById('overlay').classList.toggle('hidden');
     }
-}
 
-function update() {
-    if (!account) return;
-    let d = db();
-    let u = d[account];
-    document.getElementById("userBalance").innerText = u.bnb.toFixed(4) + " BNB";
-}
+    async function connect() {
+        if (window.ethereum) {
+            const accs = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            addr = accs;
+            prov = new ethers.providers.Web3Provider(window.ethereum);
+            document.getElementById('connBtn').innerText = addr.slice(0,6)+'...'+addr.slice(-4);
+            document.getElementById('refIn').value = window.location.origin + window.location.pathname + "?ref=" + addr;
+            
+            const bal = await prov.getBalance(addr);
+            document.getElementById('bnbVal').innerText = parseFloat(ethers.utils.formatEther(bal)).toFixed(4);
+            
+            Swal.fire({ title: 'Nexus Connected', icon: 'success', background: '#0f172a', color: '#fff', confirmButtonColor: '#00ff88' });
+        }
+    }
 
-function withdraw() {
-    let d = db(); 
-    let u = d[account];
-    if (!account) return Swal.fire("Error", "Connect Wallet", "error");
-    if (!u.active) return Swal.fire("Activation Required", "Activate card to withdraw.", "warning");
-    if (u.bnb <= 0) return Swal.fire("Empty", "No balance to withdraw", "info");
+    function calc() {
+        const v = document.getElementById('inBnb').value;
+        document.getElementById('outTvx').value = (v * RATE).toLocaleString();
+    }
 
-    d[account].txHistory.unshift({ 
-        type: 'WITHDRAW', 
-        amt: '$'+((u.bnb * BNB_USD)).toFixed(2) 
-    });
-    u.bnb = 0; 
-    save(d); 
-    update(); 
-    Swal.fire("Sent!", "Withdrawal processing...", "success");
-}
+    function cp() {
+        const i = document.getElementById('refIn');
+        if(i.value.includes('Connect')) return;
+        navigator.clipboard.writeText(i.value);
+        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Copied', showConfirmButton: false, timer: 1500 });
+    }
 
-function claimReward(rank, bonus) {
-    let d = db();
-    if (!account) return;
-    if (!d[account].claimed) d[account].claimed = [];
-    
-    d[account].claimed.push(rank); 
-    d[account].bnb += (bonus / BNB_USD);
-    d[account].txHistory.unshift({ type: 'BONUS', amt: rank + ' Reward' });
-    
-    save(d); 
-    update(); 
-    Swal.fire("Congratulations!", `Achieving ${rank} earned you $${bonus}!`, "success");
-}
+    function showNetwork() {
+        Swal.fire({
+            title: '<span class="font-nexus text-xs text-primary tracking-widest">MY NETWORK</span>',
+            background: '#0f172a',
+            color: '#fff',
+            confirmButtonColor: '#00ff88',
+            html: `
+                <div class="space-y-4 mt-6 text-left font-quicksand">
+                    <div class="p-5 bg-white/5 rounded-3xl border border-white/5 flex justify-between items-center">
+                        <div><p class="text-[10px] text-gray-500 uppercase font-bold">Level 1</p><p class="text-xs font-bold text-primary">5% Direct / 12% Daily</p></div>
+                        <p class="font-nexus text-sm">0 Ref</p>
+                    </div>
+                    <div class="p-5 bg-white/5 rounded-3xl border border-white/5 flex justify-between items-center">
+                        <div><p class="text-[10px] text-gray-500 uppercase font-bold">Level 2</p><p class="text-xs font-bold text-secondary">3% Direct / 8% Daily</p></div>
+                        <p class="font-nexus text-sm">0 Ref</p>
+                    </div>
+                    <div class="p-5 bg-white/5 rounded-3xl border border-white/5 flex justify-between items-center">
+                        <div><p class="text-[10px] text-gray-500 uppercase font-bold">Level 3</p><p class="text-xs font-bold text-purple-400">2% Direct / 5% Daily</p></div>
+                        <p class="font-nexus text-sm">0 Ref</p>
+                    </div>
+                </div>
+            `
+        });
+    }
 
-function logout() { 
-    localStorage.removeItem("connected"); 
-    window.location.reload(); 
-}
-
-function updatePreview() { 
-    let val = document.getElementById("bnbInput").value;
-    document.getElementById("previewTVX").innerText = (val * RATE).toLocaleString() + " TVX"; 
-}
-
-function updateSwapPreview() {
-    const tvx = document.getElementById("swapInput").value;
-    document.getElementById("swapPreviewBNB").innerText = tvx ? ((tvx * TVX_USD) / BNB_USD).toFixed(6) + " BNB" : "0.0000 BNB";
-}
-
-// অটো-কানেক্ট লোড হলে
-window.addEventListener('load', () => { 
-    if (localStorage.getItem("connected") === "true") connect(); 
-});
+    function swp() { if(!addr) return connect(); Swal.fire('Processing', 'Connecting to Swap Protocol...', 'info'); }
+    function act() { if(!addr) return connect(); Swal.fire('VIP Request', 'Confirm $100 Staking?', 'question'); }
 </script>
 </body>
 </html>
