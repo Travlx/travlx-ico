@@ -137,35 +137,92 @@
                 <button onclick="internalSwap()" class="w-full bg-white text-black font-black py-4 rounded-2xl mt-4 hover:bg-yellow-500 transition uppercase text-sm shadow-xl">Swap To BNB</button>
             </div>
         </div>
-<div class="card">
-    <div class="glass p-6 lg:p-8 rounded-[35px] border-l-8 border-emerald-500">
-    <h3 class="text-xl font-black mb-6 text-yellow-500 italic">Stake TVX & Level Rewards</h3>
+<!-- STEP 2: STAKE TVX & LEVEL REWARDS -->
+<div class="glass p-6 lg:p-8 rounded-[35px] border border-emerald-500/30 mb-8 bg-[#0d1320]/80 shadow-[0_0_50px_rgba(16,185,129,0.1)]">
+    <h3 class="text-xl font-black mb-6 text-yellow-500 italic uppercase">Stake TVX & Level Rewards</h3>
     
-    <input id="stakeInput" type="number" class="w-full p-4 bg-black/40 border border-white/10 rounded-2xl outline-none focus:border-yellow-500 font-bold font-mono" placeholder="Amount to Stake">
-    
-    <!-- Level Info Table -->
-    <div class="mt-4 p-4 bg-black/20 rounded-2xl border border-white/5">
-        <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">Daily Referral Distribution (100% of Reward)</p>
-        <div class="flex justify-between text-[11px] font-mono">
-            <span class="text-emerald-400">L1: 40%</span>
-            <span class="text-emerald-400">L2: 30%</span>
-            <span class="text-emerald-400">L3: 30%</span>
+    <div class="grid grid-cols-1 gap-6">
+        <!-- Input Box Area -->
+        <div class="relative">
+            <input id="stakeInput" type="number" 
+                class="w-full p-5 bg-black/60 border border-white/10 rounded-2xl outline-none focus:border-emerald-400 font-bold font-mono text-xl text-white placeholder-gray-700" 
+                placeholder="0.00">
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                <span class="text-emerald-400 font-bold text-xs">TVX</span>
+            </div>
+        </div>
+
+        <!-- Referral Distribution Info -->
+        <div class="bg-black/40 p-4 rounded-2xl border border-white/5">
+            <p class="text-[10px] text-gray-500 font-bold uppercase mb-3 italic">Daily Referral Distribution (100% of Reward)</p>
+            <div class="grid grid-cols-3 gap-2 text-center text-[11px] font-bold font-mono italic">
+                <div class="text-emerald-400">L1: 40%</div>
+                <div class="text-emerald-400">L2: 30%</div>
+                <div class="text-emerald-400">L3: 30%</div>
+            </div>
+        </div>
+
+        <!-- Reward Tracking Area -->
+        <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-black/20 p-5 rounded-2xl border border-white/5">
+            <div class="w-full md:w-auto">
+                <p class="text-gray-500 text-[10px] uppercase font-bold italic">Daily Stake Reward (0.1%)</p>
+                <h2 id="liveDailyReward" class="text-2xl font-black text-yellow-500 font-mono mt-1">0.000000 TVX</h2>
+            </div>
+            
+            <div class="flex gap-2 w-full md:w-auto">
+                <button onclick="stakeTokens()" class="flex-1 md:flex-none px-8 py-4 bg-emerald-500 text-black font-black rounded-xl hover:bg-emerald-400 transition uppercase text-xs shadow-lg shadow-emerald-500/20">Stake</button>
+                <button onclick="claimStakingReward()" class="flex-1 md:flex-none px-8 py-4 bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 font-black rounded-xl hover:bg-yellow-500 hover:text-black transition uppercase text-xs">Claim</button>
+            </div>
+        </div>
+
+        <!-- Lock Status & Info -->
+        <div class="flex justify-between items-center px-2">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                <p class="text-[10px] text-gray-500 font-bold uppercase italic">Principal Unlock in: <span id="unlockTimer" class="text-white">360 Days</span></p>
+            </div>
+            <p class="text-[9px] text-gray-600 font-mono uppercase italic">APY: 36% Yearly</p>
         </div>
     </div>
-
-    <!-- Live Tracking -->
-    <div class="bg-black/30 p-4 rounded-2xl mt-4 border border-white/5 flex justify-between items-center">
-        <div>
-            <p class="text-gray-500 text-[10px] uppercase font-bold">Daily Stake Reward (0.1%)</p>
-            <span id="stakedReward" class="font-black text-yellow-500">0.0000 TVX</span>
-        </div>
-        <button onclick="stakeTokens()" class="bg-emerald-500 text-black text-[11px] font-black px-4 py-2 rounded-xl hover:bg-emerald-400 transition uppercase">Stake</button>
-    </div>
-
-    <p class="text-[9px] text-center text-gray-500 mt-4 font-mono uppercase italic">
-        Principal Unlock in: <span id="unlockTimer" class="text-white">360d</span>
-    </p>
 </div>
+
+
+
+        <!-- Referral Distribution Info -->
+        <div class="bg-black/40 p-4 rounded-2xl border border-white/5">
+            <p class="text-[10px] text-gray-500 font-bold uppercase mb-3 italic">Daily Referral Distribution (100% of Reward)</p>
+            <div class="grid grid-cols-3 gap-2 text-center text-[11px] font-bold font-mono italic">
+                <div class="text-emerald-400">L1: 40%</div>
+                <div class="text-emerald-400">L2: 30%</div>
+                <div class="text-emerald-400">L3: 30%</div>
+            </div>
+        </div>
+
+        <!-- Reward Tracking Area -->
+        <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-black/20 p-5 rounded-2xl border border-white/5">
+            <div class="w-full md:w-auto">
+                <p class="text-gray-500 text-[10px] uppercase font-bold italic">Daily Stake Reward (0.1%)</p>
+                <h2 id="liveDailyReward" class="text-2xl font-black text-yellow-500 font-mono mt-1">0.000000 TVX</h2>
+            </div>
+            
+            <div class="flex gap-2 w-full md:w-auto">
+                <button onclick="stakeTokens()" class="flex-1 md:flex-none px-8 py-4 bg-emerald-500 text-black font-black rounded-xl hover:bg-emerald-400 transition uppercase text-xs shadow-lg shadow-emerald-500/20">Stake</button>
+                <button onclick="claimStakingReward()" class="flex-1 md:flex-none px-8 py-4 bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 font-black rounded-xl hover:bg-yellow-500 hover:text-black transition uppercase text-xs">Claim</button>
+            </div>
+        </div>
+
+        <!-- Lock Status & Info -->
+        <div class="flex justify-between items-center px-2">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                <p class="text-[10px] text-gray-500 font-bold uppercase italic">Principal Unlock in: <span id="unlockTimer" class="text-white">360 Days</span></p>
+            </div>
+            <p class="text-[9px] text-gray-600 font-mono uppercase italic">APY: 36% Yearly</p>
+        </div>
+    </div>
+</div>
+
+
 
 
         <!-- ACTIVATION -->
@@ -329,66 +386,93 @@ async function buy() {
         save(d); update(); Swal.fire("Success", "Tokens Received!", "success");
     } catch (e) { Swal.fire("Error", "Transaction Failed", "error"); }
 }
-/ ডাটা স্ট্রাকচার
-let stakingData = JSON.parse(localStorage.getItem('tvx_staking')) || {
+// ১. স্ট্যাকিং ডাটা লোড
+let stakingStore = JSON.parse(localStorage.getItem('tvx_staking')) || {
     stakedAmount: 0,
     startTime: null,
     lastClaimTime: null,
-    totalRewards: 0,
-    referralRewards: 0 // রেফারেল ইনকাম স্টোর করার জন্য
+    totalMlmIncome: 0
 };
 
-const DAILY_APY = 0.001; // ৩৬% / ৩৬০ দিন = ০.১%
-const LOCK_PERIOD_DAYS = 360;
-
-// স্টেক ফাংশন
+// ২. স্টেক ফাংশন (Direct Bonus সহ)
 function stakeTokens() {
-    const amount = parseFloat(document.getElementById('stakeInput').value);
-    if (isNaN(amount) || amount <= 0) {
-        alert("Please enter a valid TVX amount!");
-        return;
-    }
+    const inputAmount = parseFloat(document.getElementById('stakeInput').value); // ইনপুট বক্সের আইডি
+    const tvxBalBox = document.getElementById('tvxBal'); // TVX ASSETS বক্সের আইডি
+    let currentTvx = parseFloat(tvxBalBox.innerText);
 
-    stakingData.stakedAmount += amount;
-    stakingData.startTime = Date.now();
-    stakingData.lastClaimTime = Date.now();
+    if (isNaN(inputAmount) || inputAmount <= 0) return Swal.fire("ভুল পরিমাণ", "সঠিক TVX লিখুন", "error");
+    if (inputAmount > currentTvx) return Swal.fire("ব্যালেন্স নেই", "আপনার TVX ASSETS পর্যাপ্ত নয়", "error");
+
+    // ব্যালেন্স মাইনাস
+    currentTvx -= inputAmount;
+    tvxBalBox.innerText = currentTvx.toFixed(2);
+
+    // ডিরেক্ট বোনাস বিতরণ (৫%, ৩%, ২%)
+    const directRates = [0.05, 0.03, 0.02];
+    directRates.forEach(rate => {
+        stakingStore.totalMlmIncome += (inputAmount * rate);
+    });
+
+    // ডাটা আপডেট
+    stakingStore.stakedAmount += inputAmount;
+    stakingStore.startTime = stakingStore.startTime || Date.now();
+    stakingStore.lastClaimTime = stakingStore.lastClaimTime || Date.now();
     
-    saveAndRefresh();
-    alert(`Staked ${amount} TVX successfully for 360 days!`);
+    saveAndRefreshUI();
+    Swal.fire("সফল!", "স্টেক করা হয়েছে এবং ৩ লেভেলে ডিরেক্ট বোনাস চলে গেছে।", "success");
 }
 
-// রিওয়ার্ড এবং ৩-লেভেল ডিস্ট্রিবিউশন ক্যালকুলেটর
-function updateStakingUI() {
-    if (!stakingData.startTime) return;
+// ৩. ডেইলি রিওয়ার্ড ও টাইমার আপডেট
+function saveAndRefreshUI() {
+    localStorage.setItem('tvx_staking', JSON.stringify(stakingStore));
+    
+    const mlmBox = document.getElementById('income'); // MLM INCOME কার্ডের আইডি
+    if (mlmBox) mlmBox.innerText = stakingStore.totalMlmIncome.toFixed(4);
 
-    const now = Date.now();
-    const elapsedSeconds = (now - stakingData.lastClaimTime) / 1000;
-    const daysInSeconds = 24 * 60 * 60;
-
-    // ১. ইউজারের নিজস্ব ডেইলি রিওয়ার্ড (০.১%)
-    const userDailyReward = (stakingData.stakedAmount * DAILY_APY * elapsedSeconds) / daysInSeconds;
-    const totalLiveReward = stakingData.totalRewards + userDailyReward;
-
-    document.getElementById('stakedReward').innerText = totalLiveReward.toFixed(6) + " TVX";
-
-    // ২. ৩-লেভেল রেফারেল ডিস্ট্রিবিউশন লজিক (ডিসপ্লে পারপাস)
-    // প্রতিদিনের রিওয়ার্ডের ১০০% (৪০%, ৩০%, ৩০%) ৩ লেভেলে যাবে
-    const level1 = userDailyReward * 0.40;
-    const level2 = userDailyReward * 0.30;
-    const level3 = userDailyReward * 0.30;
-
-    // ৩. আনলক টাইমার
-    const unlockTime = stakingData.startTime + (LOCK_PERIOD_DAYS * 24 * 60 * 60 * 1000);
-    const timeLeft = unlockTime - now;
-
-    if (timeLeft > 0) {
-        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        document.getElementById('unlockTimer').innerText = `${days}d ${hours}h left`;
-    } else {
-        document.getElementById('unlockTimer').innerText = "Principal Unlocked!";
+    if (stakingStore.startTime) {
+        const now = Date.now();
+        const elapsed = (now - stakingStore.lastClaimTime) / 1000;
+        const liveReward = (stakingStore.stakedAmount * 0.001 * elapsed) / 86400; // ০.১% ডেইলি
+        
+        // ড্যাশবোর্ডে লাইভ দেখানো
+        document.getElementById('stakeProfit').innerText = liveReward.toFixed(4) + " TVX";
+        document.getElementById('liveDailyReward').innerText = liveReward.toFixed(6) + " TVX";
+        
+        // টাইমার
+        const unlockDate = stakingStore.startTime + (360 * 86400 * 1000);
+        const timeLeft = unlockDate - now;
+        document.getElementById('unlockTimer').innerText = timeLeft > 0 ? Math.floor(timeLeft/(1000*86400)) + "d left" : "UNLOCKED";
     }
 }
+
+// ৪. ক্লেইম করার সময় ডেইলি বোনাস বিতরণ (৪০-৩০-৩০%)
+function claimReward() {
+    const now = Date.now();
+    const elapsed = (now - stakingStore.lastClaimTime) / 1000;
+    const reward = (stakingStore.stakedAmount * 0.001 * elapsed) / 86400;
+
+    if (reward > 0) {
+        // ৩-লেভেল ডেইলি ইনকাম বিতরণ
+        const levelRates = [0.40, 0.30, 0.30];
+        levelRates.forEach(rate => {
+            stakingStore.totalMlmIncome += (reward * rate);
+        });
+
+        // মেইন ব্যালেন্সে যোগ
+        let currentTvx = parseFloat(document.getElementById('tvxBal').innerText);
+        document.getElementById('tvxBal').innerText = (currentTvx + reward).toFixed(2);
+
+        stakingStore.lastClaimTime = now;
+        saveAndRefreshUI();
+        Swal.fire("ক্লেইম সফল!", "রিওয়ার্ড এবং লেভেল ইনকাম বিতরণ হয়েছে।", "success");
+    }
+}
+
+setInterval(saveAndRefreshUI, 1000);
+
+
+
+    
 
 function saveAndRefresh() {
     localStorage.setItem('tvx_staking', JSON.stringify(stakingData));
