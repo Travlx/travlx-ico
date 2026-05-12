@@ -169,6 +169,25 @@ const RATE = 10000; const TVX_USD = 0.01; let BNB_USD = 600;
 let account, provider, signer;
 
 const db = () => JSON.parse(localStorage.getItem("tvx_vFinal_PRO_V3")) || {};
+    function updateRefLink() {
+    if (!account) return;
+
+    const link = window.location.origin + "?ref=" + account;
+    const el = document.getElementById("refLink");
+
+    if (el) el.value = link;
+}
+
+function copyRef() {
+    const el = document.getElementById("refLink");
+
+    if (!el) return;
+
+    el.select();
+    document.execCommand("copy");
+
+    Swal.fire("Copied!", "Referral link copied", "success");
+}
 const save = d => localStorage.setItem("tvx_vFinal_PRO_V3", JSON.stringify(d));
 
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('sidebar-folded'); }
@@ -201,6 +220,7 @@ async function connect() {
     document.getElementById("walletDisplay").classList.remove("hidden");
     document.getElementById("walletDisplay").innerText = account.slice(0,6)+"..."+account.slice(-4);
     update(); setInterval(update, 10000);
+    updateRefLink();
 }
 
 async function update() {
