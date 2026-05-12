@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TravelX | Final Professional Web3 MLM</title>
-    <!-- প্রপার লাইব্রেরি ইমপোর্ট -->
     <script src="https://tailwindcss.com"></script>
     <script src="https://jsdelivr.net"></script>
     <script src="https://jsdelivr.net"></script>
@@ -23,10 +22,7 @@
 
     <!-- SIDEBAR -->
     <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-[99] flex flex-col">
-        <div class="flex justify-between items-center mb-10">
-            <h1 class="text-3xl font-black text-emerald-400 italic">TRAVELX</h1>
-            <button onclick="toggleSidebar()" class="lg:hidden text-white text-2xl">×</button>
-        </div>
+        <h1 class="text-3xl font-black text-emerald-400 mb-10 italic">TRAVELX</h1>
         <nav class="space-y-3 flex-1 text-sm font-bold">
             <a href="#" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black text-center">Dashboard</a>
             <a href="#rewards" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition text-center">VIP Rewards</a>
@@ -42,17 +38,9 @@
     <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden">
         <!-- TOPBAR -->
         <div class="flex justify-between items-center mb-8">
-            <div class="flex items-center gap-4">
-                <button onclick="toggleSidebar()" class="lg:hidden p-2 bg-emerald-400/10 rounded-lg">
-                    <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-                </button>
-                <div>
-                    <h2 class="text-2xl lg:text-4xl font-black italic uppercase">Investor Portal</h2>
-                    <p class="text-gray-500 text-xs lg:text-sm">Earn 18% APY & Global Rewards</p>
-                </div>
-            </div>
+            <div><h2 class="text-3xl lg:text-4xl font-black italic uppercase">Investor Portal</h2><p class="text-gray-500 text-sm">Earn 18% APY & Global Rewards</p></div>
             <div class="flex gap-3">
-                <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-4 lg:px-6 py-2 lg:py-3 rounded-2xl font-black shadow-lg text-xs lg:text-base">Connect</button>
+                <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3 rounded-2xl font-black shadow-lg">Connect</button>
                 <div id="walletDisplay" class="hidden glass px-4 py-2 rounded-xl text-emerald-400 text-xs font-mono border border-emerald-400/20">0x...</div>
             </div>
         </div>
@@ -69,12 +57,12 @@
             <div class="glass p-5 rounded-2xl border-l-4 border-blue-500 text-center"><p class="text-gray-500 text-[10px] font-bold uppercase italic">MLM Income</p><h3 id="income" class="text-xl font-black mt-1 text-blue-400">0.0000</h3></div>
         </div>
 
-        <!-- REFERRAL LINK BOX -->
-        <div class="glass p-6 lg:p-8 rounded-[35px] border border-emerald-400/20 mb-10 shadow-xl shadow-emerald-500/5">
+        <!-- REFERRAL LINK BOX (কার্ডের নিচে) -->
+        <div class="glass p-8 rounded-[35px] border border-emerald-400/20 mb-10 shadow-xl shadow-emerald-500/5">
             <h3 class="text-xl font-black mb-2 uppercase italic text-emerald-400">Invite & Earn</h3>
-            <p class="text-gray-400 text-[10px] lg:text-xs mb-4 uppercase font-bold">Connect your wallet to get your referral link</p>
+            <p class="text-gray-400 text-xs mb-4 uppercase font-bold">Connect your wallet to get your referral link</p>
             <div class="flex flex-col sm:flex-row gap-3">
-                <input id="refLink" readonly type="text" placeholder="Please Connect Wallet" class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs font-mono text-emerald-400 focus:outline-none focus:border-emerald-400/50 transition-all">
+                <input id="refLink" readonly type="text" placeholder="Wallet Not Connected" class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs font-mono text-emerald-400 focus:outline-none focus:border-emerald-400/50 transition-all">
                 <button onclick="copyRef()" class="bg-emerald-400 text-black px-8 py-3 rounded-xl font-black text-xs uppercase hover:bg-emerald-500 transition-all active:scale-95">Copy Link</button>
             </div>
         </div>
@@ -101,21 +89,12 @@
         if (typeof window.ethereum !== 'undefined') {
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                address = accounts[0];
+                address = accounts[0]; // ইউজার অ্যাড্রেস সেট
                 provider = new ethers.providers.Web3Provider(window.ethereum);
 
                 updateUI();
-                
-                Swal.fire({ 
-                    icon: 'success', 
-                    title: 'Connected!', 
-                    background: '#0d1320', 
-                    color: '#fff', 
-                    confirmButtonColor: '#10b981' 
-                });
-            } catch (err) { 
-                console.error(err); 
-            }
+                Swal.fire({ icon: 'success', title: 'Connected!', background: '#0d1320', color: '#fff', confirmButtonColor: '#10b981' });
+            } catch (err) { console.error(err); }
         } else {
             Swal.fire('MetaMask Not Found', 'Please install MetaMask extension', 'error');
         }
@@ -124,46 +103,30 @@
     async function updateUI() {
         if (!address) return;
 
-        // Balance Update
+        // ব্যালেন্স আপডেট
         const balance = await provider.getBalance(address);
         document.getElementById('bnbBal').innerText = parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
 
-        // Wallet Display
+        // ওয়ালেট ডিসপ্লে আপডেট
         document.getElementById('walletDisplay').innerText = address.slice(0,6) + "..." + address.slice(-4);
         document.getElementById('walletDisplay').classList.remove('hidden');
         document.getElementById('connectBtn').classList.add('hidden');
 
-        // Referral Link Generation (ইউনিক লিংক তৈরি)
+        // রেফারেল লিংক জেনারেশন
         const currentUrl = window.location.origin + window.location.pathname;
         document.getElementById('refLink').value = currentUrl + "?ref=" + address;
     }
 
     function copyRef() {
         const copyText = document.getElementById("refLink");
-        
         if (!address) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Wait!',
-                text: 'Please connect your wallet to get your link.',
-                background: '#0d1320',
-                color: '#fff'
-            });
+            Swal.fire('Connect Wallet', 'Please connect your wallet first', 'warning');
             return;
         }
-        
-        // ক্লিপবোর্ড কপি লজিক
+       
+        // ক্লিপবোর্ডে কপি লজিক
         navigator.clipboard.writeText(copyText.value).then(() => {
-            Swal.fire({ 
-                toast: true, 
-                position: 'top-end', 
-                icon: 'success', 
-                title: 'Link Copied!', 
-                showConfirmButton: false, 
-                timer: 1500,
-                background: '#0d1320',
-                color: '#fff'
-            });
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Link Copied!', showConfirmButton: false, timer: 1500 });
         });
     }
 
