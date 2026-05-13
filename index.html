@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TravelX | Professional Web3 MLM</title>
-    <!-- CDN লিঙ্কগুলো সম্পূর্ণ ঠিক করা হয়েছে -->
     <script src="tailwindcss.com"></script>
     <script src="jsdelivr.net"></script>
     <script src="jsdelivr.net"></script>
@@ -48,42 +47,27 @@
 
     <!-- MAIN -->
     <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden">
-        
         <!-- TOPBAR -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-            
-            <!-- REFERRAL LINK BOX & INVITER DISPLAY -->
-            <div class="w-full md:w-96 order-2 md:order-1 flex flex-col gap-3">
-                <div class="glass p-5 rounded-2xl border border-emerald-400/20 w-full">
-                    <p class="text-xs text-gray-400 uppercase font-bold">Referral Link</p>
-                    <div class="flex gap-2 mt-3">
-                        <input id="refLink" readonly
-                            class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs outline-none"
-                            placeholder="Connect wallet first" />
-                        <button onclick="copyRef()"
-                            class="bg-emerald-400 text-black px-4 rounded-xl font-bold text-xs uppercase hover:bg-emerald-300 transition shrink-0">
-                            COPY
-                        </button>
-                    </div>
-                </div>
+        <div class="flex justify-between items-center mb-8">
+            <div class="glass p-5 rounded-2xl mb-6 border border-emerald-400/20">
+                <p class="text-xs text-gray-400 uppercase font-bold">Referral Link</p>
 
-                <!-- আপলাইন বক্স -->
-                <div id="uplineDisplaySection" class="hidden glass p-4 rounded-2xl border border-blue-500/20 w-full">
-                    <p class="text-[10px] text-gray-400 uppercase font-bold">Your Inviter (Upline)</p>
-                    <p id="uplineText" class="text-xs text-blue-400 font-mono mt-1">0x...</p>
+                <div class="flex gap-2 mt-3">
+                    <input id="refLink" readonly
+                        class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs outline-none"
+                        placeholder="Generate your referral link" />
+
+                    <button onclick="copyRef()"
+                        class="bg-emerald-400 text-black px-4 rounded-xl font-bold text-xs uppercase hover:bg-emerald-300 transition shrink-0">
+                        COPY
+                    </button>
                 </div>
             </div>
 
-            <!-- PORTAL HEADER -->
-            <div class="order-1 md:order-2">
-                <h2 class="text-3xl lg:text-4xl font-black italic uppercase">Investor Portal</h2>
-                <p class="text-gray-500 text-sm">Earn 18% APY & Global Rewards</p>
-            </div>
-            
-            <!-- CONNECT BUTTON -->
-            <div class="flex gap-3 order-3">
+            <div><h2 class="text-3xl lg:text-4xl font-black italic uppercase">Investor Portal</h2><p class="text-gray-500 text-sm">Earn 18% APY & Global Rewards</p></div>
+            <div class="flex gap-3">
                 <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3 rounded-2xl font-black shadow-lg hover:bg-emerald-300 transition">Connect</button>
-                <div id="walletDisplay" class="hidden glass px-4 py-3 rounded-2xl text-emerald-400 text-xs font-mono border border-emerald-400/20 items-center justify-center">0x...</div>
+                <div id="walletDisplay" class="hidden glass px-4 py-2 rounded-xl text-emerald-400 text-xs font-mono border border-emerald-400/20 items-center justify-center">0x...</div>
             </div>
         </div>
 
@@ -184,14 +168,14 @@
     }
 
     function generateReferral(address) {
-        const baseUrl = window.location.href.split('?')[0];
-        const refUrl = `${baseUrl}?ref=${address}`;
+        const baseUrl = window.location.href.split('?');
+        const refUrl = `${baseUrl[0]}?ref=${address}`;
         document.getElementById('refLink').value = refUrl;
     }
 
     function copyRef() {
         const refInput = document.getElementById('refLink');
-        if (!refInput.value || refInput.value.includes("Connect")) {
+        if (!refInput.value || refInput.value.includes("Generate")) {
             Swal.fire({ icon: 'info', title: 'Connect Wallet', text: 'Please connect your wallet first.', background: '#0d1320', color: '#fff' });
             return;
         }
@@ -225,7 +209,7 @@
         walletDisplay.classList.add('hidden');
         walletDisplay.classList.remove('flex');
         document.getElementById('refLink').value = "";
-        document.getElementById('refLink').placeholder = "Connect wallet first";
+        document.getElementById('refLink').placeholder = "Generate your referral link";
         document.getElementById('bnbBal').innerText = "0.0000";
         
         Swal.fire({ icon: 'info', title: 'Disconnected', text: 'Wallet disconnected.', background: '#0d1320', color: '#fff', timer: 1500, showConfirmButton: false });
@@ -235,6 +219,7 @@
         Swal.fire({ title: `${rank} Reward`, text: `Claiming $${bonus} bonus...`, background: '#0d1320', color: '#fff' });
     }
 
+    // ইউআরএল থেকে রেফারেল ট্র্যাকিং লজিক
     window.addEventListener('load', () => {
         const urlParams = new URLSearchParams(window.location.search);
         const ref = urlParams.get('ref');
@@ -245,15 +230,6 @@
             console.log("Upline Address Captured Successfully:", uplineAddress);
         } else {
             uplineAddress = localStorage.getItem('uplineAddress') || "";
-        }
-
-        if (uplineAddress) {
-            const uplineSection = document.getElementById('uplineDisplaySection');
-            const uplineText = document.getElementById('uplineText');
-            if (uplineSection && uplineText) {
-                uplineText.innerText = `${uplineAddress.substring(0, 6)}...${uplineAddress.substring(uplineAddress.length - 4)}`;
-                uplineSection.classList.remove('hidden');
-            }
         }
     });
 </script>
