@@ -24,7 +24,7 @@
             .sidebar-folded { transform: translateX(-100%); }
         }
         input[type=number]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
+            -webkit-appearance: none; 
         }
     </style>
 </head>
@@ -33,29 +33,61 @@
 
 <div class="min-h-screen flex flex-col lg:flex-row relative">
 
-    <!-- MOBILE TOP -->
-    <div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-[100]">
-        <h1 class="text-2xl font-black text-emerald-400 italic">TRAVELX</h1>
-        <button onclick="toggleSidebar()" class="p-2 bg-emerald-400/10 rounded-lg text-emerald-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+<!-- MOBILE TOP -->
+<div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-[100]">
+    <h1 class="text-2xl font-black text-emerald-400 italic">TRAVELX</h1>
+
+    <button onclick="toggleSidebar()" class="p-2 bg-emerald-400/10 rounded-lg text-emerald-400">
+        <svg xmlns="http://www.w3.org/2000/svg"
+             class="h-6 w-6"
+             fill="none"
+             viewBox="0 0 24 24"
+             stroke="currentColor">
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16m-7 6h7"/>
+        </svg>
+    </button>
+</div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar"
+       class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-[99] flex flex-col">
+
+    <h1 class="text-3xl font-black text-emerald-400 mb-10 italic">TRAVELX</h1>
+
+    <nav class="space-y-3 flex-1 text-sm font-bold">
+        <a href="javascript:void(0)" onclick="toggleSidebar()"
+           class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black">
+           Dashboard
+        </a>
+
+        <a href="#buySection" onclick="toggleSidebar()"
+           class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">
+           Buy & Swap
+        </a>
+
+        <a href="#rewards" onclick="toggleSidebar()"
+           class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">
+           VIP Rewards
+        </a>
+
+        <a href="#reports" onclick="toggleSidebar()"
+           class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">
+           Reports
+        </a>
+    </nav>
+
+    <div class="mt-auto pt-6 border-t border-white/5 text-center">
+        <h4 class="font-bold text-[10px] text-emerald-400 uppercase italic">Rank Status</h4>
+        <p class="text-xl font-black mt-1 uppercase text-yellow-500" id="sideRank">NONE</p>
+        <button onclick="logout()" class="mt-6 text-red-500 text-xs font-bold uppercase hover:underline">
+            Disconnect
         </button>
     </div>
 
-    <!-- SIDEBAR -->
-    <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-[99] flex flex-col">
-        <h1 class="text-3xl font-black text-emerald-400 mb-10 italic">TRAVELX</h1>
-        <nav class="space-y-3 flex-1 text-sm font-bold">
-            <a href="#" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black">Dashboard</a>
-            <a href="#buySection" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Buy & Swap</a>
-            <a href="#rewards" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">VIP Rewards</a>
-            <a href="#reports" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Reports</a>
-        </nav>
-        <div class="mt-auto pt-6 border-t border-white/5 text-center">
-            <h4 class="font-bold text-[10px] text-emerald-400 uppercase italic">Rank Status</h4>
-            <p class="text-xl font-black mt-1 uppercase text-yellow-500" id="sideRank">NONE</p>
-            <button onclick="logout()" class="mt-6 text-red-500 text-xs font-bold uppercase hover:underline">Disconnect</button>
-        </div>
-    </aside>
+</aside>
 
     <!-- MAIN -->
     <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden">
