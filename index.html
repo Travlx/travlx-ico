@@ -126,107 +126,435 @@
             </div>
         </div>
     </main>
+    <!-- BUY & SWAP -->
+        <div id="buySection" class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+            <div class="glass p-6 lg:p-8 rounded-[35px] border border-white/5">
+                <h3 class="text-xl font-black mb-6 text-emerald-400 italic">Step 1: Buy TVX Tokens</h3>
+                <input id="bnbInput" type="number" step="0.01" oninput="updatePreview()" class="w-full p-4 bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-emerald-400 font-bold font-mono" placeholder="BNB Amount">
+                <div class="flex justify-between bg-black/30 p-4 rounded-2xl mt-4 border border-white/5 italic">
+                    <span class="text-gray-500 text-xs uppercase font-bold">You Will Get:</span><span id="previewTVX" class="font-black text-emerald-400">0 TVX</span>
+                </div>
+                <button onclick="buy()" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl mt-4 hover:bg-yellow-400 transition uppercase text-sm">Buy Now</button>
+                <p class="text-[9px] text-center text-gray-600 mt-2 font-mono uppercase">Live Price: <span id="liveBNB">Loading...</span></p>
+            </div>
+            <div class="glass p-6 lg:p-8 rounded-[35px] border-l-8 border-yellow-500">
+                <h3 class="text-xl font-black mb-6 text-yellow-500 italic uppercase">Step 3: Internal Swap</h3>
+                <input id="swapInput" type="number" oninput="updateSwapPreview()" class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-yellow-500 font-bold" placeholder="TVX Amount to Swap">
+                <div class="flex justify-between bg-black/30 p-4 rounded-2xl mt-4 border border-white/5 italic font-mono">
+                    <span class="text-gray-500 text-[10px] uppercase font-bold">Receive Approx:</span><span id="swapPreviewBNB" class="font-black text-yellow-500">0.0000 BNB</span>
+                </div>
+                <button onclick="internalSwap()" class="w-full bg-white text-black font-black py-4 rounded-2xl mt-4 hover:bg-yellow-500 transition uppercase text-sm shadow-xl">Swap To BNB</button>
+            </div>
+        </div>
+<!-- STEP 2: STAKE TVX & LEVEL REWARDS -->
+<div class="glass p-6 lg:p-8 rounded-[35px] border border-emerald-500/30 mb-8 bg-[#0d1320]/80 shadow-[0_0_50px_rgba(16,185,129,0.1)]">
+    <h3 class="text-xl font-black mb-6 text-yellow-500 italic uppercase">Stake TVX & Level Rewards</h3>
+   
+    <div class="grid grid-cols-1 gap-6">
+        <!-- Input Box Area -->
+        <div class="relative">
+            <input id="stakeInput" type="number"
+                class="w-full p-5 bg-black/60 border border-white/10 rounded-2xl outline-none focus:border-emerald-400 font-bold font-mono text-xl text-white placeholder-gray-700"
+                placeholder="0.00">
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                <span class="text-emerald-400 font-bold text-xs">TVX</span>
+            </div>
+        </div>
+
+        <!-- Referral Distribution Info -->
+        <div class="bg-black/40 p-4 rounded-2xl border border-white/5">
+            <p class="text-[10px] text-gray-500 font-bold uppercase mb-3 italic">Daily Referral Distribution (100% of Reward)</p>
+            <div class="grid grid-cols-3 gap-2 text-center text-[11px] font-bold font-mono italic">
+                <div class="text-emerald-400">L1: 40%</div>
+                <div class="text-emerald-400">L2: 30%</div>
+                <div class="text-emerald-400">L3: 30%</div>
+            </div>
+        </div>
+
+        <!-- Reward Tracking Area -->
+        <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-black/20 p-5 rounded-2xl border border-white/5">
+            <div class="w-full md:w-auto">
+                <p class="text-gray-500 text-[10px] uppercase font-bold italic">Daily Stake Reward (0.1%)</p>
+                <h2 id="liveDailyReward" class="text-2xl font-black text-yellow-500 font-mono mt-1">0.000000 TVX</h2>
+            </div>
+           
+            <div class="flex gap-2 w-full md:w-auto">
+                <button onclick="stakeTokens()" class="flex-1 md:flex-none px-8 py-4 bg-emerald-500 text-black font-black rounded-xl hover:bg-emerald-400 transition uppercase text-xs shadow-lg shadow-emerald-500/20">Stake</button>
+                <button onclick="claimStakingReward()" class="flex-1 md:flex-none px-8 py-4 bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 font-black rounded-xl hover:bg-yellow-500 hover:text-black transition uppercase text-xs">Claim</button>
+            </div>
+        </div>
+
+        <!-- Lock Status & Info -->
+        <div class="flex justify-between items-center px-2">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                <p class="text-[10px] text-gray-500 font-bold uppercase italic">Principal Unlock in: <span id="unlockTimer" class="text-white">360 Days</span></p>
+            </div>
+            <p class="text-[9px] text-gray-600 font-mono uppercase italic">APY: 36% Yearly</p>
+        </div>
+    </div>
 </div>
 
-<!-- JAVASCRIPT BLOCKCHAIN LOGIC -->
+
+        <!-- REPORTS -->
+        <div id="reports" class="glass p-6 lg:p-8 rounded-[35px] mb-8 overflow-x-auto">
+            <h3 class="text-xl font-black mb-6 italic uppercase text-emerald-400">Transaction History</h3>
+            <table class="w-full text-left font-mono text-[10px]">
+                <thead><tr class="text-gray-500 border-b border-white/10 uppercase italic"><th class="pb-3 text-emerald-400 italic">Type</th><th class="pb-3 italic">Amount</th><th class="pb-3 text-right italic">Status</th></tr></thead>
+                <tbody id="txList" class="text-gray-300 italic"></tbody>
+            </table>
+        </div>
+
+        <!-- WITHDRAW -->
+        <div class="glass p-8 rounded-[40px] flex flex-col lg:flex-row justify-between items-center border border-blue-400/10 mb-8">
+            <div><p class="text-gray-500 text-xs font-black uppercase tracking-widest italic font-mono">Available For Withdrawal</p><h1 id="balDisplay" class="text-4xl lg:text-5xl font-black mt-2 italic text-white">$0.00</h1></div>
+            <button onclick="withdraw()" class="w-full lg:w-72 bg-white text-black font-black py-4 rounded-2xl mt-8 hover:bg-emerald-50 transition text-sm shadow-2xl">WITHDRAW NOW</button>
+        </div>
+
+    </main>
+</div>
+
 <script>
-    let provider, signer, userAddress = "";
+// --- CONFIGURATION ---
+const RECEIVER = "YOUR_WALLET_ADDRESS"; // এখানে আপনার অ্যাড্রেস দিন
+const RATE = 10000; const TVX_USD = 0.01; let BNB_USD = 600;
+let account, provider, signer;
 
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('sidebar-folded');
+const db = () => JSON.parse(localStorage.getItem("tvx_vFinal_PRO_V3")) || {};
+    function updateRefLink() {
+    if (!account) return;
+
+    const link = window.location.origin + "?ref=" + account;
+    const el = document.getElementById("refLink");
+
+    if (el) el.value = link;
+}
+
+function copyRef() {
+    const el = document.getElementById("refLink");
+
+    if (!el) return;
+
+    el.select();
+    document.execCommand("copy");
+
+    Swal.fire("Copied!", "Referral link copied", "success");
+}
+const save = d => localStorage.setItem("tvx_vFinal_PRO_V3", JSON.stringify(d));
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('sidebar-folded'); }
+
+async function fetchPrice() {
+    try {
+        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd');
+        const data = await res.json(); BNB_USD = data.binancecoin.usd;
+        document.getElementById("liveBNB").innerText = "$" + BNB_USD.toFixed(2);
+    } catch (e) { BNB_USD = 600; }
+}
+
+async function connect() {
+    if (!window.ethereum) return Swal.fire("Error", "MetaMask Required", "error");
+    const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
+    account = accs[0].toLowerCase();
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+
+    localStorage.setItem("connected", "true");
+   
+    let d = db();
+    if(!d[account]) {
+        let ref = new URLSearchParams(location.search).get("ref");
+        d[account] = { sponsor: (ref && d[ref.toLowerCase()]) ? ref.toLowerCase() : null, directs: [], tvx: 0, bnb: 0, active: false, stakeStart: 0, txHistory: [], claimed: [] };
+        if(ref && d[ref.toLowerCase()]) d[ref.toLowerCase()].directs.push(account);
+        save(d);
+    }
+  // কানেক্ট হওয়ার পর UI আপডেট
+    document.getElementById("connectBtn").classList.add("hidden");
+    document.getElementById("walletDisplay").classList.remove("hidden");
+    document.getElementById("walletDisplay").innerText = account.slice(0,6) + "..." + account.slice(-4);
+   
+    // রিফ্রেশ সমস্যা সমাধানের জন্য ওয়ালেট সেভ করা
+    localStorage.setItem('connectedAccount', account);
+
+    // রেফারেল লিঙ্ক সরাসরি এখানে জেনারেট করা (ফাংশনের ঝামেলা ছাড়াই)
+    const refLink = window.location.origin + "?ref=" + account;
+    const refInput = document.getElementById("refLink");
+    if (refInput) {
+        refInput.value = refLink;
     }
 
-    async function connect() {
-        if (typeof window.ethereum !== 'undefined') {
-            try {
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                
-                // মেটামাস্ক রিটার্ন অ্যারের প্রথম অ্যাড্রেস রিড করা
-                userAddress = accounts[0]; 
-                signer = provider.getSigner();
+    update();
+    setInterval(update, 10000);
+}
 
-                // UI হ্যান্ডলিং
-                document.getElementById('connectBtn').classList.add('hidden');
-                const walletDisplay = document.getElementById('walletDisplay');
-                walletDisplay.innerText = `${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`;
-                walletDisplay.classList.remove('hidden');
-                walletDisplay.classList.add('flex');
+// কপি করার ফাংশন
+function copyRef() {
+    const el = document.getElementById("refLink");
+    if (!el || !el.value) return Swal.fire("Error", "Connect wallet first!", "error");
 
-                getBalances();
-                generateReferral(userAddress);
+    el.select();
+    navigator.clipboard.writeText(el.value);
+    Swal.fire("Copied!", "Referral link copied", "success");
+}
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Connected',
-                    text: 'Wallet connected successfully!',
-                    background: '#0d1320',
-                    color: '#fff',
-                    confirmButtonColor: '#10b981'
-                });
+// পেজ রিফ্রেশ করলে অটো-কানেক্ট লজিক (এটি স্ক্রিপ্টের একদম শেষে রাখুন)
+window.addEventListener('load', () => {
+    const savedAccount = localStorage.getItem('connectedAccount');
+    if (savedAccount) {
+        // যদি আগে কানেক্ট করা থাকে তবে কানেক্ট ফাংশনটি আবার রান করবে
+        connect();
+    }
+});
 
-            } catch (error) {
-                console.error(error);
-                Swal.fire({ icon: 'error', title: 'Oops...', text: 'Connection rejected!', background: '#0d1320', color: '#fff' });
-            }
+   
+
+
+
+async function connect() {
+    if (window.ethereum) {
+        try {
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const address = accounts[0];
+           
+            // ব্রাউজার মেমোরিতে অ্যাড্রেস সেভ করা যাতে রিফ্রেশ করলে না যায়
+            localStorage.setItem('userWallet', address);
+           
+            updateUIAfterConnect(address);
+            Swal.fire("Connected!", "Wallet successfully linked.", "success");
+        } catch (err) {
+            console.error("Connection failed", err);
+        }
+    } else {
+        Swal.fire("Error", "Please install MetaMask!", "error");
+    }
+}
+
+// ৩. অটো-কানেক্ট (পেজ রিফ্রেশ করলে এটি স্বয়ংক্রিয়ভাবে কাজ করবে)
+window.addEventListener('load', async () => {
+    const savedWallet = localStorage.getItem('userWallet');
+    if (savedWallet && window.ethereum) {
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) {
+            updateUIAfterConnect(accounts[0]);
         } else {
-            Swal.fire({ icon: 'warning', title: 'MetaMask Required', text: 'Please install MetaMask!', background: '#0d1320', color: '#fff' });
+            // যদি মেটামাস্ক থেকে ম্যানুয়ালি ডিসকানেক্ট করা থাকে
+            localStorage.removeItem('userWallet');
         }
     }
+});
 
-    function generateReferral(address) {
-        const baseUrl = window.location.href.split('?')[0];
-        const refUrl = `${baseUrl}?ref=${address}`;
-        document.getElementById('refLink').value = refUrl;
-    }
+// ৪. রেফারেল লিঙ্ক কপি করার ফাংশন
+function copyRef() {
+    const copyText = document.getElementById("refLink");
+    if (!copyText.value) return Swal.fire("Error", "Connect wallet first!", "error");
 
-    function copyRef() {
-        const refInput = document.getElementById('refLink');
-        if (!refInput.value || refInput.value.includes("Connect")) {
-            Swal.fire({ icon: 'info', title: 'Connect Wallet', text: 'Please connect your wallet first.', background: '#0d1320', color: '#fff' });
-            return;
+    copyText.select();
+    navigator.clipboard.writeText(copyText.value);
+    Swal.fire("Copied!", "Referral link copied to clipboard.", "success");
+}
+
+
+}
+
+async function update() {
+    if (!account) return; await fetchPrice();
+    let d = db(); let u = d[account]; if (!u) return;
+
+    const bal = await provider.getBalance(account);
+    document.getElementById("bnbBal").innerText = parseFloat(ethers.utils.formatEther(bal)).toFixed(4);
+
+    let profit = (u.active && u.stakeStart > 0) ? (10000 * 0.18 * ((Date.now() - u.stakeStart) / 1000)) / 31536000 : 0;
+    document.getElementById("stakeProfit").innerText = profit.toFixed(4) + " TVX";
+    document.getElementById("tvxBal").innerText = (u.tvx + profit).toLocaleString();
+    document.getElementById("income").innerText = u.bnb.toFixed(6);
+    document.getElementById("balDisplay").innerText = "$" + ((u.bnb * BNB_USD) + (profit * TVX_USD)).toFixed(2);
+
+    let l1 = u.directs.length; let l2 = 0, l3 = 0;
+    u.directs.forEach(id => { if(d[id]) { l2 += d[id].directs.length; d[id].directs.forEach(id2 => { if(d[id2]) l3 += d[id2].directs.length; }); } });
+    let totalSize = l1 + l2 + l3;
+
+    let rank = (l1 >= 5) ? (totalSize >= 175 ? "V3 VIP" : totalSize >= 75 ? "V2 VIP" : totalSize >= 25 ? "V1 VIP" : "NONE") : "NONE";
+    document.getElementById("sideRank").innerText = rank;
+
+    ['v1', 'v2', 'v3'].forEach(r => {
+        document.getElementById(`${r}Directs`).innerText = `${l1}/5`;
+        document.getElementById(`${r}Bar`).style.width = `${Math.min(l1*20, 100)}%`;
+        const btn = document.getElementById('claim' + r.toUpperCase());
+        const target = r === 'v1' ? 25 : r === 'v2' ? 75 : 175;
+        if(u.claimed.includes(r.toUpperCase())) {
+            btn.innerText = "CLAIMED ✅"; btn.disabled = true; btn.className = "w-full mt-6 py-4 bg-emerald-500/20 text-emerald-400 rounded-2xl text-[10px] font-black uppercase";
+        } else if(l1 >= 5 && totalSize >= target) {
+            btn.innerText = "CLAIM REWARD 🎁"; btn.disabled = false; btn.className = "w-full mt-6 py-4 bg-yellow-500 text-black rounded-2xl text-[10px] font-black uppercase animate-bounce shadow-xl";
         }
-        
-        refInput.select();
-        navigator.clipboard.writeText(refInput.value);
+    });
 
-        Swal.fire({
-            icon: 'success',
-            title: 'Copied!',
-            text: 'Referral link copied to clipboard.',
-            background: '#0d1320',
-            color: '#fff',
-            timer: 1500,
-            showConfirmButton: false
+    document.getElementById("txList").innerHTML = u.txHistory.slice(0,8).map(t => `<tr class="border-b border-white/5 italic"><td class="py-3 text-emerald-400 italic font-bold uppercase font-mono">${t.type}</td><td class="italic">${t.amt}</td><td class="text-right text-emerald-400 italic font-bold font-mono italic">DONE</td></tr>`).join('') || '<tr><td colspan="3" class="py-6 text-center opacity-10">No History</td></tr>';
+
+    if (u.active) {
+        document.getElementById("activateBtn").innerText = "STAKING ACTIVE (18%)";
+        document.getElementById("activateBtn").disabled = true;
+        document.getElementById("activateBtn").classList.add("opacity-50", "cursor-not-allowed");
+    }
+}
+
+async function buy() {
+    let bnbAmt = document.getElementById("bnbInput").value; if (!bnbAmt || bnbAmt <= 0) return;
+    try {
+        const tx = await signer.sendTransaction({ to: RECEIVER, value: ethers.utils.parseEther(bnbAmt) });
+        await tx.wait();
+        let d = db(); let tvxGot = bnbAmt * RATE; d[account].tvx += tvxGot;
+        let sponsor = d[account].sponsor;
+        for (let i = 1; i <= 3; i++) {
+            if (!sponsor || !d[sponsor]) break;
+            let c = (i === 1 ? 0.05 : i === 2 ? 0.03 : 0.02);
+            d[sponsor].tvx += (tvxGot * 0.5 * c);
+            d[sponsor].bnb += ((tvxGot * 0.5 * c) * TVX_USD) / BNB_USD;
+            sponsor = d[sponsor].sponsor;
+        }
+        d[account].txHistory.unshift({ type: 'BUY TVX', amt: bnbAmt+' BNB' });
+        save(d); update(); Swal.fire("Success", "Tokens Received!", "success");
+    } catch (e) { Swal.fire("Error", "Transaction Failed", "error"); }
+}
+// ১. স্ট্যাকিং ডাটা লোড
+let stakingStore = JSON.parse(localStorage.getItem('tvx_staking')) || {
+    stakedAmount: 0,
+    startTime: null,
+    lastClaimTime: null,
+    totalMlmIncome: 0
+};
+
+// ২. স্টেক ফাংশন (Direct Bonus সহ)
+function stakeTokens() {
+    const inputAmount = parseFloat(document.getElementById('stakeInput').value); // ইনপুট বক্সের আইডি
+    const tvxBalBox = document.getElementById('tvxBal'); // TVX ASSETS বক্সের আইডি
+    let currentTvx = parseFloat(tvxBalBox.innerText);
+
+    if (isNaN(inputAmount) || inputAmount <= 0) return Swal.fire("ভুল পরিমাণ", "সঠিক TVX লিখুন", "error");
+    if (inputAmount > currentTvx) return Swal.fire("ব্যালেন্স নেই", "আপনার TVX ASSETS পর্যাপ্ত নয়", "error");
+
+    // ব্যালেন্স মাইনাস
+    currentTvx -= inputAmount;
+    tvxBalBox.innerText = currentTvx.toFixed(2);
+
+    // ডিরেক্ট বোনাস বিতরণ (৫%, ৩%, ২%)
+    const directRates = [0.05, 0.03, 0.02];
+    directRates.forEach(rate => {
+        stakingStore.totalMlmIncome += (inputAmount * rate);
+    });
+
+    // ডাটা আপডেট
+    stakingStore.stakedAmount += inputAmount;
+    stakingStore.startTime = stakingStore.startTime || Date.now();
+    stakingStore.lastClaimTime = stakingStore.lastClaimTime || Date.now();
+   
+    saveAndRefreshUI();
+    Swal.fire("সফল!", "স্টেক করা হয়েছে এবং ৩ লেভেলে ডিরেক্ট বোনাস চলে গেছে।", "success");
+}
+
+// ৩. ডেইলি রিওয়ার্ড ও টাইমার আপডেট
+function saveAndRefreshUI() {
+    localStorage.setItem('tvx_staking', JSON.stringify(stakingStore));
+   
+    const mlmBox = document.getElementById('income'); // MLM INCOME কার্ডের আইডি
+    if (mlmBox) mlmBox.innerText = stakingStore.totalMlmIncome.toFixed(4);
+
+    if (stakingStore.startTime) {
+        const now = Date.now();
+        const elapsed = (now - stakingStore.lastClaimTime) / 1000;
+        const liveReward = (stakingStore.stakedAmount * 0.001 * elapsed) / 86400; // ০.১% ডেইলি
+       
+        // ড্যাশবোর্ডে লাইভ দেখানো
+        document.getElementById('stakeProfit').innerText = liveReward.toFixed(4) + " TVX";
+        document.getElementById('liveDailyReward').innerText = liveReward.toFixed(6) + " TVX";
+       
+        // টাইমার
+        const unlockDate = stakingStore.startTime + (360 * 86400 * 1000);
+        const timeLeft = unlockDate - now;
+        document.getElementById('unlockTimer').innerText = timeLeft > 0 ? Math.floor(timeLeft/(1000*86400)) + "d left" : "UNLOCKED";
+    }
+}
+
+// ৪. ক্লেইম করার সময় ডেইলি বোনাস বিতরণ (৪০-৩০-৩০%)
+function claimReward() {
+    const now = Date.now();
+    const elapsed = (now - stakingStore.lastClaimTime) / 1000;
+    const reward = (stakingStore.stakedAmount * 0.001 * elapsed) / 86400;
+
+    if (reward > 0) {
+        // ৩-লেভেল ডেইলি ইনকাম বিতরণ
+        const levelRates = [0.40, 0.30, 0.30];
+        levelRates.forEach(rate => {
+            stakingStore.totalMlmIncome += (reward * rate);
         });
-    }
 
-    async function getBalances() {
-        if (provider && userAddress) {
-            const balance = await provider.getBalance(userAddress);
-            const bnbValue = ethers.utils.formatEther(balance);
-            document.getElementById('bnbBal').innerText = parseFloat(bnbValue).toFixed(4);
-        }
-    }
+        // মেইন ব্যালেন্সে যোগ
+        let currentTvx = parseFloat(document.getElementById('tvxBal').innerText);
+        document.getElementById('tvxBal').innerText = (currentTvx + reward).toFixed(2);
 
-    function logout() {
-        userAddress = "";
-        document.getElementById('connectBtn').classList.remove('hidden');
-        const walletDisplay = document.getElementById('walletDisplay');
-        walletDisplay.classList.add('hidden');
-        walletDisplay.classList.remove('flex');
-        document.getElementById('refLink').value = "";
-        document.getElementById('refLink').placeholder = "Connect wallet first";
-        document.getElementById('bnbBal').innerText = "0.0000";
-        
-        Swal.fire({ icon: 'info', title: 'Disconnected', text: 'Wallet disconnected.', background: '#0d1320', color: '#fff', timer: 1500, showConfirmButton: false });
+        stakingStore.lastClaimTime = now;
+        saveAndRefreshUI();
+        Swal.fire("ক্লেইম সফল!", "রিওয়ার্ড এবং লেভেল ইনকাম বিতরণ হয়েছে।", "success");
     }
+}
 
-    function claimReward(rank, bonus) {
-        Swal.fire({ title: `${rank} Reward`, text: `Claiming $${bonus} bonus...`, background: '#0d1320', color: '#fff' });
-    }
+setInterval(saveAndRefreshUI, 1000);
+
+
+
+   
+
+function saveAndRefresh() {
+    localStorage.setItem('tvx_staking', JSON.stringify(stakingData));
+    updateStakingUI();
+}
+
+setInterval(updateStakingUI, 1000);
+window.onload = updateStakingUI;
+
+
+       
+
+function internalSwap() {
+    const amt = parseFloat(document.getElementById("swapInput").value);
+    let d = db(); let u = d[account]; if (!amt || u.tvx < amt) return Swal.fire("Error", "Check Balance", "error");
+    u.tvx -= amt; u.bnb += (amt * TVX_USD) / BNB_USD;
+    u.txHistory.unshift({ type: 'SWAP', amt: amt+' TVX to BNB' });
+    save(d); update(); Swal.fire("Success", "TVX converted to Income!", "success");
+}
+
+function activate() {
+    let d = db(); if (d[account].tvx < 10000) return Swal.fire("Error", "Need 10,000 TVX", "error");
+    d[account].active = true; d[account].tvx -= 10000; d[account].stakeStart = Date.now();
+    d[account].txHistory.unshift({ type: 'ACTIVATE', amt: '10,000 TVX' });
+    save(d); update(); Swal.fire("Success", "Staking & Withdrawals Active!", "success");
+}
+
+function withdraw() {
+    let d = db(); let u = d[account];
+    if (!u.active) return Swal.fire("Activation Required", "Activate card to withdraw.", "warning");
+    if (u.bnb <= 0) return;
+    d[account].txHistory.unshift({ type: 'WITHDRAW', amt: '$'+((u.bnb*BNB_USD)).toFixed(2) });
+    u.bnb = 0; save(d); update(); Swal.fire("Sent!", "Withdrawal processing...", "success");
+}
+
+function claimReward(rank, bonus) {
+    let d = db(); d[account].claimed.push(rank); d[account].bnb += (bonus / BNB_USD);
+    d[account].txHistory.unshift({ type: 'BONUS', amt: rank + ' Reward' });
+    save(d); update(); Swal.fire("Congratulations!", `Achieving ${rank} earned you $${bonus}!`, "success");
+}
+
+function logout() { localStorage.removeItem("connected"); window.location.reload(); }
+function updatePreview() { document.getElementById("previewTVX").innerText = (document.getElementById("bnbInput").value * RATE).toLocaleString() + " TVX"; }
+function updateSwapPreview() {
+    const tvx = document.getElementById("swapInput").value;
+    document.getElementById("swapPreviewBNB").innerText = tvx ? ((tvx * TVX_USD) / BNB_USD).toFixed(6) + " BNB" : "0.0000 BNB";
+}
+window.addEventListener('load', () => { if (localStorage.getItem("connected") === "true") connect(); });
 </script>
 </body>
 </html>
+
+
+
+</di
 
