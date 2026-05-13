@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TravelX | Professional Web3 MLM</title>
-    <script src="tailwindcss.com"></script>
-    <script src="jsdelivr.net"></script>
-    <script src="jsdelivr.net"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { background-color: #060b14; scroll-behavior: smooth; }
         .glass { background: rgba(13, 19, 32, 0.95); border: 1px solid rgba(255,255,255,0.05); }
@@ -25,7 +25,7 @@
     <div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-[100]">
         <h1 class="text-2xl font-black text-emerald-400 italic">TRAVELX</h1>
         <button onclick="toggleSidebar()" class="p-2 bg-emerald-400/10 rounded-lg text-emerald-400">
-            <svg xmlns="w3.org" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
         </button>
     </div>
 
@@ -47,16 +47,17 @@
 
     <!-- MAIN -->
     <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden">
-        <!-- TOPBAR -->
-        <div class="flex justify-between items-center mb-8">
-            <div class="glass p-5 rounded-2xl mb-6 border border-emerald-400/20">
+        
+        <!-- TOPBAR (রেসপন্সিভ এবং ফ্লেক্সিবিল লেআউট) -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+            
+            <!-- REFERRAL LINK BOX -->
+            <div class="glass p-5 rounded-2xl border border-emerald-400/20 w-full md:w-96 order-2 md:order-1">
                 <p class="text-xs text-gray-400 uppercase font-bold">Referral Link</p>
-
                 <div class="flex gap-2 mt-3">
                     <input id="refLink" readonly
                         class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs outline-none"
-                        placeholder="Generate your referral link" />
-
+                        placeholder="Connect wallet first" />
                     <button onclick="copyRef()"
                         class="bg-emerald-400 text-black px-4 rounded-xl font-bold text-xs uppercase hover:bg-emerald-300 transition shrink-0">
                         COPY
@@ -64,10 +65,16 @@
                 </div>
             </div>
 
-            <div><h2 class="text-3xl lg:text-4xl font-black italic uppercase">Investor Portal</h2><p class="text-gray-500 text-sm">Earn 18% APY & Global Rewards</p></div>
-            <div class="flex gap-3">
+            <!-- PORTAL HEADER -->
+            <div class="order-1 md:order-2">
+                <h2 class="text-3xl lg:text-4xl font-black italic uppercase">Investor Portal</h2>
+                <p class="text-gray-500 text-sm">Earn 18% APY & Global Rewards</p>
+            </div>
+            
+            <!-- CONNECT BUTTON / WALLET DISPLAY -->
+            <div class="flex gap-3 order-3">
                 <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3 rounded-2xl font-black shadow-lg hover:bg-emerald-300 transition">Connect</button>
-                <div id="walletDisplay" class="hidden glass px-4 py-2 rounded-xl text-emerald-400 text-xs font-mono border border-emerald-400/20 items-center justify-center">0x...</div>
+                <div id="walletDisplay" class="hidden glass px-4 py-3 rounded-2xl text-emerald-400 text-xs font-mono border border-emerald-400/20 items-center justify-center">0x...</div>
             </div>
         </div>
 
@@ -124,7 +131,6 @@
 <!-- JAVASCRIPT BLOCKCHAIN LOGIC -->
 <script>
     let provider, signer, userAddress = "";
-    let uplineAddress = ""; 
 
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
@@ -137,9 +143,11 @@
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 
+                // মেটামাস্ক রিটার্ন অ্যারের প্রথম অ্যাড্রেস রিড করা
                 userAddress = accounts[0]; 
                 signer = provider.getSigner();
 
+                // UI হ্যান্ডলিং
                 document.getElementById('connectBtn').classList.add('hidden');
                 const walletDisplay = document.getElementById('walletDisplay');
                 walletDisplay.innerText = `${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`;
@@ -168,14 +176,14 @@
     }
 
     function generateReferral(address) {
-        const baseUrl = window.location.href.split('?');
-        const refUrl = `${baseUrl[0]}?ref=${address}`;
+        const baseUrl = window.location.href.split('?')[0];
+        const refUrl = `${baseUrl}?ref=${address}`;
         document.getElementById('refLink').value = refUrl;
     }
 
     function copyRef() {
         const refInput = document.getElementById('refLink');
-        if (!refInput.value || refInput.value.includes("Generate")) {
+        if (!refInput.value || refInput.value.includes("Connect")) {
             Swal.fire({ icon: 'info', title: 'Connect Wallet', text: 'Please connect your wallet first.', background: '#0d1320', color: '#fff' });
             return;
         }
@@ -209,7 +217,7 @@
         walletDisplay.classList.add('hidden');
         walletDisplay.classList.remove('flex');
         document.getElementById('refLink').value = "";
-        document.getElementById('refLink').placeholder = "Generate your referral link";
+        document.getElementById('refLink').placeholder = "Connect wallet first";
         document.getElementById('bnbBal').innerText = "0.0000";
         
         Swal.fire({ icon: 'info', title: 'Disconnected', text: 'Wallet disconnected.', background: '#0d1320', color: '#fff', timer: 1500, showConfirmButton: false });
@@ -218,20 +226,6 @@
     function claimReward(rank, bonus) {
         Swal.fire({ title: `${rank} Reward`, text: `Claiming $${bonus} bonus...`, background: '#0d1320', color: '#fff' });
     }
-
-    // ইউআরএল থেকে রেফারেল ট্র্যাকিং লজিক
-    window.addEventListener('load', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const ref = urlParams.get('ref');
-        
-        if (ref && ethers.utils.isAddress(ref)) {
-            uplineAddress = ref;
-            localStorage.setItem('uplineAddress', uplineAddress);
-            console.log("Upline Address Captured Successfully:", uplineAddress);
-        } else {
-            uplineAddress = localStorage.getItem('uplineAddress') || "";
-        }
-    });
 </script>
 </body>
 </html>
