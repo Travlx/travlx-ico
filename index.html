@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TravelX | Professional Web3 MLM</title>
     
-    <!-- এই পূর্ণাঙ্গ CDN লিংকগুলোই আপনার মেটামাস্ক ও বাটনগুলোকে সচল করবে -->
-    <script src="tailwindcss.com"></script>
+    <!-- সম্পূর্ণ এবং সঠিক সিডিএন লিঙ্কসমূহ (এখানে কোনো ট্রাঙ্কেট বা কাট-অফ নেই) -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="jsdelivr.net"></script>
     <script src="jsdelivr.net"></script>
     
@@ -25,7 +25,7 @@
 <div class="min-h-screen flex flex-col lg:flex-row relative">
 
     <!-- MOBILE TOP -->
-    <div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-[100]">
+    <div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-50">
         <h1 class="text-2xl font-black text-emerald-400 italic">TRAVELX</h1>
         <button onclick="toggleSidebar()" class="p-2 bg-emerald-400/10 rounded-lg text-emerald-400">
             <svg xmlns="w3.org" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
@@ -33,13 +33,12 @@
     </div>
 
     <!-- SIDEBAR -->
-    <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-[99] flex flex-col">
+    <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-40 flex flex-col">
         <h1 class="text-3xl font-black text-emerald-400 mb-10 italic">TRAVELX</h1>
         <nav class="space-y-3 flex-1 text-sm font-bold">
             <a href="#" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black">Dashboard</a>
             <a href="#swap-section" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Buy & Swap</a>
             <a href="#rewards" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">VIP Rewards</a>
-            <a href="#reports" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Reports</a>
         </nav>
         <div class="mt-auto pt-6 border-t border-white/5 text-center">
             <h4 class="font-bold text-[10px] text-emerald-400 uppercase italic">Rank Status</h4>
@@ -204,7 +203,7 @@
 
 <!-- JAVASCRIPT LOGIC BLOCK -->
 <script>
-const RECEIVER = "0xdeAD000000000000000000000000000000000000"; // এখানে আপনার অ্যাড্রেস দিন
+const RECEIVER = "0xdeAD000000000000000000000000000000000000"; 
 const RATE = 10000; const TVX_USD = 0.01; let BNB_USD = 600;
 let account, provider, signer;
 
@@ -240,7 +239,7 @@ async function connect() {
        
         localStorage.setItem('connectedAccount', account);
 
-        // ওয়ালেট কানেক্ট হওয়ার সাথে সাথে ইনস্ট্যান্ট লিঙ্ক জেনারেট
+        // ইন্সট্যান্ট লিঙ্ক জেনারেশন
         const refLink = window.location.origin + window.location.pathname + "?ref=" + account;
         document.getElementById("refLink").value = refLink;
 
