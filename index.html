@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TravelX | Professional Web3 MLM</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="tailwindcss.com"></script>
+    <script src="jsdelivr.net"></script>
+    <script src="jsdelivr.net"></script>
     <style>
         body { background-color: #060b14; scroll-behavior: smooth; }
         .glass { background: rgba(13, 19, 32, 0.95); border: 1px solid rgba(255,255,255,0.05); }
@@ -22,15 +22,15 @@
 <div class="min-h-screen flex flex-col lg:flex-row relative">
 
     <!-- MOBILE TOP -->
-    <div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-[100]">
+    <div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-100">
         <h1 class="text-2xl font-black text-emerald-400 italic">TRAVELX</h1>
         <button onclick="toggleSidebar()" class="p-2 bg-emerald-400/10 rounded-lg text-emerald-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+            <svg xmlns="w3.org" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
         </button>
     </div>
 
     <!-- SIDEBAR -->
-    <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-[99] flex flex-col">
+    <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-99 flex flex-col">
         <h1 class="text-3xl font-black text-emerald-400 mb-10 italic">TRAVELX</h1>
         <nav class="space-y-3 flex-1 text-sm font-bold">
             <a href="#" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black">Dashboard</a>
@@ -48,20 +48,28 @@
     <!-- MAIN -->
     <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden">
         
-        <!-- TOPBAR (রেসপন্সিভ এবং ফ্লেক্সিবিল লেআউট) -->
+        <!-- TOPBAR -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
             
-            <!-- REFERRAL LINK BOX -->
-            <div class="glass p-5 rounded-2xl border border-emerald-400/20 w-full md:w-96 order-2 md:order-1">
-                <p class="text-xs text-gray-400 uppercase font-bold">Referral Link</p>
-                <div class="flex gap-2 mt-3">
-                    <input id="refLink" readonly
-                        class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs outline-none"
-                        placeholder="Connect wallet first" />
-                    <button onclick="copyRef()"
-                        class="bg-emerald-400 text-black px-4 rounded-xl font-bold text-xs uppercase hover:bg-emerald-300 transition shrink-0">
-                        COPY
-                    </button>
+            <!-- REFERRAL LINK BOX & INVITER DISPLAY -->
+            <div class="w-full md:w-96 order-2 md:order-1 flex flex-col gap-3">
+                <div class="glass p-5 rounded-2xl border border-emerald-400/20 w-full">
+                    <p class="text-xs text-gray-400 uppercase font-bold">Referral Link</p>
+                    <div class="flex gap-2 mt-3">
+                        <input id="refLink" readonly
+                            class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs outline-none"
+                            placeholder="Connect wallet first" />
+                        <button onclick="copyRef()"
+                            class="bg-emerald-400 text-black px-4 rounded-xl font-bold text-xs uppercase hover:bg-emerald-300 transition shrink-0">
+                            COPY
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ইউজার কারও রেফারেলে ঢুকলে এই বক্সটি স্বয়ংক্রিয়ভাবে ভেসে উঠবে -->
+                <div id="uplineDisplaySection" class="hidden glass p-4 rounded-2xl border border-blue-500/20 w-full">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold">Your Inviter (Upline)</p>
+                    <p id="uplineText" class="text-xs text-blue-400 font-mono mt-1">0x...</p>
                 </div>
             </div>
 
@@ -71,7 +79,7 @@
                 <p class="text-gray-500 text-sm">Earn 18% APY & Global Rewards</p>
             </div>
             
-            <!-- CONNECT BUTTON / WALLET DISPLAY -->
+            <!-- CONNECT BUTTON -->
             <div class="flex gap-3 order-3">
                 <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3 rounded-2xl font-black shadow-lg hover:bg-emerald-300 transition">Connect</button>
                 <div id="walletDisplay" class="hidden glass px-4 py-3 rounded-2xl text-emerald-400 text-xs font-mono border border-emerald-400/20 items-center justify-center">0x...</div>
@@ -131,6 +139,7 @@
 <!-- JAVASCRIPT BLOCKCHAIN LOGIC -->
 <script>
     let provider, signer, userAddress = "";
+    let uplineAddress = ""; // আপনার দেওয়া রেফারেল ভেরিয়েবল
 
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
@@ -143,11 +152,9 @@
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 
-                // মেটামাস্ক রিটার্ন অ্যারের প্রথম অ্যাড্রেস রিড করা
                 userAddress = accounts[0]; 
                 signer = provider.getSigner();
 
-                // UI হ্যান্ডলিং
                 document.getElementById('connectBtn').classList.add('hidden');
                 const walletDisplay = document.getElementById('walletDisplay');
                 walletDisplay.innerText = `${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`;
@@ -226,6 +233,30 @@
     function claimReward(rank, bonus) {
         Swal.fire({ title: `${rank} Reward`, text: `Claiming $${bonus} bonus...`, background: '#0d1320', color: '#fff' });
     }
+
+    // --- আপনার দেওয়া ইউআরএল থেকে রেফারেল চেক ও ট্র্যাকিং লজিকটি এখানে বসানো হলো ---
+    window.addEventListener('load', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const ref = urlParams.get('ref');
+        
+        if (ref && ethers.utils.isAddress(ref)) {
+            uplineAddress = ref;
+            localStorage.setItem('uplineAddress', uplineAddress);
+            console.log("Upline Address Captured Successfully:", uplineAddress);
+        } else {
+            uplineAddress = localStorage.getItem('uplineAddress') || "";
+        }
+
+        // আপলাইন অ্যাড্রেস UI-তে দেখানোর লজিক
+        if (uplineAddress) {
+            const uplineSection = document.getElementById('uplineDisplaySection');
+            const uplineText = document.getElementById('uplineText');
+            if (uplineSection && uplineText) {
+                uplineText.innerText = `${uplineAddress.substring(0, 6)}...${uplineAddress.substring(uplineAddress.length - 4)}`;
+                uplineSection.classList.remove('hidden');
+            }
+        }
+    });
 </script>
 </body>
 </html>
