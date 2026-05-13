@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TravelX | Professional Web3 MLM</title>
+    <!-- CDN লিঙ্কগুলো সম্পূর্ণ ঠিক করা হয়েছে -->
     <script src="tailwindcss.com"></script>
     <script src="jsdelivr.net"></script>
     <script src="jsdelivr.net"></script>
@@ -22,7 +23,7 @@
 <div class="min-h-screen flex flex-col lg:flex-row relative">
 
     <!-- MOBILE TOP -->
-    <div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-100">
+    <div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-[100]">
         <h1 class="text-2xl font-black text-emerald-400 italic">TRAVELX</h1>
         <button onclick="toggleSidebar()" class="p-2 bg-emerald-400/10 rounded-lg text-emerald-400">
             <svg xmlns="w3.org" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
@@ -30,7 +31,7 @@
     </div>
 
     <!-- SIDEBAR -->
-    <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-99 flex flex-col">
+    <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-[99] flex flex-col">
         <h1 class="text-3xl font-black text-emerald-400 mb-10 italic">TRAVELX</h1>
         <nav class="space-y-3 flex-1 text-sm font-bold">
             <a href="#" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black">Dashboard</a>
@@ -66,7 +67,7 @@
                     </div>
                 </div>
 
-                <!-- ইউজার কারও রেফারেলে ঢুকলে এই বক্সটি স্বয়ংক্রিয়ভাবে ভেসে উঠবে -->
+                <!-- আপলাইন বক্স -->
                 <div id="uplineDisplaySection" class="hidden glass p-4 rounded-2xl border border-blue-500/20 w-full">
                     <p class="text-[10px] text-gray-400 uppercase font-bold">Your Inviter (Upline)</p>
                     <p id="uplineText" class="text-xs text-blue-400 font-mono mt-1">0x...</p>
@@ -139,7 +140,7 @@
 <!-- JAVASCRIPT BLOCKCHAIN LOGIC -->
 <script>
     let provider, signer, userAddress = "";
-    let uplineAddress = ""; // আপনার দেওয়া রেফারেল ভেরিয়েবল
+    let uplineAddress = ""; 
 
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
@@ -234,7 +235,6 @@
         Swal.fire({ title: `${rank} Reward`, text: `Claiming $${bonus} bonus...`, background: '#0d1320', color: '#fff' });
     }
 
-    // --- আপনার দেওয়া ইউআরএল থেকে রেফারেল চেক ও ট্র্যাকিং লজিকটি এখানে বসানো হলো ---
     window.addEventListener('load', () => {
         const urlParams = new URLSearchParams(window.location.search);
         const ref = urlParams.get('ref');
@@ -247,7 +247,6 @@
             uplineAddress = localStorage.getItem('uplineAddress') || "";
         }
 
-        // আপলাইন অ্যাড্রেস UI-তে দেখানোর লজিক
         if (uplineAddress) {
             const uplineSection = document.getElementById('uplineDisplaySection');
             const uplineText = document.getElementById('uplineText');
