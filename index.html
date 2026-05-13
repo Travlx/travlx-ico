@@ -4,12 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TravelX | Professional Web3 MLM</title>
-    
-    <!-- সম্পূর্ণ এবং সঠিক সিডিএন লিঙ্কসমূহ (এখানে কোনো ট্রাঙ্কেট বা কাট-অফ নেই) -->
-    <script src="tailwindcss.com"></script>
-    <script src="jsdelivr.net"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
     <style>
         body { background-color: #060b14; scroll-behavior: smooth; }
         .glass { background: rgba(13, 19, 32, 0.95); border: 1px solid rgba(255,255,255,0.05); }
@@ -25,20 +22,21 @@
 <div class="min-h-screen flex flex-col lg:flex-row relative">
 
     <!-- MOBILE TOP -->
-    <div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-50">
+    <div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-[100]">
         <h1 class="text-2xl font-black text-emerald-400 italic">TRAVELX</h1>
         <button onclick="toggleSidebar()" class="p-2 bg-emerald-400/10 rounded-lg text-emerald-400">
-            <svg xmlns="w3.org" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
         </button>
     </div>
 
     <!-- SIDEBAR -->
-    <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-40 flex flex-col">
+    <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-[99] flex flex-col">
         <h1 class="text-3xl font-black text-emerald-400 mb-10 italic">TRAVELX</h1>
         <nav class="space-y-3 flex-1 text-sm font-bold">
             <a href="#" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black">Dashboard</a>
-            <a href="#swap-section" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Buy & Swap</a>
+            <a href="#buySection" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Buy & Swap</a>
             <a href="#rewards" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">VIP Rewards</a>
+            <a href="#reports" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Reports</a>
         </nav>
         <div class="mt-auto pt-6 border-t border-white/5 text-center">
             <h4 class="font-bold text-[10px] text-emerald-400 uppercase italic">Rank Status</h4>
@@ -47,35 +45,29 @@
         </div>
     </aside>
 
-    <!-- MAIN CONTENT AREA -->
-    <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden max-w-[1800px] mx-auto">
-       
+    <!-- MAIN -->
+    <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden">
         <!-- TOPBAR -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-            <!-- REFERRAL LINK BOX -->
-            <div class="glass p-5 rounded-2xl border border-emerald-400/20 w-full md:w-96 order-2 md:order-1">
-                <p class="text-xs text-gray-400 uppercase font-bold">Referral Link</p>
-                <div class="flex gap-2 mt-3">
-                    <input id="refLink" readonly
-                        class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs outline-none"
-                        placeholder="Connect wallet first" />
-                    <button onclick="copyRef()"
-                        class="bg-emerald-400 text-black px-4 rounded-xl font-bold text-xs uppercase hover:bg-emerald-300 transition shrink-0">
-                        COPY
-                    </button>
-                </div>
-            </div>
+        <div class="flex justify-between items-center mb-8">
+            <div class="glass p-5 rounded-2xl mb-6 border border-emerald-400/20">
+    <p class="text-xs text-gray-400 uppercase font-bold">Referral Link</p>
 
-            <!-- PORTAL HEADER -->
-            <div class="order-1 md:order-2">
-                <h2 class="text-3xl lg:text-4xl font-black italic uppercase">Investor Portal</h2>
-                <p class="text-gray-500 text-sm">Earn 18% APY & Global Rewards</p>
-            </div>
-           
-            <!-- CONNECT BUTTON / WALLET DISPLAY -->
-            <div class="flex gap-3 order-3">
-                <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3 rounded-2xl font-black shadow-lg hover:bg-emerald-300 transition">Connect</button>
-                <div id="walletDisplay" class="hidden glass px-4 py-3 rounded-2xl text-emerald-400 text-xs font-mono border border-emerald-400/20 items-center justify-center">0x...</div>
+    <div class="flex gap-2 mt-3">
+        <input id="refLink" readonly
+            class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs"
+            placeholder="Generate your referral link" />
+
+        <button onclick="copyRef()"
+            class="bg-emerald-400 text-black px-4 rounded-xl font-bold text-xs">
+            COPY
+        </button>
+    </div>
+</div>
+
+            <div><h2 class="text-3xl lg:text-4xl font-black italic uppercase italic">Investor Portal</h2><p class="text-gray-500 text-sm">Earn 18% APY & Global Rewards</p></div>
+            <div class="flex gap-3">
+                <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3 rounded-2xl font-black shadow-lg">Connect</button>
+                <div id="walletDisplay" class="hidden glass px-4 py-2 rounded-xl text-emerald-400 text-xs font-mono border border-emerald-400/20">0x...</div>
             </div>
         </div>
 
@@ -87,109 +79,121 @@
             <div class="glass p-5 rounded-2xl border-l-4 border-blue-500"><p class="text-gray-500 text-[10px] font-bold uppercase italic">MLM Income (BNB)</p><h3 id="income" class="text-xl font-black mt-1 text-blue-400">0.0000</h3></div>
         </div>
 
-        <!-- STEP & MAIN SWAP LAYOUT -->
-        <div id="swap-section" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10 items-start">
-            
-            <!-- STEP 1: BUY TVX TOKENS -->
-            <div class="glass p-6 rounded-3xl border border-white/5 flex flex-col justify-between min-h-[420px]">
-                <div>
-                    <span class="text-xs font-bold text-black bg-emerald-400 px-3 py-1 rounded-full uppercase">Step 1</span>
-                    <h3 class="text-xl font-black italic mt-3 mb-4 uppercase">Buy TVX Tokens</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-[10px] uppercase font-bold text-gray-400">Amount in BNB</label>
-                            <input id="bnbInput" type="number" placeholder="0.0" class="w-full p-3 bg-black/40 rounded-xl border border-white/10 mt-1 outline-none text-emerald-400 font-mono text-sm">
-                        </div>
-                    </div>
-                </div>
-                <button onclick="buy()" class="w-full mt-6 py-4 bg-emerald-400 text-black rounded-xl text-xs font-black uppercase hover:bg-emerald-300 transition shadow-lg">Buy Tokens</button>
-            </div>
-
-            <!-- STEP 2: INTERNAL SWAP -->
-            <div class="glass p-6 rounded-3xl border border-white/5 flex flex-col justify-between min-h-[420px]">
-                <div>
-                    <span class="text-xs font-bold text-black bg-yellow-500 px-3 py-1 rounded-full uppercase">Step 2</span>
-                    <h3 class="text-xl font-black italic mt-3 mb-4 uppercase">Internal Swap</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-[10px] uppercase font-bold text-gray-400">TVX Amount to Swap</label>
-                            <input id="swapInput" type="number" placeholder="0.0" class="w-full p-3 bg-black/40 rounded-xl border border-white/10 mt-1 outline-none text-yellow-500 font-mono text-sm">
-                        </div>
-                    </div>
-                </div>
-                <button onclick="swap()" class="w-full mt-6 py-4 bg-yellow-500 text-black rounded-xl text-xs font-black uppercase hover:bg-yellow-400 transition shadow-lg">Swap & Stake</button>
-            </div>
-
-            <!-- STAKE TVX & LEVEL REWARDS -->
-            <div class="glass p-6 rounded-3xl border border-white/5 flex flex-col justify-between min-h-[420px]">
-                <div>
-                    <span class="text-xs font-bold text-black bg-cyan-400 px-3 py-1 rounded-full uppercase">Status</span>
-                    <h3 class="text-xl font-black italic mt-3 mb-4 uppercase">Stake & Level</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center bg-black/30 p-3 rounded-xl border border-white/5">
-                            <span class="text-xs text-gray-400">Total Staked:</span>
-                            <span id="totalStakedDisplay" class="font-bold text-cyan-400 font-mono">0.00 TVX</span>
-                        </div>
-                    </div>
-                </div>
-                <button id="activateBtn" class="w-full mt-4 py-3 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-xl text-xs font-bold uppercase transition">Staking Inactive</button>
-            </div>
-
-            <!-- TRANSACTION HISTORY -->
-            <div class="glass p-6 rounded-3xl border border-white/5 flex flex-col justify-between min-h-[420px]">
-                <div>
-                    <span class="text-xs font-bold text-black bg-purple-500 px-3 py-1 rounded-full uppercase">History</span>
-                    <h3 class="text-xl font-black italic mt-3 mb-4 uppercase">History</h3>
-                    <div class="overflow-y-auto max-h-[160px] custom-scrollbar space-y-2 pr-1">
-                        <table class="w-full text-left text-xs">
-                            <tbody id="txList">
-                                <tr><td colspan="3" class="py-6 text-center opacity-10">No History</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- VIP REWARDS -->
+        <!-- REWARDS -->
         <div id="rewards" class="mb-10">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-black uppercase italic text-emerald-400">🏆 VIP Rewards</h3>
-                <div class="bg-yellow-500/10 border border-yellow-500/30 px-3 py-1 rounded-xl text-xs text-yellow-500 font-mono font-bold" id="cardRankDisplay">NONE</div>
-            </div>
+            <h3 class="text-xl font-black mb-6 uppercase italic text-emerald-400">🏆 VIP Rewards (Min 5 Directs Required)</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- V1 Card -->
+                <!-- V1, V2, V3 Cards -->
                 <div class="glass p-6 rounded-[35px] border border-white/5 relative">
                     <h4 class="font-black text-xl italic uppercase">V1 VIP</h4>
+                    <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase italic">25 Team + 5 Directs</p>
                     <div class="mt-4 p-3 bg-black/40 rounded-xl">
                         <p class="text-[10px] text-emerald-400 font-bold">Directs: <span id="v1Directs">0/5</span></p>
-                        <p class="text-[10px] text-white font-bold mt-1">Team: <span id="v1TeamDisplay">0/25</span></p>
-                        <div class="w-full h-1 bg-white/5 rounded-full mt-2"><div id="v1Bar" class="h-full bg-emerald-400 rounded-full" style="width: 0%"></div></div>
+                        <div class="w-full h-1 bg-white/5 rounded-full mt-1"><div id="v1Bar" class="h-full bg-emerald-400 rounded-full" style="width: 0%"></div></div>
                     </div>
-                    <button id="claimV1" disabled class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20">Locked</button>
+                    <p class="mt-4 text-xs font-black italic text-emerald-400">$500 BONUS + 1 TOUR</p>
+                    <button id="claimV1" onclick="claimReward('V1', 500)" disabled class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20">Locked</button>
                 </div>
-                <!-- V2 Card -->
                 <div class="glass p-6 rounded-[35px] border border-white/5 relative">
                     <h4 class="font-black text-xl italic uppercase text-cyan-400">V2 VIP</h4>
-                    <div class="mt-4 p-3 bg-black/40 rounded-xl">
+                    <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase italic">75 Team + 5 Directs</p>
+                    <div class="mt-4 p-3 bg-black/20 rounded-xl">
                         <p class="text-[10px] text-cyan-400 font-bold">Directs: <span id="v2Directs">0/5</span></p>
-                        <p class="text-[10px] text-white font-bold mt-1">Team: <span id="v2TeamDisplay">0/75</span></p>
-                        <div class="w-full h-1 bg-white/5 rounded-full mt-2"><div id="v2Bar" class="h-full bg-cyan-400 rounded-full" style="width: 0%"></div></div>
+                        <div class="w-full h-1 bg-white/5 rounded-full mt-1"><div id="v2Bar" class="h-full bg-cyan-400 rounded-full" style="width: 0%"></div></div>
                     </div>
-                    <button id="claimV2" disabled class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20">Locked</button>
+                    <p class="mt-4 text-xs font-black italic text-emerald-400">$1500 BONUS + FAMILY TOUR</p>
+                    <button id="claimV2" onclick="claimReward('V2', 1500)" disabled class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20">Locked</button>
                 </div>
-                <!-- V3 Card -->
-                <div class="glass p-6 rounded-[35px] border border-white/5 relative">
-                    <h4 class="font-black text-xl italic uppercase text-purple-400">V3 VIP</h4>
-                    <div class="mt-4 p-3 bg-black/40 rounded-xl">
-                        <p class="text-[10px] text-purple-400 font-bold">Directs: <span id="v3Directs">0/5</span></p>
-                        <p class="text-[10px] text-white font-bold mt-1">Team: <span id="v3TeamDisplay">0/175</span></p>
-                        <div class="w-full h-1 bg-white/5 rounded-full mt-2"><div id="v3Bar" class="h-full bg-purple-400 rounded-full" style="width: 0%"></div></div>
+                <div class="glass p-6 rounded-[35px] border border-yellow-500/20 bg-yellow-500/5 relative">
+                    <h4 class="font-black text-xl italic uppercase text-yellow-500">V3 VIP</h4>
+                    <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase italic">175 Team + 5 Directs</p>
+                    <div class="mt-4 p-3 bg-black/20 rounded-xl">
+                        <p class="text-[10px] text-yellow-500 font-bold">Directs: <span id="v3Directs">0/5</span></p>
+                        <div class="w-full h-1 bg-white/5 rounded-full mt-1"><div id="v3Bar" class="h-full bg-yellow-500 rounded-full" style="width: 0%"></div></div>
                     </div>
-                    <button id="claimV3" disabled class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20">Locked</button>
+                    <p class="mt-4 text-xs font-black italic text-emerald-400">$3000 BONUS + 2 TOURS</p>
+                    <button id="claimV3" onclick="claimReward('V3', 3000)" disabled class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20">Locked</button>
                 </div>
             </div>
+        </div>
+
+        <!-- BUY & SWAP -->
+        <div id="buySection" class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+            <div class="glass p-6 lg:p-8 rounded-[35px] border border-white/5">
+                <h3 class="text-xl font-black mb-6 text-emerald-400 italic">Step 1: Buy TVX Tokens</h3>
+                <input id="bnbInput" type="number" step="0.01" oninput="updatePreview()" class="w-full p-4 bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-emerald-400 font-bold font-mono" placeholder="BNB Amount">
+                <div class="flex justify-between bg-black/30 p-4 rounded-2xl mt-4 border border-white/5 italic">
+                    <span class="text-gray-500 text-xs uppercase font-bold">You Will Get:</span><span id="previewTVX" class="font-black text-emerald-400">0 TVX</span>
+                </div>
+                <button onclick="buy()" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl mt-4 hover:bg-yellow-400 transition uppercase text-sm">Buy Now</button>
+                <p class="text-[9px] text-center text-gray-600 mt-2 font-mono uppercase">Live Price: <span id="liveBNB">Loading...</span></p>
+            </div>
+            <div class="glass p-6 lg:p-8 rounded-[35px] border-l-8 border-yellow-500">
+                <h3 class="text-xl font-black mb-6 text-yellow-500 italic uppercase">Step 3: Internal Swap</h3>
+                <input id="swapInput" type="number" oninput="updateSwapPreview()" class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-yellow-500 font-bold" placeholder="TVX Amount to Swap">
+                <div class="flex justify-between bg-black/30 p-4 rounded-2xl mt-4 border border-white/5 italic font-mono">
+                    <span class="text-gray-500 text-[10px] uppercase font-bold">Receive Approx:</span><span id="swapPreviewBNB" class="font-black text-yellow-500">0.0000 BNB</span>
+                </div>
+                <button onclick="internalSwap()" class="w-full bg-white text-black font-black py-4 rounded-2xl mt-4 hover:bg-yellow-500 transition uppercase text-sm shadow-xl">Swap To BNB</button>
+            </div>
+        </div>
+<!-- STEP 2: STAKE TVX & LEVEL REWARDS -->
+<div class="glass p-6 lg:p-8 rounded-[35px] border border-emerald-500/30 mb-8 bg-[#0d1320]/80 shadow-[0_0_50px_rgba(16,185,129,0.1)]">
+    <h3 class="text-xl font-black mb-6 text-yellow-500 italic uppercase">Stake TVX & Level Rewards</h3>
+   
+    <div class="grid grid-cols-1 gap-6">
+        <!-- Input Box Area -->
+        <div class="relative">
+            <input id="stakeInput" type="number"
+                class="w-full p-5 bg-black/60 border border-white/10 rounded-2xl outline-none focus:border-emerald-400 font-bold font-mono text-xl text-white placeholder-gray-700"
+                placeholder="0.00">
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                <span class="text-emerald-400 font-bold text-xs">TVX</span>
+            </div>
+        </div>
+
+        <!-- Referral Distribution Info -->
+        <div class="bg-black/40 p-4 rounded-2xl border border-white/5">
+            <p class="text-[10px] text-gray-500 font-bold uppercase mb-3 italic">Daily Referral Distribution (100% of Reward)</p>
+            <div class="grid grid-cols-3 gap-2 text-center text-[11px] font-bold font-mono italic">
+                <div class="text-emerald-400">L1: 40%</div>
+                <div class="text-emerald-400">L2: 30%</div>
+                <div class="text-emerald-400">L3: 30%</div>
+            </div>
+        </div>
+
+        <!-- Reward Tracking Area -->
+        <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-black/20 p-5 rounded-2xl border border-white/5">
+            <div class="w-full md:w-auto">
+                <p class="text-gray-500 text-[10px] uppercase font-bold italic">Daily Stake Reward (0.1%)</p>
+                <h2 id="liveDailyReward" class="text-2xl font-black text-yellow-500 font-mono mt-1">0.000000 TVX</h2>
+            </div>
+           
+            <div class="flex gap-2 w-full md:w-auto">
+                <button onclick="stakeTokens()" class="flex-1 md:flex-none px-8 py-4 bg-emerald-500 text-black font-black rounded-xl hover:bg-emerald-400 transition uppercase text-xs shadow-lg shadow-emerald-500/20">Stake</button>
+                <button onclick="claimStakingReward()" class="flex-1 md:flex-none px-8 py-4 bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 font-black rounded-xl hover:bg-yellow-500 hover:text-black transition uppercase text-xs">Claim</button>
+            </div>
+        </div>
+
+        <!-- Lock Status & Info -->
+        <div class="flex justify-between items-center px-2">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                <p class="text-[10px] text-gray-500 font-bold uppercase italic">Principal Unlock in: <span id="unlockTimer" class="text-white">360 Days</span></p>
+            </div>
+            <p class="text-[9px] text-gray-600 font-mono uppercase italic">APY: 36% Yearly</p>
+        </div>
+    </div>
+</div>
+
+
+        <!-- REPORTS -->
+        <div id="reports" class="glass p-6 lg:p-8 rounded-[35px] mb-8 overflow-x-auto">
+            <h3 class="text-xl font-black mb-6 italic uppercase text-emerald-400">Transaction History</h3>
+            <table class="w-full text-left font-mono text-[10px]">
+                <thead><tr class="text-gray-500 border-b border-white/10 uppercase italic"><th class="pb-3 text-emerald-400 italic">Type</th><th class="pb-3 italic">Amount</th><th class="pb-3 text-right italic">Status</th></tr></thead>
+                <tbody id="txList" class="text-gray-300 italic"></tbody>
+            </table>
         </div>
 
         <!-- WITHDRAW -->
@@ -201,77 +205,159 @@
     </main>
 </div>
 
-<!-- JAVASCRIPT LOGIC BLOCK -->
 <script>
-const RECEIVER = "0xdeAD000000000000000000000000000000000000"; 
+// --- CONFIGURATION ---
+const RECEIVER = "YOUR_WALLET_ADDRESS"; // এখানে আপনার অ্যাড্রেস দিন
 const RATE = 10000; const TVX_USD = 0.01; let BNB_USD = 600;
 let account, provider, signer;
 
 const db = () => JSON.parse(localStorage.getItem("tvx_vFinal_PRO_V3")) || {};
-const save = d => localStorage.setItem("tvx_vFinal_PRO_V3", JSON.stringify(d));
+    function updateRefLink() {
+    if (!account) return;
 
-function toggleSidebar() { 
-    const sidebar = document.getElementById('sidebar');
-    if(sidebar) sidebar.classList.toggle('sidebar-folded'); 
-}
+    const link = window.location.origin + "?ref=" + account;
+    const el = document.getElementById("refLink");
 
-async function connect() {
-    if (!window.ethereum) return Swal.fire("Error", "MetaMask Required", "error");
-    try {
-        const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
-        account = accs[0].toLowerCase();
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
-
-        let d = db();
-        if(!d[account]) {
-            let ref = new URLSearchParams(location.search).get("ref");
-            d[account] = { sponsor: (ref && d[ref.toLowerCase()]) ? ref.toLowerCase() : null, directs: [], tvx: 0, stakedTvx: 0, bnb: 0, active: false, stakeStart: 0, txHistory: [], claimed: [] };
-            if(ref && d[ref.toLowerCase()]) d[ref.toLowerCase()].directs.push(account);
-            save(d);
-        }
-      
-        document.getElementById("connectBtn").classList.add("hidden");
-        const walletDisplay = document.getElementById("walletDisplay");
-        walletDisplay.classList.remove("hidden");
-        walletDisplay.classList.add("flex");
-        walletDisplay.innerText = account.slice(0,6) + "..." + account.slice(-4);
-       
-        localStorage.setItem('connectedAccount', account);
-
-        // ইন্সট্যান্ট লিঙ্ক জেনারেশন
-        const refLink = window.location.origin + window.location.pathname + "?ref=" + account;
-        document.getElementById("refLink").value = refLink;
-
-        await update();
-        clearInterval(window.updateInterval);
-        window.updateInterval = setInterval(update, 10000);
-        Swal.fire("Connected!", "Wallet connected successfully.", "success");
-    } catch (err) {
-        Swal.fire("Error", "Connection failed", "error");
-    }
+    if (el) el.value = link;
 }
 
 function copyRef() {
     const el = document.getElementById("refLink");
-    if (!el || !el.value || el.value === "Connect wallet first") return Swal.fire("Error", "Connect wallet first!", "error");
+
+    if (!el) return;
+
+    el.select();
+    document.execCommand("copy");
+
+    Swal.fire("Copied!", "Referral link copied", "success");
+}
+const save = d => localStorage.setItem("tvx_vFinal_PRO_V3", JSON.stringify(d));
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('sidebar-folded'); }
+
+async function fetchPrice() {
+    try {
+        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd');
+        const data = await res.json(); BNB_USD = data.binancecoin.usd;
+        document.getElementById("liveBNB").innerText = "$" + BNB_USD.toFixed(2);
+    } catch (e) { BNB_USD = 600; }
+}
+
+async function connect() {
+    if (!window.ethereum) return Swal.fire("Error", "MetaMask Required", "error");
+    const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
+    account = accs[0].toLowerCase();
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+
+    localStorage.setItem("connected", "true");
+   
+    let d = db();
+    if(!d[account]) {
+        let ref = new URLSearchParams(location.search).get("ref");
+        d[account] = { sponsor: (ref && d[ref.toLowerCase()]) ? ref.toLowerCase() : null, directs: [], tvx: 0, bnb: 0, active: false, stakeStart: 0, txHistory: [], claimed: [] };
+        if(ref && d[ref.toLowerCase()]) d[ref.toLowerCase()].directs.push(account);
+        save(d);
+    }
+  // কানেক্ট হওয়ার পর UI আপডেট
+    document.getElementById("connectBtn").classList.add("hidden");
+    document.getElementById("walletDisplay").classList.remove("hidden");
+    document.getElementById("walletDisplay").innerText = account.slice(0,6) + "..." + account.slice(-4);
+   
+    // রিফ্রেশ সমস্যা সমাধানের জন্য ওয়ালেট সেভ করা
+    localStorage.setItem('connectedAccount', account);
+
+    // রেফারেল লিঙ্ক সরাসরি এখানে জেনারেট করা (ফাংশনের ঝামেলা ছাড়াই)
+    const refLink = window.location.origin + "?ref=" + account;
+    const refInput = document.getElementById("refLink");
+    if (refInput) {
+        refInput.value = refLink;
+    }
+
+    update();
+    setInterval(update, 10000);
+}
+
+// কপি করার ফাংশন
+function copyRef() {
+    const el = document.getElementById("refLink");
+    if (!el || !el.value) return Swal.fire("Error", "Connect wallet first!", "error");
+
     el.select();
     navigator.clipboard.writeText(el.value);
+    Swal.fire("Copied!", "Referral link copied", "success");
+}
+
+// পেজ রিফ্রেশ করলে অটো-কানেক্ট লজিক (এটি স্ক্রিপ্টের একদম শেষে রাখুন)
+window.addEventListener('load', () => {
+    const savedAccount = localStorage.getItem('connectedAccount');
+    if (savedAccount) {
+        // যদি আগে কানেক্ট করা থাকে তবে কানেক্ট ফাংশনটি আবার রান করবে
+        connect();
+    }
+});
+
+   
+
+
+
+async function connect() {
+    if (window.ethereum) {
+        try {
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const address = accounts[0];
+           
+            // ব্রাউজার মেমোরিতে অ্যাড্রেস সেভ করা যাতে রিফ্রেশ করলে না যায়
+            localStorage.setItem('userWallet', address);
+           
+            updateUIAfterConnect(address);
+            Swal.fire("Connected!", "Wallet successfully linked.", "success");
+        } catch (err) {
+            console.error("Connection failed", err);
+        }
+    } else {
+        Swal.fire("Error", "Please install MetaMask!", "error");
+    }
+}
+
+// ৩. অটো-কানেক্ট (পেজ রিফ্রেশ করলে এটি স্বয়ংক্রিয়ভাবে কাজ করবে)
+window.addEventListener('load', async () => {
+    const savedWallet = localStorage.getItem('userWallet');
+    if (savedWallet && window.ethereum) {
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) {
+            updateUIAfterConnect(accounts[0]);
+        } else {
+            // যদি মেটামাস্ক থেকে ম্যানুয়ালি ডিসকানেক্ট করা থাকে
+            localStorage.removeItem('userWallet');
+        }
+    }
+});
+
+// ৪. রেফারেল লিঙ্ক কপি করার ফাংশন
+function copyRef() {
+    const copyText = document.getElementById("refLink");
+    if (!copyText.value) return Swal.fire("Error", "Connect wallet first!", "error");
+
+    copyText.select();
+    navigator.clipboard.writeText(copyText.value);
     Swal.fire("Copied!", "Referral link copied to clipboard.", "success");
 }
 
+
+}
+
 async function update() {
-    if (!account) return;
+    if (!account) return; await fetchPrice();
     let d = db(); let u = d[account]; if (!u) return;
 
     const bal = await provider.getBalance(account);
     document.getElementById("bnbBal").innerText = parseFloat(ethers.utils.formatEther(bal)).toFixed(4);
 
-    let profit = (u.active && u.stakeStart > 0) ? (u.stakedTvx * 0.18 * ((Date.now() - u.stakeStart) / 1000)) / 31536000 : 0;
+    let profit = (u.active && u.stakeStart > 0) ? (10000 * 0.18 * ((Date.now() - u.stakeStart) / 1000)) / 31536000 : 0;
     document.getElementById("stakeProfit").innerText = profit.toFixed(4) + " TVX";
-    document.getElementById("tvxBal").innerText = (u.tvx).toLocaleString();
-    document.getElementById("income").innerText = u.bnb.toFixed(4);
-    document.getElementById("totalStakedDisplay").innerText = u.stakedTvx + " TVX";
+    document.getElementById("tvxBal").innerText = (u.tvx + profit).toLocaleString();
+    document.getElementById("income").innerText = u.bnb.toFixed(6);
     document.getElementById("balDisplay").innerText = "$" + ((u.bnb * BNB_USD) + (profit * TVX_USD)).toFixed(2);
 
     let l1 = u.directs.length; let l2 = 0, l3 = 0;
@@ -280,41 +366,183 @@ async function update() {
 
     let rank = (l1 >= 5) ? (totalSize >= 175 ? "V3 VIP" : totalSize >= 75 ? "V2 VIP" : totalSize >= 25 ? "V1 VIP" : "NONE") : "NONE";
     document.getElementById("sideRank").innerText = rank;
-    document.getElementById("cardRankDisplay").innerText = rank;
 
     ['v1', 'v2', 'v3'].forEach(r => {
         document.getElementById(`${r}Directs`).innerText = `${l1}/5`;
         document.getElementById(`${r}Bar`).style.width = `${Math.min(l1*20, 100)}%`;
+        const btn = document.getElementById('claim' + r.toUpperCase());
         const target = r === 'v1' ? 25 : r === 'v2' ? 75 : 175;
-        document.getElementById(`${r}TeamDisplay`).innerText = `${totalSize}/${target}`;
+        if(u.claimed.includes(r.toUpperCase())) {
+            btn.innerText = "CLAIMED ✅"; btn.disabled = true; btn.className = "w-full mt-6 py-4 bg-emerald-500/20 text-emerald-400 rounded-2xl text-[10px] font-black uppercase";
+        } else if(l1 >= 5 && totalSize >= target) {
+            btn.innerText = "CLAIM REWARD 🎁"; btn.disabled = false; btn.className = "w-full mt-6 py-4 bg-yellow-500 text-black rounded-2xl text-[10px] font-black uppercase animate-bounce shadow-xl";
+        }
     });
+
+    document.getElementById("txList").innerHTML = u.txHistory.slice(0,8).map(t => `<tr class="border-b border-white/5 italic"><td class="py-3 text-emerald-400 italic font-bold uppercase font-mono">${t.type}</td><td class="italic">${t.amt}</td><td class="text-right text-emerald-400 italic font-bold font-mono italic">DONE</td></tr>`).join('') || '<tr><td colspan="3" class="py-6 text-center opacity-10">No History</td></tr>';
+
+    if (u.active) {
+        document.getElementById("activateBtn").innerText = "STAKING ACTIVE (18%)";
+        document.getElementById("activateBtn").disabled = true;
+        document.getElementById("activateBtn").classList.add("opacity-50", "cursor-not-allowed");
+    }
 }
 
 async function buy() {
-    if (!account) return;
     let bnbAmt = document.getElementById("bnbInput").value; if (!bnbAmt || bnbAmt <= 0) return;
     try {
         const tx = await signer.sendTransaction({ to: RECEIVER, value: ethers.utils.parseEther(bnbAmt) });
         await tx.wait();
         let d = db(); let tvxGot = bnbAmt * RATE; d[account].tvx += tvxGot;
-        save(d); await update();
-        Swal.fire("Success", `Bought ${tvxGot} TVX!`, "success");
-    } catch (e) { Swal.fire("Error", "Transaction failed", "error"); }
+        let sponsor = d[account].sponsor;
+        for (let i = 1; i <= 3; i++) {
+            if (!sponsor || !d[sponsor]) break;
+            let c = (i === 1 ? 0.05 : i === 2 ? 0.03 : 0.02);
+            d[sponsor].tvx += (tvxGot * 0.5 * c);
+            d[sponsor].bnb += ((tvxGot * 0.5 * c) * TVX_USD) / BNB_USD;
+            sponsor = d[sponsor].sponsor;
+        }
+        d[account].txHistory.unshift({ type: 'BUY TVX', amt: bnbAmt+' BNB' });
+        save(d); update(); Swal.fire("Success", "Tokens Received!", "success");
+    } catch (e) { Swal.fire("Error", "Transaction Failed", "error"); }
+}
+// ১. স্ট্যাকিং ডাটা লোড
+let stakingStore = JSON.parse(localStorage.getItem('tvx_staking')) || {
+    stakedAmount: 0,
+    startTime: null,
+    lastClaimTime: null,
+    totalMlmIncome: 0
+};
+
+// ২. স্টেক ফাংশন (Direct Bonus সহ)
+function stakeTokens() {
+    const inputAmount = parseFloat(document.getElementById('stakeInput').value); // ইনপুট বক্সের আইডি
+    const tvxBalBox = document.getElementById('tvxBal'); // TVX ASSETS বক্সের আইডি
+    let currentTvx = parseFloat(tvxBalBox.innerText);
+
+    if (isNaN(inputAmount) || inputAmount <= 0) return Swal.fire("ভুল পরিমাণ", "সঠিক TVX লিখুন", "error");
+    if (inputAmount > currentTvx) return Swal.fire("ব্যালেন্স নেই", "আপনার TVX ASSETS পর্যাপ্ত নয়", "error");
+
+    // ব্যালেন্স মাইনাস
+    currentTvx -= inputAmount;
+    tvxBalBox.innerText = currentTvx.toFixed(2);
+
+    // ডিরেক্ট বোনাস বিতরণ (৫%, ৩%, ২%)
+    const directRates = [0.05, 0.03, 0.02];
+    directRates.forEach(rate => {
+        stakingStore.totalMlmIncome += (inputAmount * rate);
+    });
+
+    // ডাটা আপডেট
+    stakingStore.stakedAmount += inputAmount;
+    stakingStore.startTime = stakingStore.startTime || Date.now();
+    stakingStore.lastClaimTime = stakingStore.lastClaimTime || Date.now();
+   
+    saveAndRefreshUI();
+    Swal.fire("সফল!", "স্টেক করা হয়েছে এবং ৩ লেভেলে ডিরেক্ট বোনাস চলে গেছে।", "success");
 }
 
-function swap() {
-    let amt = parseFloat(document.getElementById("swapInput").value); if(!amt || amt <= 0) return;
-    let d = db(); let u = d[account]; if(amt > u.tvx) return Swal.fire("Error", "Insufficient balance", "error");
-    u.tvx -= amt; u.stakedTvx += amt; u.active = true; u.stakeStart = Date.now();
-    save(d); update(); Swal.fire("Success", "Tokens Staked!", "success");
+// ৩. ডেইলি রিওয়ার্ড ও টাইমার আপডেট
+function saveAndRefreshUI() {
+    localStorage.setItem('tvx_staking', JSON.stringify(stakingStore));
+   
+    const mlmBox = document.getElementById('income'); // MLM INCOME কার্ডের আইডি
+    if (mlmBox) mlmBox.innerText = stakingStore.totalMlmIncome.toFixed(4);
+
+    if (stakingStore.startTime) {
+        const now = Date.now();
+        const elapsed = (now - stakingStore.lastClaimTime) / 1000;
+        const liveReward = (stakingStore.stakedAmount * 0.001 * elapsed) / 86400; // ০.১% ডেইলি
+       
+        // ড্যাশবোর্ডে লাইভ দেখানো
+        document.getElementById('stakeProfit').innerText = liveReward.toFixed(4) + " TVX";
+        document.getElementById('liveDailyReward').innerText = liveReward.toFixed(6) + " TVX";
+       
+        // টাইমার
+        const unlockDate = stakingStore.startTime + (360 * 86400 * 1000);
+        const timeLeft = unlockDate - now;
+        document.getElementById('unlockTimer').innerText = timeLeft > 0 ? Math.floor(timeLeft/(1000*86400)) + "d left" : "UNLOCKED";
+    }
 }
 
-function withdraw() { Swal.fire("Success", "Withdraw requested!", "success"); }
+// ৪. ক্লেইম করার সময় ডেইলি বোনাস বিতরণ (৪০-৩০-৩০%)
+function claimReward() {
+    const now = Date.now();
+    const elapsed = (now - stakingStore.lastClaimTime) / 1000;
+    const reward = (stakingStore.stakedAmount * 0.001 * elapsed) / 86400;
 
-window.addEventListener('load', () => {
-    if (localStorage.getItem('connectedAccount') && window.ethereum) connect();
-});
+    if (reward > 0) {
+        // ৩-লেভেল ডেইলি ইনকাম বিতরণ
+        const levelRates = [0.40, 0.30, 0.30];
+        levelRates.forEach(rate => {
+            stakingStore.totalMlmIncome += (reward * rate);
+        });
+
+        // মেইন ব্যালেন্সে যোগ
+        let currentTvx = parseFloat(document.getElementById('tvxBal').innerText);
+        document.getElementById('tvxBal').innerText = (currentTvx + reward).toFixed(2);
+
+        stakingStore.lastClaimTime = now;
+        saveAndRefreshUI();
+        Swal.fire("ক্লেইম সফল!", "রিওয়ার্ড এবং লেভেল ইনকাম বিতরণ হয়েছে।", "success");
+    }
+}
+
+setInterval(saveAndRefreshUI, 1000);
+
+
+
+   
+
+function saveAndRefresh() {
+    localStorage.setItem('tvx_staking', JSON.stringify(stakingData));
+    updateStakingUI();
+}
+
+setInterval(updateStakingUI, 1000);
+window.onload = updateStakingUI;
+
+
+       
+
+function internalSwap() {
+    const amt = parseFloat(document.getElementById("swapInput").value);
+    let d = db(); let u = d[account]; if (!amt || u.tvx < amt) return Swal.fire("Error", "Check Balance", "error");
+    u.tvx -= amt; u.bnb += (amt * TVX_USD) / BNB_USD;
+    u.txHistory.unshift({ type: 'SWAP', amt: amt+' TVX to BNB' });
+    save(d); update(); Swal.fire("Success", "TVX converted to Income!", "success");
+}
+
+function activate() {
+    let d = db(); if (d[account].tvx < 10000) return Swal.fire("Error", "Need 10,000 TVX", "error");
+    d[account].active = true; d[account].tvx -= 10000; d[account].stakeStart = Date.now();
+    d[account].txHistory.unshift({ type: 'ACTIVATE', amt: '10,000 TVX' });
+    save(d); update(); Swal.fire("Success", "Staking & Withdrawals Active!", "success");
+}
+
+function withdraw() {
+    let d = db(); let u = d[account];
+    if (!u.active) return Swal.fire("Activation Required", "Activate card to withdraw.", "warning");
+    if (u.bnb <= 0) return;
+    d[account].txHistory.unshift({ type: 'WITHDRAW', amt: '$'+((u.bnb*BNB_USD)).toFixed(2) });
+    u.bnb = 0; save(d); update(); Swal.fire("Sent!", "Withdrawal processing...", "success");
+}
+
+function claimReward(rank, bonus) {
+    let d = db(); d[account].claimed.push(rank); d[account].bnb += (bonus / BNB_USD);
+    d[account].txHistory.unshift({ type: 'BONUS', amt: rank + ' Reward' });
+    save(d); update(); Swal.fire("Congratulations!", `Achieving ${rank} earned you $${bonus}!`, "success");
+}
+
+function logout() { localStorage.removeItem("connected"); window.location.reload(); }
+function updatePreview() { document.getElementById("previewTVX").innerText = (document.getElementById("bnbInput").value * RATE).toLocaleString() + " TVX"; }
+function updateSwapPreview() {
+    const tvx = document.getElementById("swapInput").value;
+    document.getElementById("swapPreviewBNB").innerText = tvx ? ((tvx * TVX_USD) / BNB_USD).toFixed(6) + " BNB" : "0.0000 BNB";
+}
+window.addEventListener('load', () => { if (localStorage.getItem("connected") === "true") connect(); });
 </script>
 </body>
 </html>
+
 
