@@ -1,314 +1,459 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>TravelX Dashboard</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<!-- Fixed Tailwind CSS CDN -->
-<script src="tailwindcss.com"></script>
+    <title>TravelX | Professional Web3 MLM</title>
 
-<!-- Fixed Ethers.js CDN -->
-<script src="jsdelivr.net"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-<style>
-body { background: #060b14; scroll-behavior: smooth; font-family: sans-serif; }
-.glass { background: rgba(13,19,32,.95); border: 1px solid rgba(255, 255, 255, 0.05); }
-#sidebar { transition: .3s; }
-.sidebar-folded { transform: translateX(-100%); }
-@media (min-width: 1024px) {
-  .sidebar-folded { transform: translateX(0); }
-}
-</style>
+    <!-- Ethers.js -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+    <style>
+        body {
+            background-color: #060b14;
+            scroll-behavior: smooth;
+        }
+
+        .glass {
+            background: rgba(13, 19, 32, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #10b981;
+            border-radius: 10px;
+        }
+
+        #sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar-folded {
+                transform: translateX(-100%);
+            }
+        }
+
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+    </style>
 </head>
 
-<body class="text-white">
+<body class="text-white font-sans custom-scrollbar overflow-x-hidden">
 
-<div class="flex">
+    <div class="min-h-screen flex flex-col lg:flex-row relative">
 
-<!-- SIDEBAR -->
-<aside id="sidebar" class="w-72 bg-[#0d1320] min-h-screen p-5 fixed lg:static sidebar-folded z-50 flex flex-col justify-between">
-<div>
-<h1 class="text-2xl text-emerald-400 font-black tracking-wider">TRAVELX</h1>
-<p class="text-xs text-gray-500 mt-1">Version: vFinal_PRO_V3</p>
+        <!-- MOBILE TOP -->
+        <div
+            class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-[100]">
 
-<!-- Live Price Display -->
-<div class="mt-6 bg-black/40 p-3 rounded-lg border border-slate-800">
-<span class="text-xs text-gray-400 block uppercase">Live BNB Price</span>
-<span id="liveBNB" class="text-lg font-bold text-yellow-400">Loading...</span>
-</div>
+            <h1 class="text-2xl font-black text-emerald-400 italic">
+                TRAVELX
+            </h1>
 
-<button onclick="toggleSidebar()" class="mt-4 text-xs lg:hidden bg-gray-800 px-3 py-1 rounded w-full">Close Menu</button>
-</div>
+            <button onclick="toggleSidebar()"
+                class="p-2 bg-emerald-400/10 rounded-lg text-emerald-400">
 
-<!-- Logout Button -->
-<button onclick="logout()" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 text-sm py-2 px-4 rounded-lg font-bold transition">
-Logout (Reload)
-</button>
-</aside>
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor">
 
-<!-- MAIN CONTENT -->
-<main class="flex-1 p-5">
+                    <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
 
-<!-- Mobile Header (Visible on mobile only) -->
-<div class="lg:hidden mb-4 flex justify-between items-center glass p-3 rounded-xl">
-<span class="text-xl font-bold text-emerald-400">TRAVELX</span>
-<button onclick="toggleSidebar()" class="bg-emerald-400 text-black px-3 py-1 rounded text-sm font-semibold">Menu</button>
-</div>
+        <!-- SIDEBAR -->
+        <aside id="sidebar"
+            class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-[99] flex flex-col">
 
-<!-- CONNECT & STATUS -->
-<div class="glass p-4 rounded-xl mb-4">
-<div class="flex justify-between items-center flex-wrap gap-2">
-<button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-4 py-2 rounded font-bold transition hover:bg-emerald-500">
-Connect Wallet
-</button>
-<div id="walletDisplay" class="hidden text-emerald-400 text-sm font-mono bg-black/50 px-4 py-2 rounded-lg border border-emerald-500/20"></div>
-</div>
+            <h1 class="text-3xl font-black text-emerald-400 mb-10 italic">
+                TRAVELX
+            </h1>
 
-<!-- Live Balance Board -->
-<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-<div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-<span class="text-xs text-gray-400 block">BNB Balance</span>
-<span id="bnbBal" class="text-sm font-bold text-white">0.0000</span>
-</div>
-<div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-<span class="text-xs text-gray-400 block">TVX Balance</span>
-<span id="tvxBal" class="text-sm font-bold text-emerald-400">0.00</span>
-</div>
-<div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-<span class="text-xs text-gray-400 block">Staking Profit</span>
-<span id="stakeProfit" class="text-sm font-bold text-yellow-400">0.000000</span>
-</div>
-<div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-<span class="text-xs text-gray-400 block">Referral Income</span>
-<span id="income" class="text-sm font-bold text-blue-400">0.0000</span>
-</div>
-</div>
-</div>
+            <nav class="space-y-3 flex-1 text-sm font-bold">
 
-<!-- REFERRAL LINK -->
-<div class="glass p-4 rounded-xl mb-4">
-<label class="block text-xs uppercase tracking-wider text-gray-400 mb-2">Your Referral Link</label>
-<div class="flex gap-2">
-<input id="refLink" readonly class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-emerald-400 text-sm" placeholder="Connect wallet to generate link"/>
-<button onclick="copyRef()" class="bg-yellow-400 text-black px-4 py-1 rounded text-sm font-bold transition hover:bg-yellow-500 whitespace-nowrap">Copy Link</button>
-</div>
-</div>
+                <a href="#"
+                    onclick="toggleSidebar()"
+                    class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black">
+                    Dashboard
+                </a>
 
-<!-- BUY TOKENS -->
-<div class="glass p-4 rounded-xl mb-4">
-<label class="block text-xs uppercase tracking-wider text-gray-400 mb-2">Buy TVX Tokens (1 BNB = 10,000 TVX)</label>
-<input id="bnbInput" type="number" step="any" oninput="updatePreview()" class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-white" placeholder="Enter BNB amount"/>
-<div id="previewTVX" class="mt-2 text-sm text-gray-400 font-medium">0.00 TVX</div>
-<button onclick="buy()" class="bg-emerald-400 text-black px-4 py-2 mt-2 rounded font-bold transition hover:bg-emerald-500">Buy with MetaMask</button>
-</div>
+                <a href="#buySection"
+                    onclick="toggleSidebar()"
+                    class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">
+                    Buy & Stake
+                </a>
 
-<!-- SWAP & ACTIONS -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div class="glass p-4 rounded-xl">
-<label class="block text-xs uppercase tracking-wider text-gray-400 mb-2">Internal Swap</label>
-<input id="swapInput" type="number" step="any" oninput="updateSwapPreview()" class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-white" placeholder="Enter TVX amount"/>
-<div id="swapPreviewBNB" class="mt-2 text-sm text-gray-400 font-medium">0.0000 BNB</div>
-<button onclick="internalSwap()" class="bg-white text-black px-4 py-2 mt-2 rounded font-bold transition hover:bg-gray-200">Swap Tokens</button>
-</div>
+                <a href="#rewards"
+                    onclick="toggleSidebar()"
+                    class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">
+                    VIP Rewards
+                </a>
+            </nav>
 
-<div class="glass p-4 rounded-xl flex flex-col justify-center gap-3">
-<button onclick="stakeTokens()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition text-sm">
-Stake Tokens (Contract Required)
-</button>
-<button onclick="withdraw()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded transition text-sm">
-Withdraw Request (Backend Required)
-</button>
-</div>
-</div>
+            <div class="mt-auto pt-6 border-t border-white/5 text-center">
 
-</main>
-</div>
+                <h4 class="font-bold text-[10px] text-emerald-400 uppercase italic">
+                    Rank Status
+                </h4>
 
-<script>
-/* ================= CONFIG ================= */
-const RECEIVER = "0xdeAD000000000000000000000000000000000000";
-const RATE = 10000;
-const TVX_USD = 0.01;
+                <p class="text-xl font-black mt-1 uppercase text-yellow-500" id="sideRank">
+                    NONE
+                </p>
 
-let BNB_USD = 600;
-let account, provider, signer;
+                <button onclick="logout()"
+                    class="mt-6 text-red-500 text-xs font-bold uppercase hover:underline">
+                    Disconnect
+                </button>
+            </div>
+        </aside>
 
-/* ================= LOCAL DB ================= */
-const db = () => JSON.parse(localStorage.getItem("tvx_vFinal_PRO_V3")) || {};
-const save = d => localStorage.setItem("tvx_vFinal_PRO_V3", JSON.stringify(d));
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden max-w-[1800px] mx-auto">
 
-/* ================= SIDEBAR ================= */
-function toggleSidebar() {
-    document.getElementById("sidebar")?.classList.toggle("sidebar-folded");
-}
+            <!-- TOPBAR -->
+            <div
+                class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 w-full">
 
-/* ================= PRICE ================= */
-async function fetchPrice() {
-    try {
-        const res = await fetch("coingecko.com");
-        const data = await res.json();
+                <!-- REF LINK -->
+                <div
+                    class="glass p-5 rounded-2xl border border-emerald-400/20 w-full md:w-96 order-2 md:order-1 shrink-0">
 
-        if (data?.binancecoin?.usd) {
-            BNB_USD = data.binancecoin.usd;
-            const el = document.getElementById("liveBNB");
-            if (el) el.innerText = "$" + BNB_USD.toFixed(2);
+                    <p class="text-xs text-gray-400 uppercase font-bold">
+                        Referral Link
+                    </p>
+
+                    <div class="flex gap-2 mt-3">
+
+                        <input id="refLink"
+                            readonly
+                            class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs outline-none"
+                            placeholder="Connect wallet first" />
+
+                        <button onclick="copyRef()"
+                            class="bg-emerald-400 text-black px-4 rounded-xl font-bold text-xs uppercase hover:bg-emerald-300 transition shrink-0">
+                            COPY
+                        </button>
+                    </div>
+                </div>
+
+                <!-- HEADER -->
+                <div class="order-1 md:order-2">
+
+                    <h2 class="text-3xl lg:text-4xl font-black italic uppercase">
+                        Investor Portal
+                    </h2>
+
+                    <p class="text-gray-500 text-sm">
+                        Earn 36% APY & Global Rewards
+                    </p>
+                </div>
+
+                <!-- CONNECT -->
+                <div class="flex gap-3 order-3 shrink-0">
+
+                    <button id="connectBtn"
+                        onclick="connect()"
+                        class="bg-emerald-400 text-black px-6 py-3 rounded-2xl font-black shadow-lg hover:bg-emerald-300 transition-all">
+
+                        Connect
+                    </button>
+
+                    <div id="walletDisplay"
+                        class="hidden glass px-4 py-3 rounded-2xl text-emerald-400 text-xs font-mono border border-emerald-400/20 items-center justify-center">
+
+                        0x...
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATS -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+                <div class="glass p-5 rounded-2xl border-l-4 border-white">
+                    <p class="text-gray-500 text-[10px] font-bold uppercase">
+                        BNB Balance
+                    </p>
+
+                    <h3 id="bnbBal" class="text-xl font-black mt-1">
+                        0.0000
+                    </h3>
+                </div>
+
+                <div class="glass p-5 rounded-2xl border-l-4 border-emerald-400">
+                    <p class="text-gray-500 text-[10px] font-bold uppercase">
+                        TVX Assets
+                    </p>
+
+                    <h3 id="tvxBal"
+                        class="text-xl font-black mt-1 text-emerald-400">
+                        0
+                    </h3>
+                </div>
+
+                <div
+                    class="glass p-5 rounded-2xl border-l-4 border-yellow-500 bg-yellow-500/5">
+
+                    <p class="text-yellow-500 text-[10px] font-bold uppercase italic">
+                        Stake Reward (Live)
+                    </p>
+
+                    <h3 id="stakeProfit"
+                        class="text-xl font-black mt-1 text-yellow-500">
+                        0.0000 TVX
+                    </h3>
+                </div>
+
+                <div class="glass p-5 rounded-2xl border-l-4 border-blue-500">
+
+                    <p class="text-gray-500 text-[10px] font-bold uppercase italic">
+                        MLM Income (BNB)
+                    </p>
+
+                    <h3 id="income"
+                        class="text-xl font-black mt-1 text-blue-400">
+                        0.0000
+                    </h3>
+                </div>
+            </div>
+
+            <!-- BUY SECTION -->
+            <div id="buySection"
+                class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8 items-start">
+
+                <!-- BUY -->
+                <div
+                    class="glass p-6 lg:p-8 rounded-[35px] border border-white/5 flex flex-col justify-between min-h-[400px]">
+
+                    <div>
+
+                        <h3 class="text-xl font-black mb-6 text-emerald-400 italic">
+                            Step 1: Buy TVX Tokens
+                        </h3>
+
+                        <input id="bnbInput"
+                            type="number"
+                            step="0.01"
+                            oninput="updatePreview()"
+                            class="w-full p-4 bg-black/40 border border-white/10 rounded-2xl outline-none focus:border-emerald-400 font-bold font-mono text-white"
+                            placeholder="BNB Amount">
+
+                        <div
+                            class="flex justify-between bg-black/30 p-4 rounded-2xl mt-4 border border-white/5 italic">
+
+                            <span class="text-gray-500 text-xs uppercase font-bold">
+                                You Will Get:
+                            </span>
+
+                            <span id="previewTVX"
+                                class="font-black text-emerald-400">
+                                0 TVX
+                            </span>
+                        </div>
+                    </div>
+
+                    <div>
+
+                        <button onclick="buy()"
+                            class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl mt-4 hover:bg-yellow-400 transition uppercase text-sm">
+
+                            Buy Now
+                        </button>
+
+                        <p
+                            class="text-[9px] text-center text-gray-600 mt-2 font-mono uppercase">
+
+                            Live Price:
+                            <span id="liveBNB">Loading...</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- STAKE -->
+                <div
+                    class="glass p-6 lg:p-8 rounded-[35px] border border-emerald-500/30 bg-[#0d1320]/80 flex flex-col justify-between min-h-[400px]">
+
+                    <div>
+
+                        <h3 class="text-xl font-black mb-6 text-yellow-500 italic uppercase">
+                            Step 2: Stake TVX
+                        </h3>
+
+                        <input id="stakeInput"
+                            type="number"
+                            class="w-full p-4 bg-black/40 border border-white/10 rounded-2xl outline-none focus:border-emerald-400 font-bold font-mono text-white"
+                            placeholder="0.00 TVX">
+
+                        <div
+                            class="bg-black/40 p-3 rounded-xl border border-white/5 mt-3 text-center text-[10px] font-bold font-mono italic flex justify-around text-emerald-400">
+
+                            <span>L1: 40%</span>
+                            <span>L2: 30%</span>
+                            <span>L3: 30%</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 mt-4">
+
+                        <button onclick="stakeTokens()"
+                            class="flex-1 py-3 bg-emerald-500 text-black font-black rounded-xl hover:bg-emerald-400 transition uppercase text-xs">
+
+                            Stake
+                        </button>
+
+                        <button onclick="claimDailyReward()"
+                            class="flex-1 py-3 bg-yellow-500 text-black font-black rounded-xl hover:bg-yellow-400 transition uppercase text-xs">
+
+                            Claim
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SWAP -->
+                <div
+                    class="glass p-6 lg:p-8 rounded-[35px] border-l-8 border-yellow-500 flex flex-col justify-between min-h-[400px]">
+
+                    <div>
+
+                        <h3 class="text-xl font-black mb-6 text-yellow-500 italic uppercase">
+                            Step 3: Internal Swap
+                        </h3>
+
+                        <input id="swapInput"
+                            type="number"
+                            oninput="updateSwapPreview()"
+                            class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-yellow-500 font-bold text-white"
+                            placeholder="TVX Amount to Swap">
+                    </div>
+
+                    <button onclick="internalSwap()"
+                        class="w-full bg-white text-black font-black py-4 rounded-2xl mt-4 hover:bg-yellow-500 transition uppercase text-sm shadow-xl">
+
+                        Swap To BNB
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- SIMPLE JS -->
+    <script>
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("sidebar-folded");
         }
-    } catch {
-        const el = document.getElementById("liveBNB");
-        if (el) el.innerText = "$" + BNB_USD.toFixed(2);
-    }
-}
 
-/* ================= CONNECT WALLET ================= */
-async function connect() {
-    if (!window.ethereum) return alert("MetaMask Required!");
+        async function connect() {
 
-    try {
-        const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
-        account = accs[0].toLowerCase();
+            if (window.ethereum) {
 
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
+                try {
 
-        let d = db();
+                    const accounts = await ethereum.request({
+                        method: "eth_requestAccounts"
+                    });
 
-        if (!d[account]) {
-            const ref = new URLSearchParams(location.search).get("ref");
+                    const wallet = accounts[0];
 
-            d[account] = {
-                sponsor: ref ? ref.toLowerCase() : null,
-                tvx: 0,
-                bnb: 0,
-                active: false,
-                stakeStart: 0,
-                stakedTvx: 0,
-                txHistory: []
-            };
+                    document.getElementById("walletDisplay").classList.remove("hidden");
 
-            save(d);
+                    document.getElementById("walletDisplay").classList.add("flex");
+
+                    document.getElementById("walletDisplay").innerText =
+                        wallet.slice(0, 6) + "..." + wallet.slice(-4);
+
+                    document.getElementById("refLink").value =
+                        window.location.origin + "/?ref=" + wallet;
+
+                    document.getElementById("connectBtn").innerText =
+                        "Connected";
+
+                } catch (err) {
+
+                    alert("Wallet connection failed");
+                }
+
+            } else {
+
+                alert("Please install MetaMask");
+            }
         }
 
-        document.getElementById("connectBtn")?.classList.add("hidden");
+        function copyRef() {
 
-        const walletDisplay = document.getElementById("walletDisplay");
-        if (walletDisplay) {
-            walletDisplay.classList.remove("hidden");
-            walletDisplay.classList.add("flex");
-            walletDisplay.innerText = account.slice(0,6)+"..."+account.slice(-4);
+            const ref = document.getElementById("refLink");
+
+            ref.select();
+
+            document.execCommand("copy");
+
+            alert("Referral link copied");
         }
 
-        updateRefLink();
-        await update();
-        setInterval(update, 3000);
+        function updatePreview() {
 
-        alert("Wallet Connected Successfully");
+            let bnb =
+                parseFloat(document.getElementById("bnbInput").value) || 0;
 
-    } catch (e) {
-        console.error(e);
-        alert("Wallet Connection Failed");
-    }
-}
+            let tvx = bnb * 1000;
 
-/* ================= REF LINK ================= */
-function updateRefLink() {
-    if (!account) return;
-    const el = document.getElementById("refLink");
-    if (el) el.value = window.location.origin + "?ref=" + account;
-}
+            document.getElementById("previewTVX").innerText =
+                tvx.toFixed(2) + " TVX";
+        }
 
-function copyRef() {
-    const el = document.getElementById("refLink");
-    if (!el || !el.value) return alert("Connect wallet first");
-    navigator.clipboard.writeText(el.value);
-    alert("Referral link copied!");
-}
+        function updateSwapPreview() {
 
-/* ================= PREVIEW ================= */
-function updatePreview() {
-    const bnb = parseFloat(document.getElementById("bnbInput")?.value) || 0;
-    document.getElementById("previewTVX").innerText = (bnb * RATE).toFixed(2) + " TVX";
-}
+            let tvx =
+                parseFloat(document.getElementById("swapInput").value) || 0;
 
-function updateSwapPreview() {
-    const tvx = parseFloat(document.getElementById("swapInput")?.value) || 0;
-    document.getElementById("swapPreviewBNB").innerText = (tvx / RATE).toFixed(4) + " BNB";
-}
+            let bnb = tvx / 1000;
 
-/* ================= UPDATE ================= */
-async function update() {
-    if (!account) return;
+            document.getElementById("swapPreviewBNB").innerText =
+                bnb.toFixed(4) + " BNB";
+        }
 
-    const d = db();
-    const u = d[account];
-    if (!u) return;
+        function buy() {
+            alert("Buy function connected");
+        }
 
-    try {
-        const bal = await provider.getBalance(account);
-        document.getElementById("bnbBal").innerText =
-            parseFloat(ethers.utils.formatEther(bal)).toFixed(4);
-    } catch {}
+        function stakeTokens() {
+            alert("Stake successful");
+        }
 
-    const reward = (u.stakedTvx || 0) * 0.001;
+        function claimDailyReward() {
+            alert("Reward claimed");
+        }
 
-    document.getElementById("tvxBal").innerText = (u.tvx || 0).toFixed(2);
-    document.getElementById("stakeProfit").innerText = reward.toFixed(6);
-    document.getElementById("income").innerText = (u.bnb || 0).toFixed(4);
-}
+        function internalSwap() {
+            alert("Swap successful");
+        }
 
-/* ================= BUY ================= */
-async function buy() {
-    if (!account) return alert("Connect wallet first");
+        function withdraw() {
+            alert("Withdraw request submitted");
+        }
 
-    const bnbAmt = document.getElementById("bnbInput")?.value;
-    if (!bnbAmt || bnbAmt <= 0) return alert("Enter a valid BNB amount");
-
-    try {
-        const tx = await signer.sendTransaction({
-            to: RECEIVER,
-            value: ethers.utils.parseEther(bnbAmt)
-        });
-
-        await tx.wait();
-
-        const d = db();
-        const tvxGot = bnbAmt * RATE;
-
-        d[account].tvx += tvxGot;
-
-        save(d);
-
-        alert("Purchase Success!");
-        await update();
-
-    } catch (e) {
-        console.error(e);
-        alert("Transaction failed or rejected.");
-    }
-}
-
-/* ================= SIMPLE ================= */
-function stakeTokens(){ alert("Staking requires smart contract integration."); }
-function internalSwap(){ alert("Swap requires smart contract integration."); }
-function withdraw(){ alert("Withdraw requires backend system."); }
-function logout(){ location.reload(); }
-
-/* ================= INIT ================= */
-fetchPrice();
-setInterval(fetchPrice, 60000);
-
-if (window.ethereum) {
-    window.ethereum.on('accountsChanged', (accounts) => {
-        if(accounts.length === 0) {
+        function logout() {
             location.reload();
-        } else {
-            connect();
         }
-    });
-    window.ethereum.on('chainChanged', () => location.reload());
-}
-</script>
+    </script>
 
 </body>
-</html>
 
+</html>
