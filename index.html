@@ -100,7 +100,170 @@
 </div>
 
 <script>
-    // আপনার জাভাস্ক্রিপ্ট ফাংশনগুলো এখানে থাকবে (যেমন: toggleSidebar, connect, copyRef ইত্যাদি)
+    // আপ<script>
+    // গ্লোবাল ভেরিয়েবল
+    let provider;
+    let signer;
+    let userAddress = "";
+
+    // ১. মোবাইল সাইডবার টগল ফাংশন
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('sidebar-folded');
+    }
+
+    // ২. মেটামাস্ক বা ওয়েব৩ ওয়ালেট কানেক্ট ফাংশন
+    async function connect() {
+        if (window.ethereum) {
+            try {
+                // মেটামাস্ক অ্যাকাউন্ট অ্যাক্সেস রিকোয়েস্ট
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                userAddress = accounts[0];
+
+                // ইথার্স প্রোভাইডার ও সাইনার সেটআপ
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+
+                // ইউজার ইন্টারফেস (UI) আপডেট
+                updateUIOnConnect();
+
+                // সফলতার অ্যালার্ট
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Wallet Connected!',
+                    text: `Connected to ${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`,
+                    background: '#0d1320',
+                    color: '#fff',
+                    confirmButtonColor: '#10b981'
+                });
+
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Connection Failed',
+                    text: error.message,
+                    background: '#0d1320',
+                    color: '#fff',
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+        } else {
+            // মেটামাস্ক না থাকলে অ্যালার্ট
+            Swal.fire({
+                icon: 'warning',
+                title: 'Wallet Not Found',
+                text: 'Please install MetaMask extension to use this app.',
+                background: '#0d1320',
+                color: '#fff',
+                confirmButtonColor: '#f59e0b'
+            });
+        }
+    }
+
+    // ৩. ওয়ালেট কানেক্ট হওয়ার পর UI পরিবর্তনের ফাংশন
+    function updateUIOnConnect() {
+        const connectBtn = document.getElementById('connectBtn');
+        const walletDisplay = document.getElementById('walletDisplay');
+        const refLinkInput = document.getElementById('refLink');
+        const sideRank = document.getElementById('sideRank');
+
+        // বোতাম ও ওয়ালেট অ্যাড্রেস প্রদর্শন
+        connectBtn.classList.add('hidden');
+        walletDisplay.classList.remove('hidden');
+        walletDisplay.innerText = `${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`;
+
+        // ডামি র্যাংক আপডেট (আপনার প্রয়োজন অনুযায়ী পরিবর্তন করবেন)
+        sideRank.innerText = "VIP 1";
+        sideRank.className = "text-xl font-black mt-1 uppercase text-emerald-400";
+
+        // ডোমেন নেম অনুযায়ী ডাইনামিক রেফারেল লিঙ্ক তৈরি
+        const currentUrl = window.location.origin;
+        refLinkInput.value = `${currentUrl}/?ref=${userAddress}`;
+    }
+
+    // ৪. রেফারেল লিঙ্ক কপি করার ফাংশন
+    function copyRef() {
+        const refLinkInput = document.getElementById('refLink');
+        
+        if (!refLinkInput.value) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Connect Wallet First',
+                text: 'Please connect your wallet to generate a referral link.',
+                background: '#0d1320',
+                color: '#fff',
+                confirmButtonColor: '#10b981'
+            });
+            return;
+        }
+
+        // টেক্সট কপি লজিক
+        refLinkInput.select();
+        refLinkInput.setSelectionRange(0, 99999); // মোবাইল ডিভাইসের জন্য
+        navigator.clipboard.writeText(refLinkInput.value);
+
+        // সফলতার নোটিফিকেশন (Toast)
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            background: '#0d1320',
+            color: '#fff'
+        });
+        
+        Toast.fire({
+            icon: 'success',
+            title: 'Referral link copied to clipboard!'
+        });
+    }
+
+    // ৫. ওয়ালেট ডিসকানেক্ট ফাংশন
+    function logout() {
+        if (userAddress === "") return;
+
+        userAddress = "";
+        provider = null;
+        signer = null;
+
+        // UI আগের অবস্থায় ফিরিয়ে আনা
+        document.getElementById('connectBtn').classList.remove('hidden');
+        document.getElementById('walletDisplay').classList.add('hidden');
+        document.getElementById('refLink').value = "";
+        
+        const sideRank = document.getElementById('sideRank');
+        sideRank.innerText = "NONE";
+        sideRank.className = "text-xl font-black mt-1 uppercase text-yellow-500";
+
+        Swal.fire({
+            icon: 'info',
+            title: 'Disconnected',
+            text: 'Wallet disconnected successfully.',
+            background: '#0d1320',
+            color: '#fff',
+            confirmButtonColor: '#10b981'
+        });
+    }
+
+    // অ্যাকাউন্ট পরিবর্তন বা নেটওয়ার্ক পরিবর্তন হ্যান্ডেল করা
+    if (window.ethereum) {
+        window.ethereum.on('accountsChanged', (accounts) => {
+            if (accounts.length === 0) {
+                logout();
+            } else {
+                userAddress = accounts[0];
+                updateUIOnConnect();
+            }
+        });
+
+        window.ethereum.on('chainChanged', () => {
+            window.location.reload();
+        });
+    }
+</script>
+নার জাভাস্ক্রিপ্ট ফাংশনগুলো এখানে থাকবে (যেমন: toggleSidebar, connect, copyRef ইত্যাদি)
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         sidebar.classList.toggle('sidebar-folded');
