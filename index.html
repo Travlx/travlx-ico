@@ -35,7 +35,6 @@
         <nav class="space-y-3 flex-1 text-sm font-bold">
             <a href="#" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black">Dashboard</a>
             <a href="#buySection" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Buy & Swap</a>
-            <a href="#stakeSection" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Staking Portal</a>
             <a href="#rewards" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">VIP Rewards</a>
             <a href="#reports" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Reports</a>
         </nav>
@@ -46,27 +45,33 @@
         </div>
     </aside>
 
-    <!-- MAIN CONTAINER -->
+    <!-- MAIN CONTENT -->
     <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden">
         
         <!-- TOPBAR & REFERRAL -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <div>
                 <h2 class="text-3xl lg:text-4xl font-black italic uppercase">Investor Portal</h2>
-                <p class="text-gray-500 text-sm">Earn 36% APY & Global Rewards <span id="liveBNB" class="text-emerald-400 ml-2"></span></p>
+                <p class="text-gray-500 text-sm">Earn 36% APY & Global Rewards</p>
             </div>
             
-            <div class="glass p-4 rounded-2xl border border-emerald-400/20 w-full md:w-auto md:min-w-[320px]">
-                <p class="text-[10px] text-gray-400 uppercase font-bold">Referral Link</p>
-                <div class="flex gap-2 mt-2">
-                    <input id="refLink" readonly class="w-full p-2 bg-black/40 rounded-xl text-emerald-400 font-mono text-[11px] outline-none" placeholder="Connect wallet first..." />
-                    <button onclick="copyRef()" class="bg-emerald-400 text-black px-3 rounded-xl font-bold text-xs hover:bg-emerald-500 transition">COPY</button>
-                </div>
+            <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3 rounded-2xl font-black shadow-lg">Connect</button>
+                <div id="walletDisplay" class="hidden glass px-4 py-2 rounded-xl text-emerald-400 text-xs font-mono border border-emerald-400/20">0x...</div>
             </div>
+        </div>
 
-            <div class="flex gap-3 self-end md:self-auto">
-                <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3 rounded-2xl font-black shadow-lg hover:bg-emerald-500 transition">Connect</button>
-                <div id="walletDisplay" class="hidden glass px-4 py-3 rounded-2xl text-emerald-400 text-xs font-mono border border-emerald-400/20 flex items-center">0x...</div>
+        <!-- REFERRAL BOX -->
+        <div class="glass p-5 rounded-2xl mb-8 border border-emerald-400/20 max-w-xl">
+            <p class="text-xs text-gray-400 uppercase font-bold">Referral Link</p>
+            <div class="flex gap-2 mt-3">
+                <input id="refLink" readonly
+                    class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs"
+                    placeholder="Connect wallet to generate link" />
+                <button onclick="copyRef()"
+                    class="bg-emerald-400 text-black px-4 rounded-xl font-bold text-xs uppercase hover:bg-emerald-300 transition">
+                    COPY
+                </button>
             </div>
         </div>
 
@@ -74,106 +79,15 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div class="glass p-5 rounded-2xl border-l-4 border-white"><p class="text-gray-500 text-[10px] font-bold uppercase">BNB Balance</p><h3 id="bnbBal" class="text-xl font-black mt-1">0.0000</h3></div>
             <div class="glass p-5 rounded-2xl border-l-4 border-emerald-400"><p class="text-gray-500 text-[10px] font-bold uppercase">TVX Assets</p><h3 id="tvxBal" class="text-xl font-black mt-1 text-emerald-400">0</h3></div>
-            <div class="glass p-5 rounded-2xl border-l-4 border-yellow-500 bg-yellow-500/5"><p class="text-yellow-500 text-[10px] font-bold uppercase italic">Stake Reward</p><h3 id="stakeProfit" class="text-xl font-black mt-1 text-yellow-500">0.00 TVX</h3></div>
-            <div class="glass p-5 rounded-2xl border-l-4 border-blue-500"><p class="text-gray-500 text-[10px] font-bold uppercase italic">Total Portfolio Value</p><h3 id="balDisplay" class="text-xl font-black mt-1 text-blue-400">$0.00</h3></div>
-        </div>
-
-        <!-- BUY & INTERNAL SWAP SECTION -->
-        <div id="buySection" class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-            <!-- BUY TVX CARD -->
-            <div class="glass p-6 rounded-[35px] border border-emerald-400/20">
-                <h3 class="text-xl font-black mb-2 uppercase italic text-emerald-400">💳 Buy TVX Tokens</h3>
-                <p class="text-xs text-gray-400 mb-6">Buy directly with BNB. 3-Level Affiliate Distribution splits instantly.</p>
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-[10px] text-gray-500 font-bold uppercase block mb-1">Pay with BNB</label>
-                        <div class="relative">
-                            <input id="bnbInput" type="number" step="0.01" placeholder="Amount in BNB" class="w-full p-4 bg-black/40 border border-white/5 rounded-2xl text-emerald-400 font-mono text-sm outline-none focus:border-emerald-400/30">
-                            <span class="absolute right-4 top-4 text-xs font-black text-gray-500">BNB</span>
-                        </div>
-                    </div>
-                    <button onclick="buy()" class="w-full py-4 bg-emerald-400 text-black rounded-2xl text-xs font-black uppercase hover:bg-emerald-500 transition shadow-lg">BUY TOKENS 🚀</button>
-                    
-                    <div class="mt-6 pt-4 border-t border-white/5">
-                        <h4 class="text-xs font-black uppercase text-gray-400 mb-3">MLM Matrix Structure</h4>
-                        <div class="grid grid-cols-3 gap-2 text-center">
-                            <div class="bg-black/30 p-3 rounded-xl"><p class="text-[9px] text-emerald-400 font-bold">Level 1 (5%)</p><h5 id="lvl1Count" class="text-base font-black mt-1">0</h5></div>
-                            <div class="bg-black/30 p-3 rounded-xl"><p class="text-[9px] text-cyan-400 font-bold">Level 2 (3%)</p><h5 id="lvl2Count" class="text-base font-black mt-1">0</h5></div>
-                            <div class="bg-black/30 p-3 rounded-xl"><p class="text-[9px] text-yellow-500 font-bold">Level 3 (2%)</p><h5 id="lvl3Count" class="text-base font-black mt-1">0</h5></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- INTERNAL SWAP CARD -->
-            <div class="glass p-6 rounded-[35px] border border-blue-500/20">
-                <h3 class="text-xl font-black mb-2 uppercase italic text-blue-400">🔄 Internal Swap</h3>
-                <p class="text-xs text-gray-400 mb-6">Convert your earned MLM Income or TVX instantly inside the portal.</p>
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-[10px] text-gray-500 font-bold uppercase block mb-1">From: Earned Income</label>
-                        <div class="relative">
-                            <input id="swapInput" type="number" placeholder="0.00" class="w-full p-4 bg-black/40 border border-white/5 rounded-2xl text-blue-400 font-mono text-sm outline-none">
-                            <span class="absolute right-4 top-4 text-xs font-black text-gray-400">BNB</span>
-                        </div>
-                    </div>
-                    <div class="flex justify-center my-1">
-                        <div class="bg-blue-500/10 p-2 rounded-full text-blue-400 font-bold">↓</div>
-                    </div>
-                    <div>
-                        <label class="text-[10px] text-gray-500 font-bold uppercase block mb-1">To: TVX Assets</label>
-                        <div class="relative">
-                            <input id="swapOutput" readonly placeholder="0.00" class="w-full p-4 bg-black/20 border border-white/5 rounded-2xl text-gray-500 font-mono text-sm outline-none">
-                            <span class="absolute right-4 top-4 text-xs font-black text-gray-500">TVX</span>
-                        </div>
-                    </div>
-                    <button onclick="internalSwap()" class="w-full py-4 bg-blue-500 text-white rounded-2xl text-xs font-black uppercase hover:bg-blue-600 transition shadow-lg">SWAP ASSETS NOW 🔄</button>
-                    <div class="flex justify-between text-[11px] px-2 text-gray-500 font-medium">
-                        <span>Available MLM Wallet:</span>
-                        <span id="income" class="font-mono text-blue-400 font-bold">0.000000 BNB</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- STAKING SECTION -->
-        <div id="stakeSection" class="glass p-6 rounded-[35px] border border-white/5 mb-10">
-            <div class="max-w-3xl">
-                <h3 class="text-xl font-black mb-2 uppercase italic text-yellow-500">🔒 TVX Token Staking Portal</h3>
-                <p class="text-xs text-gray-400 mb-6">Lock your assets securely for 360 Days and accumulate 36% APY calculated live.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-[10px] text-gray-500 font-bold uppercase block mb-1">Stake Amount</label>
-                            <div class="relative">
-                                <input id="stakeInput" type="number" placeholder="Min 100 TVX" class="w-full p-4 bg-black/40 border border-white/5 rounded-2xl text-yellow-500 font-mono text-sm outline-none">
-                                <span class="absolute right-4 top-4 text-xs font-black text-gray-500">TVX</span>
-                            </div>
-                        </div>
-                        <button onclick="stakeTokens()" class="w-full py-4 bg-yellow-500 text-black rounded-2xl text-xs font-black uppercase hover:bg-yellow-600 transition">LOCK ASSETS 🔐</button>
-                    </div>
-                    <div class="space-y-3 bg-black/20 p-5 rounded-2xl border border-white/5">
-                        <div class="flex justify-between border-b border-white/5 pb-2">
-                            <span class="text-xs text-gray-500 font-bold uppercase">Staked Balance:</span>
-                            <span id="stakedAmountDisplay" class="font-mono font-bold text-white">0.00 TVX</span>
-                        </div>
-                        <div class="flex justify-between border-b border-white/5 pb-2">
-                            <span class="text-xs text-gray-500 font-bold uppercase">Live Staked Reward:</span>
-                            <span id="stakedReward" class="font-mono font-bold text-yellow-500">0.000000 TVX</span>
-                        </div>
-                        <div class="flex justify-between pt-1">
-                            <span class="text-xs text-gray-500 font-bold uppercase">Unlock Countdown:</span>
-                            <span id="unlockTimer" class="font-mono font-bold text-cyan-400 text-xs">No Active Stake</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-yellow-500 bg-yellow-500/5"><p class="text-yellow-500 text-[10px] font-bold uppercase italic">Stake Reward (18%)</p><h3 id="stakeProfit" class="text-xl font-black mt-1 text-yellow-500">0.00 TVX</h3></div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-blue-500"><p class="text-gray-500 text-[10px] font-bold uppercase italic">MLM Income (BNB)</p><h3 id="income" class="text-xl font-black mt-1 text-blue-400">0.0000</h3></div>
         </div>
 
         <!-- REWARDS -->
         <div id="rewards" class="mb-10">
             <h3 class="text-xl font-black mb-6 uppercase italic text-emerald-400">🏆 VIP Rewards (Min 5 Directs Required)</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- V1 Card -->
                 <div class="glass p-6 rounded-[35px] border border-white/5 relative">
                     <h4 class="font-black text-xl italic uppercase">V1 VIP</h4>
                     <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase italic">25 Team + 5 Directs</p>
@@ -182,8 +96,9 @@
                         <div class="w-full h-1 bg-white/5 rounded-full mt-1"><div id="v1Bar" class="h-full bg-emerald-400 rounded-full" style="width: 0%"></div></div>
                     </div>
                     <p class="mt-4 text-xs font-black italic text-emerald-400">$500 BONUS + 1 TOUR</p>
-                    <button id="claimV1" class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20" disabled>Locked</button>
+                    <button id="claimV1" onclick="claimReward('V1', 500)" disabled class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20">Locked</button>
                 </div>
+                <!-- V2 Card -->
                 <div class="glass p-6 rounded-[35px] border border-white/5 relative">
                     <h4 class="font-black text-xl italic uppercase text-cyan-400">V2 VIP</h4>
                     <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase italic">75 Team + 5 Directs</p>
@@ -192,228 +107,150 @@
                         <div class="w-full h-1 bg-white/5 rounded-full mt-1"><div id="v2Bar" class="h-full bg-cyan-400 rounded-full" style="width: 0%"></div></div>
                     </div>
                     <p class="mt-4 text-xs font-black italic text-emerald-400">$1500 BONUS + FAMILY TOUR</p>
-                    <button id="claimV2" class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20" disabled>Locked</button>
+                    <button id="claimV2" onclick="claimReward('V2', 1500)" disabled class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20">Locked</button>
                 </div>
+                <!-- V3 Card -->
                 <div class="glass p-6 rounded-[35px] border border-yellow-500/20 bg-yellow-500/5 relative">
                     <h4 class="font-black text-xl italic uppercase text-yellow-500">V3 VIP</h4>
                     <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase italic">175 Team + 5 Directs</p>
                     <div class="mt-4 p-3 bg-black/20 rounded-xl">
                         <p class="text-[10px] text-yellow-500 font-bold">Directs: <span id="v3Directs">0/5</span></p>
-                        <div class="w-full h-1 bg-white/5 rounded-full mt-1"><div id="v2Bar" class="h-full bg-yellow-400 rounded-full" style="width: 0%"></div></div>
+                        <div class="w-full h-1 bg-white/5 rounded-full mt-1"><div id="v3Bar" class="h-full bg-yellow-500 rounded-full" style="width: 0%"></div></div>
                     </div>
-                    <p class="mt-4 text-xs font-black italic text-emerald-400">$5000 BONUS + LUXURY CAR</p>
-                    <button id="claimV3" class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20" disabled>Locked</button>
+                    <p class="mt-4 text-xs font-black italic text-emerald-400">$3000 BONUS + 2 TOURS</p>
+                    <button id="claimV3" onclick="claimReward('V3', 3000)" disabled class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20">Locked</button>
                 </div>
             </div>
         </div>
 
-        <!-- REPORTS -->
-        <div id="reports" class="glass p-6 rounded-[35px] border border-white/5 mb-10">
-            <h3 class="text-lg font-black mb-4 uppercase italic text-gray-400">📊 Recent Transactions</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                    <thead>
-                        <tr class="border-b border-white/10 text-gray-500 font-bold uppercase"><th class="pb-3">Type</th><th class="pb-3">Amount</th><th class="pb-3 text-right">Status</th></tr>
-                    </thead>
-                    <tbody id="txList">
-                        <tr><td colspan="3" class="py-6 text-center opacity-20">Connect wallet to load history</td></tr>
-                    </tbody>
-                </table>
+        <!-- BUY & SWAP -->
+        <div id="buySection" class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+            <div class="glass p-6 lg:p-8 rounded-[35px] border border-white/5">
+                <h3 class="text-xl font-black mb-6 text-emerald-400 italic">Step 1: Buy TVX Tokens</h3>
+                <input id="bnbInput" type="number" step="0.01" oninput="updatePreview()" class="w-full p-4 bg-black/40 border border-white/10 rounded-2xl outline-none focus:border-emerald-400 font-bold font-mono" placeholder="BNB Amount">
+                <div class="flex justify-between bg-black/30 p-4 rounded-2xl mt-4 border border-white/5 italic">
+                    <span class="text-gray-500 text-xs uppercase font-bold">You Will Get:</span><span id="previewTVX" class="font-black text-emerald-400">0 TVX</span>
+                </div>
+                <button onclick="buy()" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl mt-4 hover:bg-yellow-400 transition uppercase text-sm">Buy Now</button>
+                <p class="text-[9px] text-center text-gray-600 mt-2 font-mono uppercase">Live Price: <span id="liveBNB">0.001 BNB</span></p>
             </div>
+            
+            <div class="glass p-6 lg:p-8 rounded-[35px] border-l-8 border-yellow-500">
+                <h3 class="text-xl font-black mb-6 text-yellow-500 italic uppercase">Step 3: Internal Swap</h3>
+                <input id="swapInput" type="number" oninput="updateSwapPreview()" class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-yellow-500 font-bold" placeholder="TVX Amount to Swap">
+                <div class="flex justify-between bg-black/30 p-4 rounded-2xl mt-4 border border-white/5 italic font-mono">
+                    <span class="text-gray-500 text-[10px] uppercase font-bold">Receive Approx:</span><span id="swapPreviewBNB" class="font-black text-yellow-500">0.0000 BNB</span>
+                </div>
+                <button onclick="internalSwap()" class="w-full bg-white text-black font-black py-4 rounded-2xl mt-4 hover:bg-yellow-500 transition uppercase text-sm shadow-xl">Swap To BNB</button>
+            </div>
+        </div>
+
+        <!-- STAKING SECTION -->
+        <div class="glass p-6 lg:p-8 rounded-[35px] border-l-8 border-emerald-500 mb-8">
+            <h3 class="text-xl font-black mb-6 text-yellow-500 italic">Stake TVX & Level Rewards</h3>
+            <input id="stakeInput" type="number" class="w-full p-4 bg-black/40 border border-white/10 rounded-2xl outline-none focus:border-yellow-500 font-bold font-mono" placeholder="Amount to Stake">
+            
+            <!-- Level Info Table -->
+            <div class="mt-4 p-4 bg-black/20 rounded-2xl border border-white/5">
+                <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">Daily Referral Distribution (100% of Reward)</p>
+                <div class="flex justify-between text-[11px] font-mono">
+                    <span class="text-emerald-400">L1: 40%</span>
+                    <span class="text-emerald-400">L2: 30%</span>
+                    <span class="text-emerald-400">L3: 30%</span>
+                </div>
+            </div>
+
+            <!-- Live Tracking -->
+            <div class="bg-black/30 p-4 rounded-2xl mt-4 border border-white/5 flex justify-between items-center">
+                <div>
+                    <p class="text-gray-500 text-[10px] uppercase font-bold">Daily Stake Reward (0.1%)</p>
+                    <span id="stakedReward" class="font-black text-yellow-500">0.0000 TVX</span>
+                </div>
+                <button onclick="stakeTokens()" class="bg-emerald-500 text-black text-[11px] font-black px-4 py-2 rounded-xl hover:bg-emerald-400 transition uppercase">Stake</button>
+            </div>
+
+            <p class="text-[9px] text-center text-gray-500 mt-4 font-mono uppercase italic">
+                Principal Unlock in: <span id="unlockTimer" class="text-white">360d</span>
+            </p>
         </div>
 
     </main>
 </div>
-<!-- JAVASCRIPT LOGIC -->
+
+<!-- WEB3 JAVASCRIPT LOGIC -->
 <script>
-const RECEIVER = "YOUR_WALLET_ADDRESS"; // এখানে আপনার মেটামাস্ক অ্যাড্রেস দিন
-const RATE = 10000; const TVX_USD = 0.01; let BNB_USD = 600;
-let account, provider, signer;
+    let provider, signer, userAddress;
+    const TVX_PRICE = 0.001; // 1 TVX = 0.001 BNB
 
-const db = () => JSON.parse(localStorage.getItem("tvx_vFinal_PRO_V3")) || {};
-const save = d => localStorage.setItem("tvx_vFinal_PRO_V3", JSON.stringify(d));
-
-let stakingData = JSON.parse(localStorage.getItem('tvx_staking')) || {
-    stakedAmount: 0, startTime: null, lastClaimTime: null, totalRewards: 0
-};
-const DAILY_APY = 0.001; const LOCK_DAYS = 360;
-
-function toggleSidebar() { document.getElementById('sidebar').classList.toggle('sidebar-folded'); }
-
-function updateRefLink() {
-    if (!account) return;
-    const link = window.location.origin + window.location.pathname + "?ref=" + account;
-    const el = document.getElementById("refLink");
-    if (el) el.value = link;
-}
-
-function copyRef() {
-    const el = document.getElementById("refLink");
-    if (!el || el.value === "" || el.value.includes("Connect wallet")) {
-        return Swal.fire("Error", "Please connect wallet first!", "warning");
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('sidebar-folded');
     }
-    el.select(); el.setSelectionRange(0, 99999);
-    navigator.clipboard.writeText(el.value);
-    Swal.fire("Copied!", "Referral link copied", "success");
-}
 
-async function fetchPrice() {
-    try {
-        const res = await fetch('https://coingecko.com');
-        const data = await res.json(); BNB_USD = data.binancecoin.usd;
-        if (document.getElementById("liveBNB")) document.getElementById("liveBNB").innerText = "($ " + BNB_USD.toFixed(2) + ")";
-    } catch (e) { BNB_USD = 600; }
-}
+    async function connect() {
+        if (typeof window.ethereum !== 'undefined') {
+            try {
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                signer = provider.getSigner();
+                userAddress = await signer.getAddress();
 
-async function connect() {
-    if (!window.ethereum) return Swal.fire("Error", "MetaMask Required", "error");
-    try {
-        const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
-        account = accs[0].toLowerCase();
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
-        localStorage.setItem("connected", "true");
-       
-        let d = db();
-        if(!d[account]) {
-            let ref = new URLSearchParams(location.search).get("ref");
-            d[account] = { sponsor: (ref && d[ref.toLowerCase()]) ? ref.toLowerCase() : null, directs: [], tvx: 0, bnb: 0, txHistory: [], claimed: [] };
-            if(ref && d[ref.toLowerCase()]) d[ref.toLowerCase()].directs.push(account);
-            save(d);
-        }
+                // UI Update
+                document.getElementById('connectBtn').classList.add('hidden');
+                const walletDisplay = document.getElementById('walletDisplay');
+                walletDisplay.classList.remove('hidden');
+                walletDisplay.innerText = userAddress.substring(0, 6) + "..." + userAddress.substring(38);
 
-        document.getElementById("connectBtn").classList.add("hidden");
-        document.getElementById("walletDisplay").classList.remove("hidden");
-        document.getElementById("walletDisplay").innerText = account.slice(0,6)+"..."+account.slice(-4);
-        
-        updateRefLink();
-        if(document.getElementById("swapInput")) {
-            document.getElementById("swapInput").oninput = e => {
-                let v = parseFloat(e.target.value);
-                document.getElementById("swapOutput").value = (!isNaN(v) && v > 0) ? (v * RATE).toFixed(2) : "";
-            };
-        }
-        await update(); setInterval(update, 10000); setInterval(updateStakingUI, 1000);
-        Swal.fire("Connected!", "Wallet connected successfully", "success");
-    } catch (err) { Swal.fire("Error", "Connection failed!", "error"); }
-}
+                // Generate Ref Link
+                const currentUrl = window.location.origin + window.location.pathname;
+                document.getElementById('refLink').value = `${currentUrl}?ref=${userAddress}`;
 
-function internalSwap() {
-    if (!account) return Swal.fire("Error", "Connect wallet first!", "warning");
-    let bnbToSwap = parseFloat(document.getElementById("swapInput").value);
-    if (isNaN(bnbToSwap) || bnbToSwap <= 0) return Swal.fire("Error", "Enter valid amount!", "warning");
+                // Fetch Live BNB Balance
+                const balance = await provider.getBalance(userAddress);
+                document.getElementById('bnbBal').innerText = parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
 
-    let d = db(); let u = d[account];
-    if (u.bnb < bnbToSwap) return Swal.fire("Error", "Insufficient MLM Balance!", "error");
-
-    let tvxAmount = bnbToSwap * RATE;
-    u.bnb -= bnbToSwap; u.tvx += tvxAmount;
-    u.txHistory.unshift({ type: 'SWAP INCOME', amt: bnbToSwap.toFixed(4) + ' BNB -> ' + tvxAmount.toLocaleString() + ' TVX' });
-    save(d); update();
-    document.getElementById("swapInput").value = ""; document.getElementById("swapOutput").value = "";
-    Swal.fire("Success!", "Swapped successfully!", "success");
-}
-
-async function update() {
-    if (!account) return; await fetchPrice();
-    let d = db(); let u = d[account]; if (!u) return;
-
-    const bal = await provider.getBalance(account);
-    document.getElementById("bnbBal").innerText = parseFloat(ethers.utils.formatEther(bal)).toFixed(4);
-    document.getElementById("tvxBal").innerText = u.tvx.toLocaleString();
-    document.querySelectorAll("#income").forEach(el => el.innerText = u.bnb.toFixed(6) + " BNB");
-    if (document.getElementById("stakedAmountDisplay")) document.getElementById("stakedAmountDisplay").innerText = stakingData.stakedAmount.toLocaleString() + " TVX";
-    if (document.getElementById("balDisplay")) document.getElementById("balDisplay").innerText = "$" + ((u.bnb * BNB_USD) + (u.tvx * TVX_USD)).toFixed(2);
-
-    let l1 = u.directs.length; let l2 = 0, l3 = 0;
-    u.directs.forEach(id => { if(d[id]) { l2 += d[id].directs.length; d[id].directs.forEach(id2 => { if(d[id2]) l3 += d[id2].directs.length; }); } });
-    let totalSize = l1 + l2 + l3;
-
-    if(document.getElementById("lvl1Count")) document.getElementById("lvl1Count").innerText = l1;
-    if(document.getElementById("lvl2Count")) document.getElementById("lvl2Count").innerText = l2;
-    if(document.getElementById("lvl3Count")) document.getElementById("lvl3Count").innerText = l3;
-    document.getElementById("sideRank").innerText = (l1 >= 5) ? (totalSize >= 175 ? "V3 VIP" : totalSize >= 75 ? "V2 VIP" : totalSize >= 25 ? "V1 VIP" : "NONE") : "NONE";
-
-    ['v1', 'v2', 'v3'].forEach(r => {
-        if(document.getElementById(`${r}Directs`)) document.getElementById(`${r}Directs`).innerText = `${l1}/5`;
-        if(document.getElementById(`${r}Bar`)) document.getElementById(`${r}Bar`).style.width = `${Math.min(l1*20, 100)}%`;
-        const btn = document.getElementById('claim' + r.toUpperCase()); const target = r === 'v1' ? 25 : r === 'v2' ? 75 : 175;
-        if(btn) {
-            if(u.claimed.includes(r.toUpperCase())) {
-                btn.innerText = "CLAIMED ✅"; btn.disabled = true; btn.className = "w-full mt-6 py-4 bg-emerald-500/20 text-emerald-400 rounded-2xl text-[10px] font-black uppercase";
-            } else if(l1 >= 5 && totalSize >= target) {
-                btn.innerText = "CLAIM REWARD 🎁"; btn.disabled = false; btn.className = "w-full mt-6 py-4 bg-yellow-500 text-black rounded-2xl text-[10px] font-black uppercase animate-bounce";
+                Swal.fire({ icon: 'success', title: 'Connected', text: 'Wallet authorized!', background: '#0d1320', color: '#fff' });
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Connection rejected', background: '#0d1320', color: '#fff' });
             }
+        } else {
+            Swal.fire({ icon: 'warning', title: 'Wallet Missing', text: 'Please install MetaMask!', background: '#0d1320', color: '#fff' });
         }
-    });
-
-    if(document.getElementById("txList")) {
-        document.getElementById("txList").innerHTML = u.txHistory.slice(0,8).map(t => `<tr class="border-b border-white/5"><td class="py-3 text-emerald-400 font-bold font-mono">${t.type}</td><td>${t.amt}</td><td class="text-right text-emerald-400 font-bold font-mono">DONE</td></tr>`).join('') || '<tr><td colspan="3" class="py-6 text-center opacity-10">No History</td></tr>';
     }
-}
 
-async function buy() {
-    let bnbAmt = document.getElementById("bnbInput").value; 
-    if (!bnbAmt || bnbAmt <= 0) return Swal.fire("Error", "Enter valid BNB amount", "warning");
-    try {
-        const tx = await signer.sendTransaction({ to: RECEIVER, value: ethers.utils.parseEther(bnbAmt) });
-        await tx.wait();
-        let d = db(); let tvxGot = bnbAmt * RATE; d[account].tvx += tvxGot;
-        let sponsor = d[account].sponsor;
-        for (let i = 1; i <= 3; i++) {
-            if (!sponsor || !d[sponsor]) break;
-            let c = (i === 1 ? 0.05 : i === 2 ? 0.03 : 0.02);
-            d[sponsor].tvx += (tvxGot * 0.5 * c); d[sponsor].bnb += ((tvxGot * 0.5 * c) * TVX_USD) / BNB_USD;
-            sponsor = d[sponsor].sponsor;
+    function copyRef() {
+        const copyText = document.getElementById("refLink");
+        if (!copyText.value || copyText.value.includes("Connect")) {
+            Swal.fire({ icon: 'info', title: 'Oops', text: 'Connect wallet first!', background: '#0d1320', color: '#fff' });
+            return;
         }
-        d[account].txHistory.unshift({ type: 'BUY TVX', amt: bnbAmt+' BNB' });
-        save(d); update(); Swal.fire("Success", "Tokens Received!", "success");
-    } catch (e) { Swal.fire("Error", "Transaction Failed", "error"); }
-}
-
-function stakeTokens() {
-    if (!account) return Swal.fire("Error", "Connect wallet first!", "warning");
-    const amount = parseFloat(document.getElementById('stakeInput').value);
-    let d = db(); let u = d[account];
-
-    if (isNaN(amount) || amount < 100) return Swal.fire("Error", "Min 100 TVX required!", "error");
-    if (u.tvx < amount) return Swal.fire("Error", "Insufficient TVX assets!", "error");
-
-    u.tvx -= amount; stakingData.stakedAmount += amount;
-    stakingData.startTime = Date.now(); stakingData.lastClaimTime = Date.now();
-    localStorage.setItem('tvx_staking', JSON.stringify(stakingData));
-    u.txHistory.unshift({ type: 'STAKE LOCK', amt: amount.toLocaleString() + ' TVX' });
-    save(d); update(); document.getElementById('stakeInput').value = "";
-    Swal.fire("Success", `Staked ${amount} TVX successfully!`, "success");
-}
-
-function updateStakingUI() {
-    if (!stakingData.startTime || !account) return;
-    const now = Date.now(); const elapsedSeconds = (now - stakingData.lastClaimTime) / 1000;
-    const userDailyReward = (stakingData.stakedAmount * DAILY_APY * elapsedSeconds) / 86400;
-    if(document.getElementById('stakedReward')) document.getElementById('stakedReward').innerText = userDailyReward.toFixed(6) + " TVX";
-
-    const timeLeft = (stakingData.startTime + (LOCK_DAYS * 86400000)) - now;
-    const timerEl = document.getElementById("unlockTimer");
-    if (timerEl) {
-        if (timeLeft > 0) {
-            const d = Math.floor(timeLeft / 86400000); const h = Math.floor((timeLeft % 86400000) / 3600000);
-            const m = Math.floor((timeLeft % 3600000) / 60000); const s = Math.floor((timeLeft % 60000) / 1000);
-            timerEl.innerText = `${d}d ${h}h ${m}m ${s}s`;
-        } else { timerEl.innerText = "Unlocked"; }
+        copyText.select();
+        navigator.clipboard.writeText(copyText.value);
+        Swal.fire({ icon: 'success', title: 'Copied!', text: 'Link ready to share.', background: '#0d1320', color: '#fff', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
     }
-}
 
-window.addEventListener('load', () => { if(localStorage.getItem("connected") === "true") connect(); });
+    function updatePreview() {
+        const val = document.getElementById('bnbInput').value;
+        document.getElementById('previewTVX').innerText = val ? `${(val / TVX_PRICE).toFixed(2)} TVX` : "0 TVX";
+    }
 
-function logout() {
-    localStorage.removeItem("connected"); account = null;
-    document.getElementById("connectBtn").classList.remove("hidden");
-    document.getElementById("walletDisplay").classList.add("hidden");
-    if(document.getElementById("refLink")) document.getElementById("refLink").value = "";
-    document.getElementById("bnbBal").innerText = "0.0000";
-    Swal.fire("Disconnected", "Wallet logged out", "info");
-}
+    function updateSwapPreview() {
+        const val = document.getElementById('swapInput').value;
+        document.getElementById('swapPreviewBNB').innerText = val ? `${(val * TVX_PRICE).toFixed(4)} BNB` : "0.0000 BNB";
+    }
+
+    function logout() {
+        userAddress = null;
+        document.getElementById('connectBtn').classList.remove('hidden');
+        document.getElementById('walletDisplay').classList.add('hidden');
+        document.getElementById('refLink').value = "";
+        document.getElementById('bnbBal').innerText = "0.0000";
+        Swal.fire({ icon: 'info', title: 'Disconnected', text: 'Wallet cleared.', background: '#0d1320', color: '#fff' });
+    }
+
+    function buy() { Swal.fire({ icon: 'info', title: 'Buy Action', text: 'Triggering contract buy function...', background: '#0d1320', color: '#fff' }); }
+    function internalSwap() { Swal.fire({ icon: 'info', title: 'Swap Action', text: 'Processing internal swap...', background: '#0d1320', color: '#fff' }); }
+    function stakeTokens() { Swal.fire({ icon: 'info', title: 'Stake Action', text: 'Processing staking transaction...', background: '#0d1320', color: '#fff' }); }
+    function claimReward(vip, amt) { Swal.fire({ icon: 'success', title: 'VIP Claim', text: `Claiming ${vip} bonus!`, background: '#0d1320', color: '#fff' }); }
 </script>
 </body>
 </html>
