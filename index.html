@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TravelX | Professional Web3 MLM</title>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://tailwindcss.com"></script>
 
     <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cloudflare.com">
 
-    <!-- Web3.js (for future wallet integration) -->
-    <script src="https://cdn.jsdelivr.net/npm/web3@4.2.2/dist/web3.min.js"></script>
+    <!-- Web3.js for Wallet Integration -->
+    <script src="https://jsdelivr.net"></script>
 
     <style>
         body {
@@ -21,13 +21,12 @@
             font-family: sans-serif;
         }
 
-        /* Glassmorphism UI */
+        /* Premium High-Contrast Glassmorphism UI */
         .glass {
-            background: rgba(13, 19, 32, 0.55);
-            backdrop-filter: blur(16px) saturate(180%);
-            -webkit-backdrop-filter: blur(16px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.09);
-            transform: translateZ(0);
+            background: rgba(13, 19, 32, 0.55) !important;
+            backdrop-filter: blur(16px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.09) !important;
         }
 
         /* Custom scrollbar */
@@ -40,7 +39,7 @@
             border-radius: 10px;
         }
 
-        /* Sidebar animation */
+        /* Sidebar Transition Logic */
         #sidebar {
             transition: transform 0.3s ease-in-out;
         }
@@ -52,250 +51,365 @@
         }
 
         /* Remove number input arrows */
-        input[type=number]::-webkit-inner-spin-button {
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
+            margin: 0;
         }
     </style>
 </head>
 
-<body class="text-white custom-scrollbar">
+<body class="text-white custom-scrollbar bg-[#030712] min-h-screen">
 
-    <!-- HEADER -->
-    <header class="glass p-4 flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-emerald-400">TravelX</h1>
-        <button class="bg-emerald-500 px-4 py-2 rounded-lg hover:bg-emerald-600">
-            Connect Wallet
+    <!-- MOBILE HEADER TOGGLE BAR -->
+    <header class="lg:hidden glass p-4 flex justify-between items-center fixed top-0 left-0 right-0 h-16 z-50">
+        <button onclick="toggleSidebar()" class="text-emerald-400 text-2xl focus:outline-none">
+            <i class="fa-solid fa-bars"></i>
         </button>
+        <h1 class="text-xl font-black text-emerald-400 italic">TRAVELX</h1>
     </header>
 
-    <!-- MAIN DASHBOARD -->
-    <main class="p-6">
-        <div class="text-center mt-10">
-            <h2 class="text-3xl font-bold text-emerald-400">
-                Web3 MLM Dashboard
-            </h2>
-            <p class="text-gray-400 mt-2">
-                Welcome to your decentralized earnings system
-            </p>
-        </div>
+    <!-- MAIN WRAPPER -->
+    <div class="flex pt-16 lg:pt-0 min-h-screen w-full">
 
-        <!-- STATS CARDS -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-
-            <div class="glass p-6 rounded-xl text-center">
-                <h3 class="text-gray-400">Total Earnings</h3>
-                <p class="text-2xl font-bold text-emerald-400">$0.00</p>
-            </div>
-
-            <div class="glass p-6 rounded-xl text-center">
-                <h3 class="text-gray-400">Referrals</h3>
-                <p class="text-2xl font-bold text-emerald-400">0</p>
-            </div>
-
-            <div class="glass p-6 rounded-xl text-center">
-                <h3 class="text-gray-400">Wallet Status</h3>
-                <p class="text-2xl font-bold text-yellow-400">Not Connected</p>
-            </div>
-
-        </div>
-    </main>
-
-</body>
-</html>
-
-    <!-- SIDEBAR -->
-    <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0b0f19] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-50 flex flex-col">
-        <h1 class="text-3xl font-black text-emerald-400 mb-10 italic tracking-wider">TRAVELX</h1>
-        <nav class="space-y-3 flex-1 text-sm font-bold">
-            <a href="#" onclick="toggleSidebar()" class="block px-5 py-3.5 rounded-2xl bg-emerald-400 text-black shadow-lg shadow-emerald-400/20 transition duration-200">Dashboard</a>
-            <a href="#buySection" onclick="toggleSidebar()" class="block px-5 py-3.5 rounded-2xl bg-white/5 border border-transparent hover:border-emerald-400/20 hover:bg-emerald-400/5 hover:text-emerald-400 transition duration-200">Buy & Swap</a>
-            <a href="#rewards" onclick="toggleSidebar()" class="block px-5 py-3.5 rounded-2xl bg-white/5 border border-transparent hover:border-emerald-400/20 hover:bg-emerald-400/5 hover:text-emerald-400 transition duration-200">VIP Rewards</a>
-        </nav>
-        <div class="mt-auto pt-6 border-t border-white/5 text-center bg-black/20 p-4 rounded-2xl">
-            <h4 class="font-bold text-[10px] text-emerald-400 uppercase tracking-widest italic">Rank Status</h4>
-            <p class="text-xl font-black mt-1 uppercase text-yellow-500 tracking-wide drop-shadow" id="sideRank">NONE</p>
-            <button onclick="logout()" class="mt-6 text-red-400 text-xs font-bold uppercase tracking-wider hover:text-red-300 transition hover:underline">Disconnect</button>
-        </div>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main class="flex-1 p-5 lg:p-10 w-full overflow-x-hidden bg-[#060a13]">
-        
-        <!-- TOPBAR -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-6 border-b border-white/5">
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="sidebar-folded lg:transform-none w-72 bg-[#0b0f19] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-50 flex flex-col justify-between">
             <div>
-                <h2 class="text-3xl lg:text-4xl font-black italic uppercase tracking-wide text-white">Investor Portal</h2>
-                <p class="text-slate-400 text-sm font-medium mt-1">Earn 36% APY & Global Rewards</p>
+                <h1 class="text-3xl font-black text-emerald-400 mb-10 italic tracking-wider">TRAVELX</h1>
+                <nav class="space-y-3 text-sm font-bold">
+                    <a href="#" onclick="toggleSidebar()" class="block px-5 py-3.5 rounded-2xl bg-emerald-400 text-black shadow-lg shadow-emerald-400/20 transition duration-200">
+                        <i class="fa-solid fa-chart-pie mr-2"></i>Dashboard
+                    </a>
+                    <a href="#referralTree" onclick="toggleSidebar()" class="block px-5 py-3.5 rounded-2xl bg-white/5 border border-transparent hover:border-emerald-400/20 hover:bg-emerald-400/5 hover:text-emerald-400 transition duration-200">
+                        <i class="fa-solid fa-sitemap mr-2"></i>Network Tree
+                    </a>
+                    <a href="#buySection" onclick="toggleSidebar()" class="block px-5 py-3.5 rounded-2xl bg-white/5 border border-transparent hover:border-emerald-400/20 hover:bg-emerald-400/5 hover:text-emerald-400 transition duration-200">
+                        <i class="fa-solid fa-arrows-rotate mr-2"></i>Buy & Swap
+                    </a>
+                    <a href="#rewards" onclick="toggleSidebar()" class="block px-5 py-3.5 rounded-2xl bg-white/5 border border-transparent hover:border-emerald-400/20 hover:bg-emerald-400/5 hover:text-emerald-400 transition duration-200">
+                        <i class="fa-solid fa-trophy mr-2"></i>VIP Rewards
+                    </a>
+                </nav>
             </div>
             
-            <div class="flex items-center gap-3 w-full sm:w-auto justify-start sm:justify-end">
-                <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3.5 rounded-2xl font-black shadow-lg shadow-emerald-400/20 hover:bg-emerald-300 transition duration-200 text-sm uppercase tracking-wider">Connect Wallet</button>
-                <div id="walletDisplay" class="hidden glass px-4 py-2.5 rounded-xl text-emerald-400 text-xs font-mono border border-emerald-400/30 shadow-inner">0x...</div>
-            </div>
-        </div>
-
-        <!-- REFERRAL BOX -->
-        <div class="glass p-6 rounded-3xl mb-8 max-w-xl shadow-xl">
-            <p class="text-xs text-emerald-400 uppercase tracking-widest font-black">Your Referral Link</p>
-            <div class="flex gap-2 mt-3">
-                <input id="refLink" readonly
-                    class="w-full p-4 bg-black/50 border border-white/5 rounded-2xl text-emerald-300 font-mono text-xs focus:outline-none"
-                    placeholder="Connect wallet to generate your unique link" />
-                <button onclick="copyRef()"
-                    class="bg-emerald-400 text-black px-6 rounded-2xl font-black text-xs uppercase hover:bg-emerald-300 shadow-md transition duration-200">
-                    COPY
+            <div class="pt-6 border-t border-white/5 text-center bg-black/20 p-4 rounded-2xl">
+                <h4 class="font-bold text-[10px] text-emerald-400 uppercase tracking-widest italic">Rank Status</h4>
+                <p class="text-xl font-black mt-1 uppercase text-yellow-500 tracking-wide drop-shadow" id="sideRank">NONE</p>
+                <button onclick="logout()" class="mt-6 text-red-400 text-xs font-bold uppercase tracking-wider hover:text-red-300 transition hover:underline">
+                    <i class="fa-solid fa-power-off mr-1"></i>Disconnect
                 </button>
             </div>
-        </div>
+        </aside>
 
-        <!-- STATS GRID -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-            <div class="glass p-5 rounded-2xl border-l-4 border-white/40 shadow-lg"><p class="text-slate-300 text-[10px] font-black uppercase tracking-wider">BNB Balance</p><h3 id="bnbBal" class="text-2xl font-black mt-2 text-white font-mono">0.0000</h3></div>
-            <div class="glass p-5 rounded-2xl border-l-4 border-emerald-400 shadow-lg"><p class="text-slate-300 text-[10px] font-black uppercase tracking-wider">TVX Assets</p><h3 id="tvxBal" class="text-2xl font-black mt-2 text-emerald-400 font-mono">0.00</h3></div>
-            <div class="glass p-5 rounded-2xl border-l-4 border-yellow-500 bg-yellow-500/5 shadow-lg"><p class="text-yellow-500 text-[10px] font-black uppercase tracking-wider italic">Stake Reward (18%)</p><h3 id="stakeProfit" class="text-2xl font-black mt-2 text-yellow-500 font-mono">0.00 TVX</h3></div>
-            <div class="glass p-5 rounded-2xl border-l-4 border-blue-500 shadow-lg"><p class="text-slate-300 text-[10px] font-black uppercase tracking-wider italic">MLM Income (BNB)</p><h3 id="income" class="text-2xl font-black mt-2 text-blue-400 font-mono">0.0000</h3></div>
-        </div>
-
-        <!-- REWARDS -->
-        <div id="rewards" class="mb-10">
-            <h3 class="text-xl font-black mb-6 uppercase italic text-emerald-400 tracking-wide flex items-center gap-2">🏆 VIP Rewards <span class="text-xs text-slate-400 font-sans not-italic font-medium">(Min 5 Directs Required)</span></h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- V1 Card -->
-                <div class="glass p-6 rounded-[32px] shadow-lg relative flex flex-col justify-between">
-                    <div>
-                        <h4 class="font-black text-xl italic uppercase text-white">V1 VIP</h4>
-                        <p class="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-wider">25 Team + 5 Directs</p>
-                        <div class="mt-5 p-3.5 bg-black/40 border border-white/5 rounded-2xl">
-                            <p class="text-[10px] text-emerald-400 font-black tracking-wide">Directs: <span id="v1Directs" class="font-mono">0/5</span></p>
-                            <div class="w-full h-1.5 bg-white/5 rounded-full mt-2 overflow-hidden"><div id="v1Bar" class="h-full bg-emerald-400 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                        </div>
-                    </div>
-                    <div>
-                        <p class="mt-5 text-sm font-black italic text-emerald-400 tracking-wide">$500 BONUS + 1 TOUR</p>
-                        <button id="claimV1" onclick="claimReward('V1', 500)" disabled class="w-full mt-5 py-4 bg-white/5 border border-white/5 rounded-2xl text-xs font-black uppercase opacity-30 tracking-wider transition">Locked</button>
-                    </div>
-                </div>
-                <!-- V2 Card -->
-                <div class="glass p-6 rounded-[32px] shadow-lg relative flex flex-col justify-between">
-                    <div>
-                        <h4 class="font-black text-xl italic uppercase text-cyan-400">V2 VIP</h4>
-                        <p class="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-wider">75 Team + 5 Directs</p>
-                        <div class="mt-5 p-3.5 bg-black/40 border border-white/5 rounded-2xl">
-                            <p class="text-[10px] text-cyan-400 font-black tracking-wide">Directs: <span id="v2Directs" class="font-mono">0/5</span></p>
-                            <div class="w-full h-1.5 bg-white/5 rounded-full mt-2 overflow-hidden"><div id="v2Bar" class="h-full bg-cyan-400 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                        </div>
-                    </div>
-                    <div>
-                        <p class="mt-5 text-sm font-black italic text-emerald-400 tracking-wide">$1500 BONUS + FAMILY TOUR</p>
-                        <button id="claimV2" onclick="claimReward('V2', 1500)" disabled class="w-full mt-5 py-4 bg-white/5 border border-white/5 rounded-2xl text-xs font-black uppercase opacity-30 tracking-wider transition">Locked</button>
-                    </div>
-                </div>
-                <!-- V3 Card -->
-                <div class="glass p-6 rounded-[32px] shadow-lg relative flex flex-col justify-between border border-yellow-500/10 bg-yellow-500/[0.02]">
-                    <div>
-                        <h4 class="font-black text-xl italic uppercase text-yellow-500">V3 VIP</h4>
-                        <p class="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-wider">175 Team + 5 Directs</p>
-                        <div class="mt-5 p-3.5 bg-black/40 border border-white/5 rounded-2xl">
-                            <p class="text-[10px] text-yellow-500 font-black tracking-wide">Directs: <span id="v3Directs" class="font-mono">0/5</span></p>
-                            <div class="w-full h-1.5 bg-white/5 rounded-full mt-2 overflow-hidden"><div id="v3Bar" class="h-full bg-yellow-500 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                        </div>
-                    </div>
-                    <div>
-                        <p class="mt-5 text-sm font-black italic text-emerald-400 tracking-wide">$3000 BONUS + 2 TOURS</p>
-                        <button id="claimV3" onclick="claimReward('V3', 3000)" disabled class="w-full mt-5 py-4 bg-white/5 border border-white/5 rounded-2xl text-xs font-black uppercase opacity-30 tracking-wider transition">Locked</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- BUY & SWAP -->
-        <div id="buySection" class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-            <div class="glass p-6 lg:p-8 rounded-[32px] shadow-xl">
-                <h3 class="text-xl font-black mb-6 text-emerald-400 italic tracking-wide">Step 1: Buy TVX Tokens</h3>
-                <input id="bnbInput" type="number" step="0.01" oninput="updatePreview()" class="w-full p-4 bg-black/50 border border-white/10 rounded-2xl outline-none focus:border-emerald-400 text-white font-black font-mono transition" placeholder="BNB Amount">
-                <div class="flex justify-between bg-black/40 p-4 rounded-2xl mt-4 border border-white/5 italic">
-                    <span class="text-slate-400 text-xs uppercase font-bold tracking-wider">You Will Get:</span><span id="previewTVX" class="font-black text-emerald-400 font-mono">0.00 TVX</span>
-                </div>
-                <button onclick="buy()" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl mt-5 hover:bg-yellow-400 shadow-md transition uppercase text-sm tracking-wider">Buy Now</button>
-                <p class="text-[10px] text-center text-slate-500 mt-3 font-mono uppercase tracking-wide">Live Price: <span id="liveBNB" class="text-emerald-400 font-bold">0.001 BNB</span></p>
-            </div>
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 p-5 lg:p-10 w-full overflow-x-hidden bg-[#060a13]">
             
-            <div class="glass p-6 lg:p-8 rounded-[32px] border-l-4 border-yellow-500 shadow-xl">
-                <h3 class="text-xl font-black mb-6 text-yellow-500 italic uppercase tracking-wide">Step 3: Internal Swap</h3>
-                <input id="swapInput" type="number" oninput="updateSwapPreview()" class="w-full p-4 bg-black/50 border border-white/10 rounded-2xl outline-none focus:border-yellow-500 text-white font-black font-mono transition" placeholder="TVX Amount to Swap">
-                <div class="flex justify-between bg-black/40 p-4 rounded-2xl mt-4 border border-white/5 italic font-mono">
-                    <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Receive Approx:</span><span id="swapPreviewBNB" class="font-black text-yellow-500">0.0000 BNB</span>
-                </div>
-                <button onclick="internalSwap()" class="w-full bg-white text-black font-black py-4 rounded-2xl mt-5 hover:bg-gray-200 shadow-xl transition uppercase text-sm tracking-wider">Swap To BNB</button>
-            </div>
-        </div>
-
-        <!-- STAKING SECTION -->
-        <div class="glass p-6 lg:p-8 rounded-[32px] border-l-4 border-emerald-400 mb-8 shadow-xl">
-            <h3 class="text-xl font-black mb-6 text-yellow-500 italic tracking-wide uppercase">Stake TVX & Level Rewards</h3>
-            <input id="stakeInput" type="number" class="w-full p-4 bg-black/50 border border-white/10 rounded-2xl outline-none focus:border-emerald-400 text-white font-black font-mono transition" placeholder="Amount to Stake">
-            
-            <!-- Level Info Table -->
-            <div class="mt-5 p-4 bg-black/40 rounded-2xl border border-white/5">
-                <p class="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Daily Referral Distribution (100% of Reward)</p>
-                <div class="flex justify-between text-xs font-mono font-bold">
-                    <span class="text-emerald-400 bg-emerald-400/5 px-3 py-1 rounded-lg border border-emerald-400/10">L1: 40%</span>
-                    <span class="text-emerald-400 bg-emerald-400/5 px-3 py-1 rounded-lg border border-emerald-400/10">L2: 30%</span>
-                    <span class="text-emerald-400 bg-emerald-400/5 px-3 py-1 rounded-lg border border-emerald-400/10">L3: 30%</span>
-                </div>
-            </div>
-
-            <!-- Live Tracking -->
-            <div class="bg-black/40 p-4 rounded-2xl mt-5 border border-white/5 flex justify-between items-center">
+            <!-- TOPBAR -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-6 border-b border-white/5">
                 <div>
-                    <p class="text-slate-400 text-[10px] uppercase font-black tracking-wider">Daily Stake Reward (0.1%)</p>
-                    <span id="stakedReward" class="font-black text-yellow-500 text-lg font-mono">0.0000 TVX</span>
+                    <h2 class="text-3xl lg:text-4xl font-black italic uppercase tracking-wide text-white">Investor Portal</h2>
+                    <p class="text-slate-400 text-sm font-medium mt-1">Earn 36% APY & Global Rewards</p>
                 </div>
-                <button onclick="stakeTokens()" class="bg-emerald-500 text-black text-xs font-black px-6 py-3 rounded-xl hover:bg-emerald-400 shadow-md transition uppercase tracking-wider">Stake</button>
+                
+                <div class="flex items-center gap-3 w-full sm:w-auto justify-start sm:justify-end">
+                    <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3.5 rounded-2xl font-black shadow-lg shadow-emerald-400/20 hover:bg-emerald-300 transition duration-200 text-sm uppercase tracking-wider">Connect Wallet</button>
+                    <div id="walletDisplay" class="hidden glass px-4 py-2.5 rounded-xl text-emerald-400 text-xs font-mono border border-emerald-400/30 shadow-inner">0x...</div>
+                </div>
             </div>
 
-            <p class="text-[10px] text-center text-slate-400 mt-4 font-mono uppercase italic tracking-wide">
-                Principal Unlock in: <span id="unlockTimer" class="text-white font-bold">360d</span>
-            </p>
-        </div>
-
-        <!-- STEP 2: CARD ACTIVATION -->
-        <div class="glass p-8 rounded-[32px] border-l-4 border-emerald-400 mb-8 flex flex-col lg:flex-row justify-between items-center gap-6 shadow-xl">
-            <div>
-                <h3 class="text-2xl font-black mb-2 uppercase italic text-emerald-400 tracking-wide">Step 2: Card Activation</h3>
-                <p class="text-slate-400 text-sm font-medium">Stake 10,000 TVX ($100) to start earning 18% APY and unlock Rank Rewards.</p>
+            <!-- REFERRAL BOX -->
+            <div class="glass p-6 rounded-3xl mb-8 max-w-xl shadow-xl">
+                <p class="text-xs text-emerald-400 uppercase tracking-widest font-black">Your Referral Link</p>
+                <div class="flex gap-2 mt-3">
+                    <input id="refLink" readonly
+                        class="w-full p-4 bg-black/50 border border-white/5 rounded-2xl text-emerald-300 font-mono text-xs focus:outline-none"
+                        placeholder="Connect wallet to generate your unique link" />
+                    <button onclick="copyRef()"
+                        class="bg-emerald-400 text-black px-6 rounded-2xl font-black text-xs uppercase hover:bg-emerald-300 shadow-md transition duration-200">
+                        COPY
+                    </button>
+                </div>
             </div>
-            <button id="activateBtn" onclick="activate()" class="w-full lg:w-72 bg-emerald-400 text-black font-black py-5 rounded-2xl hover:scale-[1.02] transition shadow-lg shadow-emerald-400/10 uppercase italic text-sm tracking-wider">Activate Now</button>
-        </div>
+            <!-- REFERRAL TREE NETWORK DIAGRAM -->
+            <div id="referralTree" class="glass p-6 lg:p-8 rounded-[32px] mb-8 overflow-hidden shadow-xl">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b border-white/5 pb-4">
+                    <div>
+                        <h3 class="text-xl font-black italic uppercase text-emerald-400 tracking-wide flex items-center gap-2">
+                            <i class="fa-solid fa-sitemap"></i> MLM Referral Network
+                        </h3>
+                        <p class="text-slate-400 text-xs font-medium mt-1">Visual representation of your live multi-level structure</p>
+                    </div>
+                    <!-- Legend Filters -->
+                    <div class="flex items-center gap-3 text-[10px] font-bold font-mono">
+                        <span class="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Active Partner
+                        </span>
+                        <span class="flex items-center gap-1.5 bg-yellow-500/10 text-yellow-500 px-2.5 py-1 rounded-full border border-yellow-500/20">
+                            <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> Pending Activation
+                        </span>
+                    </div>
+                </div>
 
-        <!-- REPORTS / TRANSACTION HISTORY -->
-        <div id="reports" class="glass p-6 lg:p-8 rounded-[32px] mb-8 overflow-x-auto shadow-xl">
-            <h3 class="text-xl font-black mb-6 italic uppercase text-emerald-400 tracking-wide">Transaction History</h3>
-            <table class="w-full text-left font-mono text-xs">
-                <thead>
-                    <tr class="text-slate-400 border-b border-white/10 uppercase tracking-wider">
-                        <th class="pb-4 text-emerald-400 font-bold">Type</th>
-                        <th class="pb-4 font-bold">Amount</th>
-                        <th class="pb-4 text-right font-bold">Status</th>
-                    </tr>
-                </thead>
-                <tbody id="txList" class="text-slate-200 font-medium">
-                    <!-- Dynamic Items Inject Target -->
-                </tbody>
-            </table>
-        </div>
+                <!-- Tree Canvas Container -->
+                <div class="w-full overflow-x-auto custom-scrollbar py-6">
+                    <div class="min-w-[800px] flex flex-col items-center">
+                        
+                        <!-- LEVEL 0: Root User -->
+                        <div class="flex flex-col items-center relative mb-12">
+                            <div class="glass px-6 py-4 rounded-2xl border border-emerald-400/40 shadow-lg shadow-emerald-500/5 text-center relative z-10 bg-gradient-to-b from-[#111827] to-[#030712] w-48">
+                                <div class="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-400 text-emerald-400 flex items-center justify-center mx-auto mb-2 text-sm">
+                                    <i class="fa-solid fa-user-shield"></i>
+                                </div>
+                                <p class="text-[10px] text-emerald-400 font-black uppercase tracking-wider font-mono">You (Root)</p>
+                                <p id="treeRootWallet" class="text-xs font-bold font-mono tracking-tight mt-1 text-white truncate">0x71C...B29</p>
+                                <p class="text-[9px] text-slate-400 font-bold mt-1 uppercase">Staked: <span class="text-yellow-500">10k TVX</span></p>
+                            </div>
+                            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0.5 h-12 bg-emerald-500/30 translate-y-full"></div>
+                        </div>
 
-        <!-- WITHDRAW SECTION -->
-        <div class="glass p-8 rounded-[32px] border border-blue-500/10 flex flex-col lg:flex-row justify-between items-center mb-8 shadow-xl">
-            <div>
-                <p class="text-slate-400 text-xs font-black uppercase tracking-widest font-mono">Available For Withdrawal</p>
-                <h1 id="balDisplay" class="text-4xl lg:text-5xl font-black mt-2 italic text-white font-mono">$0.00</h1>
+                        <!-- LEVEL 1: Direct Referrals Layer -->
+                        <div class="relative w-full">
+                            <div class="absolute top-0 left-[16.6%] right-[16.6%] h-0.5 bg-emerald-500/30"></div>
+                            <div class="grid grid-cols-3 gap-4 w-full">
+                                
+                                <!-- L1 Node 1: Active Branch -->
+                                <div class="flex flex-col items-center relative pt-8">
+                                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-8 bg-emerald-500/30"></div>
+                                    <div class="glass p-4 rounded-xl border border-emerald-500/20 shadow-md text-center bg-slate-900/40 w-44 relative z-10">
+                                        <div class="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto mb-2 text-xs">
+                                            <i class="fa-solid fa-user-check"></i>
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 font-bold font-mono truncate">0x95A...E31</p>
+                                        <div class="flex justify-between items-center text-[9px] mt-2 font-mono border-t border-white/5 pt-1.5">
+                                            <span class="text-slate-400">Team: <b class="text-white">12</b></span>
+                                            <span class="text-emerald-400 font-bold">L1 Active</span>
+                                        </div>
+                                    </div>
+                                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0.5 h-8 bg-emerald-500/20 translate-y-full"></div>
+                                    
+                                    <!-- LEVEL 2 Sub Row -->
+                                    <div class="flex gap-4 mt-8 relative">
+                                        <div class="absolute top-0 left-1/4 right-1/4 h-0.5 bg-emerald-500/20"></div>
+                                        
+                                        <div class="flex flex-col items-center pt-4 relative">
+                                            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-4 bg-emerald-500/20"></div>
+                                            <div class="glass p-3 rounded-lg border border-white/5 text-center bg-black/40 w-32">
+                                                <p class="text-[9px] text-slate-400 font-mono truncate">0x3b2...c10</p>
+                                                <span class="text-[8px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded block mt-1 font-bold font-mono">L2 Partner</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col items-center pt-4 relative">
+                                            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-4 bg-emerald-500/20"></div>
+                                            <div class="glass p-3 rounded-lg border border-white/5 text-center bg-black/40 w-32">
+                                                <p class="text-[9px] text-slate-400 font-mono truncate">0x8ef...74b</p>
+                                                <span class="text-[8px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded block mt-1 font-bold font-mono">L2 Partner</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- L1 Node 2: Active -->
+                                <div class="flex flex-col items-center relative pt-8">
+                                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-8 bg-emerald-500/30"></div>
+                                    <div class="glass p-4 rounded-xl border border-emerald-500/20 shadow-md text-center bg-slate-900/40 w-44 relative z-10">
+                                        <div class="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto mb-2 text-xs">
+                                            <i class="fa-solid fa-user-check"></i>
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 font-bold font-mono truncate">0x21B...F44</p>
+                                        <div class="flex justify-between items-center text-[9px] mt-2 font-mono border-t border-white/5 pt-1.5">
+                                            <span class="text-slate-400">Team: <b class="text-white">0</b></span>
+                                            <span class="text-emerald-400 font-bold">L1 Active</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- L1 Node 3: Pending -->
+                                <div class="flex flex-col items-center relative pt-8">
+                                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-8 bg-emerald-500/30"></div>
+                                    <div class="glass p-4 rounded-xl border border-yellow-500/20 shadow-md text-center bg-slate-900/40 w-44 relative z-10">
+                                        <div class="w-8 h-8 rounded-full bg-yellow-500/10 text-yellow-500 flex items-center justify-center mx-auto mb-2 text-xs">
+                                            <i class="fa-solid fa-user-clock"></i>
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 font-bold font-mono truncate">0x4D2...A12</p>
+                                        <div class="flex justify-between items-center text-[9px] mt-2 font-mono border-t border-white/5 pt-1.5">
+                                            <span class="text-slate-400">Team: <b class="text-white">0</b></span>
+                                            <span class="text-yellow-500 font-bold">Pending</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <button onclick="withdraw()" class="w-full lg:w-72 bg-white text-black font-black py-4 rounded-2xl hover:bg-gray-100 transition text-sm tracking-wider uppercase shadow-xl">WITHDRAW NOW</button>
-        </div>
 
-    </main>
-</div>
+            <!-- STATS GRID -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+                <div class="glass p-5 rounded-2xl border-l-4 border-white/40 shadow-lg"><p class="text-slate-300 text-[10px] font-black uppercase tracking-wider">BNB Balance</p><h3 id="bnbBal" class="text-2xl font-black mt-2 text-white font-mono">0.0000</h3></div>
+                <div class="glass p-5 rounded-2xl border-l-4 border-emerald-400 shadow-lg"><p class="text-slate-300 text-[10px] font-black uppercase tracking-wider">TVX Assets</p><h3 id="tvxBal" class="text-2xl font-black mt-2 text-emerald-400 font-mono">0.00</h3></div>
+                <div class="glass p-5 rounded-2xl border-l-4 border-yellow-500 bg-yellow-500/5 shadow-lg"><p class="text-yellow-500 text-[10px] font-black uppercase tracking-wider italic">Stake Reward (18%)</p><h3 id="stakeProfit" class="text-2xl font-black mt-2 text-yellow-500 font-mono">0.00 TVX</h3></div>
+                <div class="glass p-5 rounded-2xl border-l-4 border-blue-500 shadow-lg"><p class="text-slate-300 text-[10px] font-black uppercase tracking-wider italic">MLM Income (BNB)</p><h3 id="income" class="text-2xl font-black mt-2 text-blue-400 font-mono">0.0000</h3></div>
+            </div>
 
+            <!-- REWARDS -->
+            <div id="rewards" class="mb-10">
+                <h3 class="text-xl font-black mb-6 uppercase italic text-emerald-400 tracking-wide flex items-center gap-2">🏆 VIP Rewards <span class="text-xs text-slate-400 font-sans not-italic font-medium">(Min 5 Directs Required)</span></h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass p-6 rounded-[32px] shadow-lg relative flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-black text-xl italic uppercase text-white">V1 VIP</h4>
+                            <p class="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-wider">25 Team + 5 Directs</p>
+                            <div class="mt-5 p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                                <p class="text-[10px] text-emerald-400 font-black tracking-wide">Directs: <span id="v1Directs" class="font-mono">0/5</span></p>
+                                <div class="w-full h-1.5 bg-white/5 rounded-full mt-2 overflow-hidden"><div id="v1Bar" class="h-full bg-emerald-400 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="mt-5 text-sm font-black italic text-emerald-400 tracking-wide">$500 BONUS + 1 TOUR</p>
+                            <button id="claimV1" onclick="claimReward('V1', 500)" disabled class="w-full mt-5 py-4 bg-white/5 border border-white/5 rounded-2xl text-xs font-black uppercase opacity-30 tracking-wider transition">Locked</button>
+                        </div>
+                    </div>
+                    <div class="glass p-6 rounded-[32px] shadow-lg relative flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-black text-xl italic uppercase text-cyan-400">V2 VIP</h4>
+                            <p class="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-wider">75 Team + 5 Directs</p>
+                            <div class="mt-5 p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                                <p class="text-[10px] text-cyan-400 font-black tracking-wide">Directs: <span id="v2Directs" class="font-mono">0/5</span></p>
+                                <div class="w-full h-1.5 bg-white/5 rounded-full mt-2 overflow-hidden"><div id="v2Bar" class="h-full bg-cyan-400 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="mt-5 text-sm font-black italic text-emerald-400 tracking-wide">$1500 BONUS + FAMILY TOUR</p>
+                            <button id="claimV2" onclick="claimReward('V2', 1500)" disabled class="w-full mt-5 py-4 bg-white/5 border border-white/5 rounded-2xl text-xs font-black uppercase opacity-30 tracking-wider transition">Locked</button>
+                        </div>
+                    </div>
+                    <div class="glass p-6 rounded-[32px] shadow-lg relative flex flex-col justify-between border border-yellow-500/10 bg-yellow-500/[0.02]">
+                        <div>
+                            <h4 class="font-black text-xl italic uppercase text-yellow-500">V3 VIP</h4>
+                            <p class="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-wider">175 Team + 5 Directs</p>
+                            <div class="mt-5 p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                                <p class="text-[10px] text-yellow-500 font-black tracking-wide">Directs: <span id="v3Directs" class="font-mono">0/5</span></p>
+                                <div class="w-full h-1.5 bg-white/5 rounded-full mt-2 overflow-hidden"><div id="v3Bar" class="h-full bg-yellow-500 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="mt-5 text-sm font-black italic text-emerald-400 tracking-wide">$5000 BONUS + CAR REWARD</p>
+                            <button id="claimV3" onclick="claimReward('V3', 5000)" disabled class="w-full mt-5 py-4 bg-white/5 border border-white/5 rounded-2xl text-xs font-black uppercase opacity-30 tracking-wider transition">Locked</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BUY & SWAP -->
+            <div id="buySection" class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+                <div class="glass p-6 lg:p-8 rounded-[32px] shadow-xl">
+                    <h3 class="text-xl font-black mb-6 text-emerald-400 italic tracking-wide">Step 1: Buy TVX Tokens</h3>
+                    <input id="bnbInput" type="number" step="0.01" oninput="updatePreview()" class="w-full p-4 bg-black/50 border border-white/10 rounded-2xl outline-none focus:border-emerald-400 text-white font-black font-mono transition" placeholder="BNB Amount">
+                    <div class="flex justify-between bg-black/40 p-4 rounded-2xl mt-4 border border-white/5 italic">
+                        <span class="text-slate-400 text-xs uppercase font-bold tracking-wider">You Will Get:</span><span id="previewTVX" class="font-black text-emerald-400 font-mono">0.00 TVX</span>
+                    </div>
+                    <button onclick="buy()" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl mt-5 hover:bg-yellow-400 shadow-md transition uppercase text-sm tracking-wider">Buy Now</button>
+                    <p class="text-[10px] text-center text-slate-500 mt-3 font-mono uppercase tracking-wide">Live Price: <span id="liveBNB" class="text-emerald-400 font-bold">0.001 BNB</span></p>
+                </div>
+                
+                <div class="glass p-6 lg:p-8 rounded-[32px] border-l-4 border-yellow-500 shadow-xl">
+                    <h3 class="text-xl font-black mb-6 text-yellow-500 italic uppercase tracking-wide">Step 3: Internal Swap</h3>
+                    <input id="swapInput" type="number" oninput="updateSwapPreview()" class="w-full p-4 bg-black/50 border border-white/10 rounded-2xl outline-none focus:border-yellow-500 text-white font-black font-mono transition" placeholder="TVX Amount to Swap">
+                    <div class="flex justify-between bg-black/40 p-4 rounded-2xl mt-4 border border-white/5 italic font-mono">
+                        <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Receive Approx:</span><span id="swapPreviewBNB" class="font-black text-yellow-500">0.0000 BNB</span>
+                    </div>
+                    <button onclick="internalSwap()" class="w-full bg-white text-black font-black py-4 rounded-2xl mt-5 hover:bg-gray-200 shadow-xl transition uppercase text-sm tracking-wider">Swap To BNB</button>
+                </div>
+            </div>
+
+            <!-- STAKING SECTION -->
+            <div class="glass p-6 lg:p-8 rounded-[32px] border-l-4 border-emerald-400 mb-8 shadow-xl">
+                <h3 class="text-xl font-black mb-6 text-yellow-500 italic tracking-wide uppercase">Stake TVX & Level Rewards</h3>
+                <input id="stakeInput" type="number" class="w-full p-4 bg-black/50 border border-white/10 rounded-2xl outline-none focus:border-emerald-400 text-white font-black font-mono transition" placeholder="Amount to Stake">
+                
+                <div class="mt-5 p-4 bg-black/40 rounded-2xl border border-white/5">
+                    <p class="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Daily Referral Distribution (100% of Reward)</p>
+                    <div class="flex justify-between text-xs font-mono font-bold">
+                        <span class="text-emerald-400 bg-emerald-400/5 px-3 py-1 rounded-lg border border-emerald-400/10">L1: 40%</span>
+                        <span class="text-emerald-400 bg-emerald-400/5 px-3 py-1 rounded-lg border border-emerald-400/10">L2: 30%</span>
+                        <span class="text-emerald-400 bg-emerald-400/5 px-3 py-1 rounded-lg border border-emerald-400/10">L3: 30%</span>
+                    </div>
+                </div>
+
+                <div class="bg-black/40 p-4 rounded-2xl mt-5 border border-white/5 flex justify-between items-center">
+                    <div>
+                        <p class="text-slate-400 text-[10px] uppercase font-black tracking-wider">Daily Stake Reward (0.1%)</p>
+                        <span id="stakedReward" class="font-black text-yellow-500 text-lg font-mono">0.0000 TVX</span>
+                    </div>
+                    <button onclick="stakeTokens()" class="bg-emerald-500 text-black text-xs font-black px-6 py-3 rounded-xl hover:bg-emerald-400 shadow-md transition uppercase tracking-wider">Stake</button>
+                </div>
+
+                <p class="text-[10px] text-center text-slate-400 mt-4 font-mono uppercase italic tracking-wide">
+                    Principal Unlock in: <span id="unlockTimer" class="text-white font-bold">360d</span>
+                </p>
+            </div>
+
+            <!-- STEP 2: CARD ACTIVATION -->
+            <div class="glass p-8 rounded-[32px] border-l-4 border-emerald-400 mb-8 flex flex-col lg:flex-row justify-between items-center gap-6 shadow-xl">
+                <div>
+                    <h3 class="text-2xl font-black mb-2 uppercase italic text-emerald-400 tracking-wide">Step 2: Card Activation</h3>
+                    <p class="text-slate-400 text-sm font-medium">Stake 10,000 TVX ($100) to start earning 18% APY and unlock Rank Rewards.</p>
+                </div>
+                <button id="activateBtn" onclick="activate()" class="w-full lg:w-72 bg-emerald-400 text-black font-black py-5 rounded-2xl hover:scale-[1.02] transition shadow-lg shadow-emerald-400/10 uppercase italic text-sm tracking-wider">Activate Now</button>
+            </div>
+
+            <!-- REPORTS / TRANSACTION HISTORY -->
+            <div id="reports" class="glass p-6 lg:p-8 rounded-[32px] mb-8 overflow-x-auto shadow-xl">
+                <h3 class="text-xl font-black mb-6 italic uppercase text-emerald-400 tracking-wide">Transaction History</h3>
+                <table class="w-full text-left font-mono text-xs">
+                    <thead>
+                        <tr class="text-slate-400 border-b border-white/10 uppercase tracking-wider">
+                            <th class="pb-4 text-emerald-400 font-bold">Type</th>
+                            <th class="pb-4 font-bold">Amount</th>
+                            <th class="pb-4 text-right font-bold">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="txList" class="text-slate-200 font-medium">
+                        <!-- Dynamic Items Inject Target -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- WITHDRAW SECTION -->
+            <div class="glass p-8 rounded-[32px] border border-blue-500/10 flex flex-col lg:flex-row justify-between items-center mb-8 shadow-xl">
+                <div>
+                    <p class="text-slate-400 text-xs font-black uppercase tracking-widest font-mono">Available For Withdrawal</p>
+                    <h1 id="balDisplay" class="text-4xl lg:text-5xl font-black mt-2 italic text-white font-mono">$0.00</h1>
+                </div>
+                <button onclick="withdraw()" class="w-full lg:w-72 bg-white text-black font-black py-4 rounded-2xl hover:bg-gray-100 transition text-sm tracking-wider uppercase shadow-xl">WITHDRAW NOW</button>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- JAVASCRIPT MECHANICS -->
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('sidebar-folded');
+            }
+        }
+
+        // Functions required by HTML click events to prevent console crash
+        function connect() { console.log("Connecting Web3 Wallet..."); }
+        function logout() { console.log("Disconnecting Wallet..."); }
+        function copyRef() { console.log("Link copied!"); }
+        function buy() { console.log("Initiating Token Purchase..."); }
+        function updatePreview() { }
+        function updateSwapPreview() { }
+        function internalSwap() { }
+        function stakeTokens() { }
+        function activate() { }
+        function withdraw() { }
+        function claimReward(rank, prize) { console.log(`Claiming ${rank} with prize: $${prize}`); }
+    </script>
 </body>
 </html>
+
