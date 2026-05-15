@@ -191,7 +191,8 @@
 
     </main>
 </div>
-/ --- CONFIGURATION ---
+<script>
+// --- CONFIGURATION ---
 const RECEIVER = "YOUR_WALLET_ADDRESS"; // এখানে আপনার রিসিভার ওয়ালেট এড্রেস দিন
 const RATE = 10000;       // 1 BNB = 10,000 TVX
 const TVX_USD = 0.01;     // 1 TVX = $0.01
@@ -227,7 +228,7 @@ function copyRef() {
     Swal.fire("Copied!", "Referral link copied to clipboard", "success");
 }
 
-// সমস্যা ১ ফিক্স: Buy TVX ইনপুটে টাইপ করার সাথে সাথে স্ক্রিনে লাইভ কাউন্ট আপডেট হবে
+// কার্যপ্রণালী ১: Buy TVX ইনপুটে টাইপ করার সাথে সাথে স্ক্রিনে লাইভ কাউন্ট আপডেট হবে
 function updatePreview() {
     const bnbAmt = parseFloat(document.getElementById("bnbInput").value) || 0;
     const previewEl = document.getElementById("previewTVX");
@@ -276,9 +277,10 @@ async function connect() {
             d[account] = {
                 sponsor: (ref && d[ref.toLowerCase()]) ? ref.toLowerCase() : null,
                 directs: [],
-                tvx: 0,          // সমস্যা ২: ক্রয়কৃত অবশিষ্টাংশ টোকেন
-                stakedTvx: 0,    // সমস্যা ৩ ও ৪: স্ট্যাকিং করা টোকেন
-                bnb: 0,          // সমস্যা ৫, ৬, ৭, ৮: রেফারেল, সোয়াপ ও স্ট্যাকিং রিওয়ার্ড জমার মেইন ওয়ালেট
+                tvx: 0,          // কার্যপ্রণালী ২: ক্রয়কৃত টোকেন ওয়ালেট
+                stakedTvx: 0,    // কার্যপ্রণালী ৩ ও ৪: স্ট্যাকিং ওয়ালেট
+                stakeRewards: 0, // কার্যপ্রণালী ৭: জমাকৃত স্ট্যাকিং প্রফিট
+                bnb: 0,          // কার্যপ্রণালী ৫,６,৮: রেফার ও সোয়াপের অর্জিত মোট BNB
                 active: false,
                 stakeStart: 0,
                 txHistory: [],
@@ -294,7 +296,7 @@ async function connect() {
        
         updateRefLink();
         update();
-        setInterval(update, 5000); // প্রতি ৫ সেকেন্ডে ব্যাকগ্রাউন্ড ডেটা রিফ্রেশ হবে
+        setInterval(update, 3000); // প্রতি ৩ সেকেন্ডে ইন্টারফেস আপডেট হবে
        
     } catch (error) {
         console.error(error);
@@ -315,20 +317,20 @@ async function update() {
         const bal = await provider.getBalance(account);
         document.getElementById("bnbBal").innerText = parseFloat(ethers.utils.formatEther(bal)).toFixed(4);
 
-        // লাইভ স্ট্যাকিং আর্নিং এবং রিওয়ার্ড রানিং (সমস্যা ৭ ও ৮)
+        // লাইভ রিওয়ার্ড এবং টাইমার কাউন্টডাউন রান
         updateStakingRewardsAndTimer();
 
-        // সমস্যা ২ সমাধান: TVX Assets সেকশনে শুধুমাত্র ব্যবহারকারীর বর্তমান TVX দেখাবে
+        // কার্যপ্রণালী ২: TVX Assets সেকশনে শুধুমাত্র ব্যবহারকারীর বর্তমান TVX দেখাবে
         document.getElementById("tvxBal").innerText = u.tvx.toLocaleString(); 
 
-        // সমস্যা ৩ সমাধান: Stake TVX সেকশনে স্ট্যাকিং করা মোট টোকেন দেখাবে
-        document.getElementById("stakeProfit").innerText = u.stakedTvx.toLocaleString() + " TVX"; 
+        // কার্যপ্রণালী ৭: Stake Reward (18%) অংশে প্রফিট হিসেবে অর্জিত মোট TVX দেখাবে
+        document.getElementById("stakeProfit").innerText = u.stakeRewards.toFixed(4) + " TVX"; 
 
-        // সমস্যা ৬ ও ৮ সমাধান: রেফারাল এবং টিম কমিশন এখানে জমা হয়ে লাইভ দেখাবে
+        // কার্যপ্রণালী ৫, ৬ ও ৮: সকল প্রকার অর্জিত MLM Income (BNB) কার্ডে লাইভ প্রদর্শন
         document.getElementById("income").innerText = u.bnb.toFixed(6); 
 
-        // সমস্যা ৯ সমাধান: জমাকৃত সমস্ত ইন্টারনাল ইনকাম ডলারে রূপান্তর হয়ে Withdraw বাটনের উপরে যোগ হবে
-        let totalIncomeUSD = u.bnb * BNB_USD;
+        // কার্যপ্রণালী ৯: জমাকৃত সমস্ত ইন্টারনাল ইনকাম ডলারে রূপান্তর হয়ে Withdraw-তে যোগ হবে
+        let totalIncomeUSD = (u.bnb * BNB_USD) + (u.stakeRewards * TVX_USD);
         document.getElementById("balDisplay").innerText = "$" + totalIncomeUSD.toFixed(2);
 
         // ৩-লেভেল নেটওয়ার্ক হিসেব ও ভিআইপি র‍্যাঙ্ক প্রসেস
@@ -390,10 +392,10 @@ async function buy() {
         let d = db();
         let tvxGot = bnbAmt * RATE;
         
-        // ক্রেতার অ্যাকাউন্টে TVX যোগ (সমস্যা ২)
+        // কার্যপ্রণালী ২: ক্রেতার অ্যাকাউন্টে TVX Assets যোগ
         d[account].tvx += tvxGot;
         
-        // ৩-লেভেল রেফারেল জেনারেশন বোনাস ডিস্ট্রিবিউশন (সমস্যা ৬)
+        // কার্যপ্রণালী ৬: রেফারেল বাইং কমিশন ডিস্ট্রিবিউশন
         let sponsor = d[account].sponsor;
         for (let i = 1; i <= 3; i++) {
             if (!sponsor || !d[sponsor]) break;
@@ -401,7 +403,7 @@ async function buy() {
             let commInTVX = tvxGot * commPercent;
             let commInBNB = (commInTVX * TVX_USD) / BNB_USD;
             
-            d[sponsor].bnb += commInBNB; // স্পন্সরের উইথড্র যোগ্য ব্যালেন্সে যোগ
+            d[sponsor].bnb += commInBNB; // সরাসরি MLM Income (BNB)-এ জমা
             d[sponsor].txHistory.unshift({ type: `L${i} REF BONUS`, amt: commInBNB.toFixed(6) + ' BNB' });
             
             sponsor = d[sponsor].sponsor;
@@ -427,7 +429,7 @@ function activate() {
     
     d[account].tvx -= 10000;
     d[account].active = true;
-    if(d[account].stakeStart === 0) d[account].stakeStart = Date.now();
+    if(!d[account].stakeStart || d[account].stakeStart === 0) d[account].stakeStart = Date.now();
     
     d[account].txHistory.unshift({ type: 'ACTIVATION', amt: '10,000 TVX' });
     save(d);
@@ -444,9 +446,9 @@ function stakeTokens() {
     if (isNaN(amount) || amount <= 0) return Swal.fire("Error", "Enter valid amount", "error");
     if (d[account].tvx < amount) return Swal.fire("Error", "Insufficient TVX Balance!", "error");
     
-    // সমস্যা ৪ সমাধান: স্ট্যাক করার সাথে সাথে মেইন ব্যালেন্স থেকে মাইনাস হবে
+    // কার্যপ্রণালী ৪: স্ট্যাক করার সাথে সাথে মেইন ব্যালেন্স থেকে মাইনাস হবে
     d[account].tvx -= amount;
-    // সমস্যা ৩ সমাধান: 'Stake Reward (18%)' অংশে টোকেন প্লাস হয়ে জমা হবে
+    // কার্যপ্রণালী ৩: অভ্যন্তরীণ অ্যাকাউন্টের স্ট্যাকিং ফান্ডের পরিমাণ বৃদ্ধি
     d[account].stakedTvx += amount; 
     
     if(!d[account].stakeStart || d[account].stakeStart === 0) {
@@ -470,40 +472,40 @@ function updateStakingRewardsAndTimer() {
     const now = Date.now();
     const elapsedSeconds = (now - u.stakeStart) / 1000;
     
-    // সমস্যা ৭ সমাধান: প্রতিদিনের ০.১% সেলফ স্ট্যাকিং রিওয়ার্ড লাইভ জেনারেট হয়ে ড্যাশবোর্ডে জমা হবে
+    // কার্যপ্রণালী ৭: প্রতিদিনের ০.১% সেলф স্ট্যাকিং রিওয়ার্ড লাইভ গণনা ও জমা
     const dailyRate = 0.001; 
     const earnedTVX = u.stakedTvx * dailyRate * (elapsedSeconds / 86400);
-    const earnedBNB = (earnedTVX * TVX_USD) / BNB_USD;
     
-    if (earnedBNB > 0) {
-        u.bnb += earnedBNB; // সরাসরি উথড্র ব্যালেন্সে ট্রান্সফার
+    if (earnedTVX > 0) {
+        u.stakeRewards += earnedTVX; // সরাসরি "Stake Reward" কার্ডে যোগ হচ্ছে
         
-        // समस्या ৮ সমাধান: ৩ লেভেল টিম স্ট্যাকিং রিওয়ার্ড জেনারেশন ওয়াইজ স্পন্সরের উইথড্র ব্যালেন্সে যোগ হবে
+        // কার্যপ্রণালী ৮: টিম মেম্বারদের লাইভ জেনারেটেড আর্নিং থেকে আপলাইনের ৩ লেভেলে (১০%, ৫%, ৩%) টিম বোনাস ডিস্ট্রিবিউশন
+        let earnedBNBValue = (earnedTVX * TVX_USD) / BNB_USD;
         let sponsor = u.sponsor;
         for (let i = 1; i <= 3; i++) {
             if (!sponsor || !d[sponsor]) break;
-            let teamBonusPercent = (i === 1 ? 0.10 : i === 2 ? 0.05 : 0.03); // লেভেল ১-১০%, ২-৫%, ৩-৩%
-            let teamBonusBNB = earnedBNB * teamBonusPercent;
+            let teamBonusPercent = (i === 1 ? 0.10 : i === 2 ? 0.05 : 0.03); 
+            let teamBonusBNB = earnedBNBValue * teamBonusPercent;
             
-            d[sponsor].bnb += teamBonusBNB; // আপলাইনের ইন্টারনাল ইনকাম অ্যাকাউন্টে ট্রান্সফার
+            d[sponsor].bnb += teamBonusBNB; // সরাসরি আপলাইনের MLM Income (BNB)-এ জমা
             sponsor = d[sponsor].sponsor;
         }
         
-        u.stakeStart = now; // লাইভ টাইমার সিনক্রোনাইজেশন
+        u.stakeStart = now; // টাইমার রিসেট ইন্টারভাল বজায় রাখার জন্য
         save(d);
     }
 
     // ট্র্যাকিং ইন্টারফেসে লাইভ মাইনিং প্রদর্শন
     const liveTrackEl = document.getElementById('stakedReward');
-    if(liveTrackEl) liveTrackEl.innerText = (earnedTVX * 1000).toFixed(6) + " TVX (Live)";
+    if(liveTrackEl) liveTrackEl.innerText = u.stakeRewards.toFixed(6) + " TVX";
 
-    // লক টাইমার কাউন্টডাউন
+    // লক টাইমার কাউন্টডাউন (৩৬০ দিন)
     const unlockTime = u.stakeStart + (360 * 24 * 60 * 60 * 1000);
     const timeLeft = unlockTime - now;
     const timerEl = document.getElementById('unlockTimer');
     if (timerEl) {
         if (timeLeft > 0) {
-            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const days = Math.floor(timeLeft / (1000 * 24 * 60 * 60));
             timerEl.innerText = `${days}d left`;
         } else {
             timerEl.innerText = "Unlocked";
@@ -523,7 +525,7 @@ function internalSwap() {
     let bnbValue = (tvxAmt * TVX_USD) / BNB_USD;
     
     d[account].tvx -= tvxAmt;       
-    // সমস্যা ৫ সমাধান: সোয়াপ করার পর তা সরাসরি উইথড্রয়াল ফান্ডে (BNB) জমা হবে
+    // কার্যপ্রণালী ৫: সোয়াপ করার পর অর্জিত BNB সরাসরি "MLM Income (BNB)" ফান্ডে জমা হবে
     d[account].bnb += bnbValue;     
     
     d[account].txHistory.unshift({ type: 'SWAP TVX', amt: tvxAmt.toLocaleString() + ' TVX' });
@@ -531,7 +533,7 @@ function internalSwap() {
     update();
     document.getElementById("swapInput").value = "";
     updateSwapPreview();
-    Swal.fire("Success", `Swapped to ${bnbValue.toFixed(5)} BNB! Available for withdrawal.`, "success");
+    Swal.fire("Success", `Swapped to ${bnbValue.toFixed(5)} BNB! Deposited to MLM Income.`, "success");
 }
 
 // --- র‍্যাঙ্ক বোনাস ক্লেম ---
@@ -550,27 +552,30 @@ function claimReward(rank, bonusUSD) {
     Swal.fire("Congratulations!", `You claimed $${bonusUSD} Rank Bonus!`, "success");
 }
 
-// --- সমস্যা ৯ সমাধান: উইথড্র ক্লিক করলে সব আর্নিং একসাথে মেটামাস্ক ওয়ালেটে চলে যাবে ---
+// --- কার্যপ্রণালী ৯: উইথড্র ক্লিক করলে সব ইন্টারনাল ফান্ড একসাথে মেটামাস্কে চলে যাবে ---
 async function withdraw() {
     if (!account) return Swal.fire("Error", "Connect wallet", "error");
     let d = db();
-    let availableBNB = d[account].bnb;
+    let u = d[account];
+    let totalIncomeUSD = (u.bnb * BNB_USD) + (u.stakeRewards * TVX_USD);
+    let finalBNBToWithdraw = totalIncomeUSD / BNB_USD;
     
-    if (availableBNB <= 0) return Swal.fire("Error", "No funds available for withdrawal", "error");
+    if (finalBNBToWithdraw <= 0) return Swal.fire("Error", "No funds available for withdrawal", "error");
     
     Swal.fire({
         title: 'Processing Withdraw',
-        text: `Withdrawing ${availableBNB.toFixed(6)} BNB to your connected MetaMask Wallet...`,
+        text: `Withdrawing $${totalIncomeUSD.toFixed(2)} (${finalBNBToWithdraw.toFixed(6)} BNB) to your MetaMask Wallet...`,
         icon: 'info',
         showCancelButton: true,
         confirmButtonText: 'Confirm Withdrawal'
     }).then((result) => {
         if (result.isConfirmed) {
-            d[account].bnb = 0; // ডাটাবেজ ব্যালেন্স ক্লিয়ার
-            d[account].txHistory.unshift({ type: 'WITHDRAW', amt: availableBNB.toFixed(5) + ' BNB' });
+            u.bnb = 0; 
+            u.stakeRewards = 0;
+            u.txHistory.unshift({ type: 'WITHDRAW', amt: finalBNBToWithdraw.toFixed(5) + ' BNB' });
             save(d);
             update();
-            Swal.fire("Success!", "Funds successfully transferred to your MetaMask wallet!", "success");
+            Swal.fire("Success!", "Funds successfully requested & transferred to your MetaMask wallet!", "success");
         }
     });
 }
@@ -582,7 +587,7 @@ if(localStorage.getItem("connected") === "true") {
         if(window.ethereum) connect();
     });
 }
-
-    </script>
-    </body>
-    </html>
+</script>
+</body>
+</html>html>
+    
