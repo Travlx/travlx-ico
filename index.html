@@ -34,7 +34,8 @@
         <h1 class="text-3xl font-black text-emerald-400 mb-10 italic">TRAVELX</h1>
         <nav class="space-y-3 flex-1 text-sm font-bold">
             <a href="#" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black">Dashboard</a>
-            <a href="#buySection" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Buy & Stake</a>
+            <a href="#buySection" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Buy & Swap</a>
+            <a href="#stakeSection" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Staking Portal</a>
             <a href="#rewards" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">VIP Rewards</a>
             <a href="#reports" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Reports</a>
         </nav>
@@ -55,21 +56,14 @@
                 <p class="text-gray-500 text-sm">Earn 36% APY & Global Rewards <span id="liveBNB" class="text-emerald-400 ml-2"></span></p>
             </div>
             
-            <!-- Referral Link Input -->
             <div class="glass p-4 rounded-2xl border border-emerald-400/20 w-full md:w-auto md:min-w-[320px]">
                 <p class="text-[10px] text-gray-400 uppercase font-bold">Referral Link</p>
                 <div class="flex gap-2 mt-2">
-                    <input id="refLink" readonly
-                        class="w-full p-2 bg-black/40 rounded-xl text-emerald-400 font-mono text-[11px] outline-none"
-                        placeholder="Connect wallet first..." />
-                    <button onclick="copyRef()"
-                        class="bg-emerald-400 text-black px-3 rounded-xl font-bold text-xs hover:bg-emerald-500 transition">
-                        COPY
-                    </button>
+                    <input id="refLink" readonly class="w-full p-2 bg-black/40 rounded-xl text-emerald-400 font-mono text-[11px] outline-none" placeholder="Connect wallet first..." />
+                    <button onclick="copyRef()" class="bg-emerald-400 text-black px-3 rounded-xl font-bold text-xs hover:bg-emerald-500 transition">COPY</button>
                 </div>
             </div>
 
-            <!-- Connect Button -->
             <div class="flex gap-3 self-end md:self-auto">
                 <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3 rounded-2xl font-black shadow-lg hover:bg-emerald-500 transition">Connect</button>
                 <div id="walletDisplay" class="hidden glass px-4 py-3 rounded-2xl text-emerald-400 text-xs font-mono border border-emerald-400/20 flex items-center">0x...</div>
@@ -81,65 +75,96 @@
             <div class="glass p-5 rounded-2xl border-l-4 border-white"><p class="text-gray-500 text-[10px] font-bold uppercase">BNB Balance</p><h3 id="bnbBal" class="text-xl font-black mt-1">0.0000</h3></div>
             <div class="glass p-5 rounded-2xl border-l-4 border-emerald-400"><p class="text-gray-500 text-[10px] font-bold uppercase">TVX Assets</p><h3 id="tvxBal" class="text-xl font-black mt-1 text-emerald-400">0</h3></div>
             <div class="glass p-5 rounded-2xl border-l-4 border-yellow-500 bg-yellow-500/5"><p class="text-yellow-500 text-[10px] font-bold uppercase italic">Stake Reward</p><h3 id="stakeProfit" class="text-xl font-black mt-1 text-yellow-500">0.00 TVX</h3></div>
-            <div class="glass p-5 rounded-2xl border-l-4 border-blue-500"><p class="text-gray-500 text-[10px] font-bold uppercase italic">Total Value</p><h3 id="balDisplay" class="text-xl font-black mt-1 text-blue-400">$0.00</h3></div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-blue-500"><p class="text-gray-500 text-[10px] font-bold uppercase italic">Total Portfolio Value</p><h3 id="balDisplay" class="text-xl font-black mt-1 text-blue-400">$0.00</h3></div>
         </div>
 
-        <!-- DYNAMIC STAKING & BUY SECTION -->
+        <!-- BUY & INTERNAL SWAP SECTION -->
         <div id="buySection" class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-            <!-- STAKING CARD -->
+            <!-- BUY TVX CARD -->
             <div class="glass p-6 rounded-[35px] border border-emerald-400/20">
-                <h3 class="text-xl font-black mb-2 uppercase italic text-emerald-400">🔒 TVX Token Staking</h3>
-                <p class="text-xs text-gray-400 mb-6">Stake your TVX tokens for 360 days to earn 36% APY (0.1% Daily)</p>
+                <h3 class="text-xl font-black mb-2 uppercase italic text-emerald-400">💳 Buy TVX Tokens</h3>
+                <p class="text-xs text-gray-400 mb-6">Buy directly with BNB. 3-Level Affiliate Distribution splits instantly.</p>
                 <div class="space-y-4">
                     <div>
-                        <label class="text-[10px] text-gray-500 font-bold uppercase block mb-1">Enter TVX Amount</label>
+                        <label class="text-[10px] text-gray-500 font-bold uppercase block mb-1">Pay with BNB</label>
                         <div class="relative">
-                            <input id="stakeInput" type="number" placeholder="Min 100 TVX" class="w-full p-4 bg-black/40 border border-white/5 rounded-2xl text-emerald-400 font-mono text-sm outline-none">
-                            <span class="absolute right-4 top-4 text-xs font-black text-gray-500">TVX</span>
+                            <input id="bnbInput" type="number" step="0.01" placeholder="Amount in BNB" class="w-full p-4 bg-black/40 border border-white/5 rounded-2xl text-emerald-400 font-mono text-sm outline-none focus:border-emerald-400/30">
+                            <span class="absolute right-4 top-4 text-xs font-black text-gray-500">BNB</span>
                         </div>
                     </div>
-                    <button onclick="stakeTokens()" class="w-full py-4 bg-emerald-400 text-black rounded-2xl text-xs font-black uppercase hover:bg-emerald-500 transition">STAKE NOW 🚀</button>
-                    <div class="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-white/5">
-                        <div class="bg-black/20 p-4 rounded-2xl">
-                            <p class="text-[9px] text-gray-500 font-bold uppercase">Staked Balance</p>
-                            <h4 id="stakedAmountDisplay" class="text-base font-black text-white mt-1">0.00 TVX</h4>
+                    <button onclick="buy()" class="w-full py-4 bg-emerald-400 text-black rounded-2xl text-xs font-black uppercase hover:bg-emerald-500 transition shadow-lg">BUY TOKENS 🚀</button>
+                    
+                    <div class="mt-6 pt-4 border-t border-white/5">
+                        <h4 class="text-xs font-black uppercase text-gray-400 mb-3">MLM Matrix Structure</h4>
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            <div class="bg-black/30 p-3 rounded-xl"><p class="text-[9px] text-emerald-400 font-bold">Level 1 (5%)</p><h5 id="lvl1Count" class="text-base font-black mt-1">0</h5></div>
+                            <div class="bg-black/30 p-3 rounded-xl"><p class="text-[9px] text-cyan-400 font-bold">Level 2 (3%)</p><h5 id="lvl2Count" class="text-base font-black mt-1">0</h5></div>
+                            <div class="bg-black/30 p-3 rounded-xl"><p class="text-[9px] text-yellow-500 font-bold">Level 3 (2%)</p><h5 id="lvl3Count" class="text-base font-black mt-1">0</h5></div>
                         </div>
-                        <div class="bg-black/20 p-4 rounded-2xl">
-                            <p class="text-[9px] text-yellow-500 font-bold uppercase">Live Staking Reward</p>
-                            <h4 id="stakedReward" class="text-base font-black text-yellow-500 mt-1">0.000000 TVX</h4>
-                        </div>
-                    </div>
-                    <div class="bg-black/20 p-4 rounded-2xl mt-3 flex justify-between items-center">
-                        <p class="text-[9px] text-gray-500 font-bold uppercase">Unlock In</p>
-                        <span id="unlockTimer" class="text-xs font-mono font-bold text-cyan-400">No Active Stake</span>
                     </div>
                 </div>
             </div>
 
-            <!-- BUY & MLM CARD -->
-            <div class="glass p-6 rounded-[35px] border border-white/5">
-                <h3 class="text-xl font-black mb-2 uppercase italic text-blue-400">💎 Buy TVX & MLM Status</h3>
-                <p class="text-xs text-gray-400 mb-6">Instant 3-Level MLM distribution (5% / 3% / 2%)</p>
+            <!-- INTERNAL SWAP CARD -->
+            <div class="glass p-6 rounded-[35px] border border-blue-500/20">
+                <h3 class="text-xl font-black mb-2 uppercase italic text-blue-400">🔄 Internal Swap</h3>
+                <p class="text-xs text-gray-400 mb-6">Convert your earned MLM Income or TVX instantly inside the portal.</p>
                 <div class="space-y-4">
                     <div>
-                        <label class="text-[10px] text-gray-500 font-bold uppercase block mb-1">Buy with BNB</label>
+                        <label class="text-[10px] text-gray-500 font-bold uppercase block mb-1">From: Earned Income</label>
                         <div class="relative">
-                            <input id="bnbInput" type="number" step="0.01" placeholder="Amount in BNB" class="w-full p-4 bg-black/40 border border-white/5 rounded-2xl text-emerald-400 font-mono text-sm outline-none">
-                            <span class="absolute right-4 top-4 text-xs font-black text-gray-500">BNB</span>
+                            <input id="swapInput" type="number" placeholder="0.00" class="w-full p-4 bg-black/40 border border-white/5 rounded-2xl text-blue-400 font-mono text-sm outline-none">
+                            <span class="absolute right-4 top-4 text-xs font-black text-gray-400">BNB</span>
                         </div>
                     </div>
-                    <button onclick="buy()" class="w-full py-4 bg-blue-500 text-white rounded-2xl text-xs font-black uppercase hover:bg-blue-600 transition">BUY TOKENS 💳</button>
-                    <div class="mt-6 pt-6 border-t border-white/5">
-                        <h4 class="text-xs font-black uppercase text-gray-400 mb-3">Your MLM Network Structure</h4>
-                        <div class="grid grid-cols-3 gap-2 text-center">
-                            <div class="bg-black/30 p-3 rounded-xl"><p class="text-[9px] text-emerald-400 font-bold">Level 1</p><h5 id="lvl1Count" class="text-base font-black mt-1">0</h5></div>
-                            <div class="bg-black/30 p-3 rounded-xl"><p class="text-[9px] text-cyan-400 font-bold">Level 2</p><h5 id="lvl2Count" class="text-base font-black mt-1">0</h5></div>
-                            <div class="bg-black/30 p-3 rounded-xl"><p class="text-[9px] text-yellow-500 font-bold">Level 3</p><h5 id="lvl3Count" class="text-base font-black mt-1">0</h5></div>
+                    <div class="flex justify-center my-1">
+                        <div class="bg-blue-500/10 p-2 rounded-full text-blue-400 font-bold">↓</div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-500 font-bold uppercase block mb-1">To: TVX Assets</label>
+                        <div class="relative">
+                            <input id="swapOutput" readonly placeholder="0.00" class="w-full p-4 bg-black/20 border border-white/5 rounded-2xl text-gray-500 font-mono text-sm outline-none">
+                            <span class="absolute right-4 top-4 text-xs font-black text-gray-500">TVX</span>
                         </div>
                     </div>
-                    <div class="mt-2 flex justify-between text-xs bg-black/20 p-3 rounded-xl">
-                        <span class="text-gray-400">MLM Income:</span>
+                    <button onclick="internalSwap()" class="w-full py-4 bg-blue-500 text-white rounded-2xl text-xs font-black uppercase hover:bg-blue-600 transition shadow-lg">SWAP ASSETS NOW 🔄</button>
+                    <div class="flex justify-between text-[11px] px-2 text-gray-500 font-medium">
+                        <span>Available MLM Wallet:</span>
                         <span id="income" class="font-mono text-blue-400 font-bold">0.000000 BNB</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STAKING SECTION -->
+        <div id="stakeSection" class="glass p-6 rounded-[35px] border border-white/5 mb-10">
+            <div class="max-w-3xl">
+                <h3 class="text-xl font-black mb-2 uppercase italic text-yellow-500">🔒 TVX Token Staking Portal</h3>
+                <p class="text-xs text-gray-400 mb-6">Lock your assets securely for 360 Days and accumulate 36% APY calculated live.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[10px] text-gray-500 font-bold uppercase block mb-1">Stake Amount</label>
+                            <div class="relative">
+                                <input id="stakeInput" type="number" placeholder="Min 100 TVX" class="w-full p-4 bg-black/40 border border-white/5 rounded-2xl text-yellow-500 font-mono text-sm outline-none">
+                                <span class="absolute right-4 top-4 text-xs font-black text-gray-500">TVX</span>
+                            </div>
+                        </div>
+                        <button onclick="stakeTokens()" class="w-full py-4 bg-yellow-500 text-black rounded-2xl text-xs font-black uppercase hover:bg-yellow-600 transition">LOCK ASSETS 🔐</button>
+                    </div>
+                    <div class="space-y-3 bg-black/20 p-5 rounded-2xl border border-white/5">
+                        <div class="flex justify-between border-b border-white/5 pb-2">
+                            <span class="text-xs text-gray-500 font-bold uppercase">Staked Balance:</span>
+                            <span id="stakedAmountDisplay" class="font-mono font-bold text-white">0.00 TVX</span>
+                        </div>
+                        <div class="flex justify-between border-b border-white/5 pb-2">
+                            <span class="text-xs text-gray-500 font-bold uppercase">Live Staked Reward:</span>
+                            <span id="stakedReward" class="font-mono font-bold text-yellow-500">0.000000 TVX</span>
+                        </div>
+                        <div class="flex justify-between pt-1">
+                            <span class="text-xs text-gray-500 font-bold uppercase">Unlock Countdown:</span>
+                            <span id="unlockTimer" class="font-mono font-bold text-cyan-400 text-xs">No Active Stake</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -182,7 +207,7 @@
             </div>
         </div>
 
-        <!-- REPORTS / TRANSACTIONS -->
+        <!-- REPORTS -->
         <div id="reports" class="glass p-6 rounded-[35px] border border-white/5 mb-10">
             <h3 class="text-lg font-black mb-4 uppercase italic text-gray-400">📊 Recent Transactions</h3>
             <div class="overflow-x-auto">
@@ -294,6 +319,7 @@ async function connect() {
         walletDisplay.innerText = account.slice(0,6)+"..."+account.slice(-4);
         
         updateRefLink();
+        setupSwapListener(); // সোয়াপ লাইভ কনভার্সন লিসেনার চালু
         await update(); 
         setInterval(update, 10000); // প্রতি ১০ সেকেন্ডে ব্যালেন্স সিঙ্ক
         setInterval(updateStakingUI, 1000); // প্রতি সেকেন্ডে লাইভ স্ট্যাকিং কাউন্টার আপডেট
@@ -303,6 +329,62 @@ async function connect() {
         console.error(err);
         Swal.fire("Error", "Connection failed!", "error");
     }
+}
+
+// সোয়াপ ইনপুট টাইপ করার সময় লাইভ TVX আউটপুট ক্যালকুলেশন
+function setupSwapListener() {
+    const swapInput = document.getElementById("swapInput");
+    const swapOutput = document.getElementById("swapOutput");
+    
+    if(swapInput && swapOutput) {
+        swapInput.addEventListener("input", () => {
+            let val = parseFloat(swapInput.value);
+            if(!isNaN(val) && val > 0) {
+                // ১ BNB = RATE পরিমাণ TVX (যেমন: ১০,০০০ TVX)
+                let calculatedTVX = val * RATE;
+                swapOutput.value = calculatedTVX.toFixed(2);
+            } else {
+                swapOutput.value = "";
+            }
+        });
+    }
+}
+
+// ইন্টারনাল সোয়াপ এক্সিকিউশন ফাংশন
+function internalSwap() {
+    if (!account) return Swal.fire("Error", "Please connect your wallet first!", "warning");
+    
+    let swapInput = document.getElementById("swapInput");
+    let bnbToSwap = parseFloat(swapInput.value);
+    
+    if (isNaN(bnbToSwap) || bnbToSwap <= 0) {
+        return Swal.fire("Error", "Please enter a valid BNB amount!", "warning");
+    }
+
+    let d = db();
+    let u = d[account];
+
+    // ইউজারের MLM Wallet (u.bnb) এ পর্যাপ্ত ব্যালেন্স আছে কিনা চেক
+    if (u.bnb < bnbToSwap) {
+        return Swal.fire("Error", "Insufficient MLM Income Balance!", "error");
+    }
+
+    let tvxAmount = bnbToSwap * RATE;
+
+    // ব্যালেন্স এডজাস্টমেন্ট
+    u.bnb -= bnbToSwap;   // MLM ওয়ালেট থেকে BNB মাইনাস
+    u.tvx += tvxAmount;  // TVX অ্যাসেটে টোকেন প্লাস
+
+    // ট্রানজেকশন হিস্ট্রিতে পুশ
+    u.txHistory.unshift({ type: 'SWAP INCOME', amt: bnbToSwap.toFixed(4) + ' BNB -> ' + tvxAmount.toLocaleString() + ' TVX' });
+
+    save(d);
+    update();
+    
+    swapInput.value = "";
+    document.getElementById("swapOutput").value = "";
+
+    Swal.fire("Success!", `Successfully swapped ${bnbToSwap} BNB to ${tvxAmount.toLocaleString()} TVX!`, "success");
 }
 
 // ড্যাশবোর্ডের ডাটা সিঙ্ক ফাংশন
@@ -322,13 +404,18 @@ async function update() {
     if(stakeProfitEl) stakeProfitEl.innerText = profit.toFixed(4) + " TVX";
     
     document.getElementById("tvxBal").innerText = (u.tvx + profit).toLocaleString();
-    document.getElementById("income").innerText = u.bnb.toFixed(6) + " BNB";
+    
+    // সমস্ত Income বাটন ও টেক্সট ফিল্ডে লাইভ ডাটা পুশ
+    const incomeElements = document.querySelectorAll("#income");
+    incomeElements.forEach(el => {
+        el.innerText = u.bnb.toFixed(6) + " BNB";
+    });
 
     const stakedAmountDisplayEl = document.getElementById("stakedAmountDisplay");
     if (stakedAmountDisplayEl) stakedAmountDisplayEl.innerText = stakingData.stakedAmount.toLocaleString() + " TVX";
 
     const balDisplayEl = document.getElementById("balDisplay");
-    if(balDisplayEl) balDisplayEl.innerText = "$" + ((u.bnb * BNB_USD) + (profit * TVX_USD)).toFixed(2);
+    if(balDisplayEl) balDisplayEl.innerText = "$" + ((u.bnb * BNB_USD) + (profit * TVX_USD) + (u.tvx * TVX_USD)).toFixed(2);
 
     // ৩-লেভেল নেটওয়ার্ক সাইজ ক্যালকুলেশন
     let l1 = u.directs.length; 
@@ -347,7 +434,7 @@ async function update() {
     if(document.getElementById("lvl2Count")) document.getElementById("lvl2Count").innerText = l2;
     if(document.getElementById("lvl3Count")) document.getElementById("lvl3Count").innerText = l3;
 
-    // ভিআইপি র্যাঙ্ক সেটআপ
+    // VIP র্যাঙ্ক সেটআপ
     let rank = (l1 >= 5) ? (totalSize >= 175 ? "V3 VIP" : totalSize >= 75 ? "V2 VIP" : totalSize >= 25 ? "V1 VIP" : "NONE") : "NONE";
     document.getElementById("sideRank").innerText = rank;
 
@@ -406,20 +493,37 @@ async function buy() {
 
 // টোকেন স্ট্যাকিং ফাংশন
 function stakeTokens() {
+    if (!account) return Swal.fire("Error", "Please connect your wallet first!", "warning");
     const stakeInputEl = document.getElementById('stakeInput');
     if(!stakeInputEl) return;
     const amount = parseFloat(stakeInputEl.value);
-    if (isNaN(amount) || amount <= 100) {
+    
+    let d = db();
+    let u = d[account];
+
+    if (isNaN(amount) || amount < 100) {
         Swal.fire("Error", "Please enter minimum 100 TVX to stake!", "error");
         return;
     }
+    
+    // ইউজারের ড্যাশবোর্ডে টোকেন আছে কিনা চেক করা
+    if(u.tvx < amount) {
+        Swal.fire("Error", "Insufficient TVX assets to stake!", "error");
+        return;
+    }
 
+    // ইউজার অ্যাসেট থেকে কেটে স্ট্যাকিংয়ে লক করা
+    u.tvx -= amount;
     stakingData.stakedAmount += amount;
     stakingData.startTime = Date.now();
     stakingData.lastClaimTime = Date.now();
    
     localStorage.setItem('tvx_staking', JSON.stringify(stakingData));
+    u.txHistory.unshift({ type: 'STAKE LOCK', amt: amount.toLocaleString() + ' TVX' });
+    
+    save(d);
     update();
+    stakeInputEl.value = "";
     Swal.fire("Success", `Staked ${amount} TVX successfully for 360 days!`, "success");
 }
 
