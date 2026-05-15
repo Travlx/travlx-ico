@@ -226,7 +226,7 @@
 </div>
 <!-- JAVASCRIPT LOGIC -->
 <script>
-const RECEIVER = "YOUR_WALLET_ADDRESS"; // এখানে আপনার মেটামাস্ক ওয়ালেট অ্যাড্রেস দিন
+const RECEIVER = "YOUR_WALLET_ADDRESS"; // এখানে আপনার মেটামাস্ক অ্যাড্রেস দিন
 const RATE = 10000; const TVX_USD = 0.01; let BNB_USD = 600;
 let account, provider, signer;
 
@@ -234,13 +234,11 @@ const db = () => JSON.parse(localStorage.getItem("tvx_vFinal_PRO_V3")) || {};
 const save = d => localStorage.setItem("tvx_vFinal_PRO_V3", JSON.stringify(d));
 
 let stakingData = JSON.parse(localStorage.getItem('tvx_staking')) || {
-    stakedAmount: 0, startTime: null, lastClaimTime: null, totalRewards: 0, referralRewards: 0
+    stakedAmount: 0, startTime: null, lastClaimTime: null, totalRewards: 0
 };
-const DAILY_APY = 0.001; const LOCK_PERIOD_DAYS = 360;
+const DAILY_APY = 0.001; const LOCK_DAYS = 360;
 
-function toggleSidebar() { 
-    document.getElementById('sidebar').classList.toggle('sidebar-folded'); 
-}
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('sidebar-folded'); }
 
 function updateRefLink() {
     if (!account) return;
@@ -252,20 +250,18 @@ function updateRefLink() {
 function copyRef() {
     const el = document.getElementById("refLink");
     if (!el || el.value === "" || el.value.includes("Connect wallet")) {
-        Swal.fire("Error", "Please connect your wallet first!", "warning");
-        return;
+        return Swal.fire("Error", "Please connect wallet first!", "warning");
     }
     el.select(); el.setSelectionRange(0, 99999);
     navigator.clipboard.writeText(el.value);
-    Swal.fire("Copied!", "Referral link copied to clipboard", "success");
+    Swal.fire("Copied!", "Referral link copied", "success");
 }
 
 async function fetchPrice() {
     try {
         const res = await fetch('https://coingecko.com');
         const data = await res.json(); BNB_USD = data.binancecoin.usd;
-        const liveBNBEl = document.getElementById("liveBNB");
-        if (liveBNBEl) liveBNBEl.innerText = "($ " + BNB_USD.toFixed(2) + ")";
+        if (document.getElementById("liveBNB")) document.getElementById("liveBNB").innerText = "($ " + BNB_USD.toFixed(2) + ")";
     } catch (e) { BNB_USD = 600; }
 }
 
@@ -281,51 +277,41 @@ async function connect() {
         let d = db();
         if(!d[account]) {
             let ref = new URLSearchParams(location.search).get("ref");
-            d[account] = { 
-                sponsor: (ref && d[ref.toLowerCase()]) ? ref.toLowerCase() : null, 
-                directs: [], tvx: 0, bnb: 0, active: false, stakeStart: 0, txHistory: [], claimed: [] 
-            };
+            d[account] = { sponsor: (ref && d[ref.toLowerCase()]) ? ref.toLowerCase() : null, directs: [], tvx: 0, bnb: 0, txHistory: [], claimed: [] };
             if(ref && d[ref.toLowerCase()]) d[ref.toLowerCase()].directs.push(account);
             save(d);
         }
 
         document.getElementById("connectBtn").classList.add("hidden");
-        const walletDisplay = document.getElementById("walletDisplay");
-        walletDisplay.classList.remove("hidden");
-        walletDisplay.innerText = account.slice(0,6)+"..."+account.slice(-4);
+        document.getElementById("walletDisplay").classList.remove("hidden");
+        document.getElementById("walletDisplay").innerText = account.slice(0,6)+"..."+account.slice(-4);
         
-        updateRefLink(); setupSwapListener();
+        updateRefLink();
+        if(document.getElementById("swapInput")) {
+            document.getElementById("swapInput").oninput = e => {
+                let v = parseFloat(e.target.value);
+                document.getElementById("swapOutput").value = (!isNaN(v) && v > 0) ? (v * RATE).toFixed(2) : "";
+            };
+        }
         await update(); setInterval(update, 10000); setInterval(updateStakingUI, 1000);
         Swal.fire("Connected!", "Wallet connected successfully", "success");
     } catch (err) { Swal.fire("Error", "Connection failed!", "error"); }
 }
 
-function setupSwapListener() {
-    const swapInput = document.getElementById("swapInput");
-    const swapOutput = document.getElementById("swapOutput");
-    if(swapInput && swapOutput) {
-        swapInput.addEventListener("input", () => {
-            let val = parseFloat(swapInput.value);
-            swapOutput.value = (!isNaN(val) && val > 0) ? (val * RATE).toFixed(2) : "";
-        });
-    }
-}
-
 function internalSwap() {
-    if (!account) return Swal.fire("Error", "Please connect your wallet first!", "warning");
-    let swapInput = document.getElementById("swapInput");
-    let bnbToSwap = parseFloat(swapInput.value);
+    if (!account) return Swal.fire("Error", "Connect wallet first!", "warning");
+    let bnbToSwap = parseFloat(document.getElementById("swapInput").value);
     if (isNaN(bnbToSwap) || bnbToSwap <= 0) return Swal.fire("Error", "Enter valid amount!", "warning");
 
     let d = db(); let u = d[account];
-    if (u.bnb < bnbToSwap) return Swal.fire("Error", "Insufficient MLM Income Balance!", "error");
+    if (u.bnb < bnbToSwap) return Swal.fire("Error", "Insufficient MLM Balance!", "error");
 
     let tvxAmount = bnbToSwap * RATE;
     u.bnb -= bnbToSwap; u.tvx += tvxAmount;
     u.txHistory.unshift({ type: 'SWAP INCOME', amt: bnbToSwap.toFixed(4) + ' BNB -> ' + tvxAmount.toLocaleString() + ' TVX' });
     save(d); update();
-    swapInput.value = ""; document.getElementById("swapOutput").value = "";
-    Swal.fire("Success!", `Swapped successfully!`, "success");
+    document.getElementById("swapInput").value = ""; document.getElementById("swapOutput").value = "";
+    Swal.fire("Success!", "Swapped successfully!", "success");
 }
 
 async function update() {
@@ -334,25 +320,18 @@ async function update() {
 
     const bal = await provider.getBalance(account);
     document.getElementById("bnbBal").innerText = parseFloat(ethers.utils.formatEther(bal)).toFixed(4);
-
-    let profit = (u.active && u.stakeStart > 0) ? (10000 * 0.18 * ((Date.now() - u.stakeStart) / 1000)) / 31536000 : 0;
-    if(document.getElementById("stakeProfit")) document.getElementById("stakeProfit").innerText = profit.toFixed(4) + " TVX";
-    document.getElementById("tvxBal").innerText = (u.tvx + profit).toLocaleString();
-    
+    document.getElementById("tvxBal").innerText = u.tvx.toLocaleString();
     document.querySelectorAll("#income").forEach(el => el.innerText = u.bnb.toFixed(6) + " BNB");
     if (document.getElementById("stakedAmountDisplay")) document.getElementById("stakedAmountDisplay").innerText = stakingData.stakedAmount.toLocaleString() + " TVX";
-    if(document.getElementById("balDisplay")) document.getElementById("balDisplay").innerText = "$" + ((u.bnb * BNB_USD) + (profit * TVX_USD) + (u.tvx * TVX_USD)).toFixed(2);
+    if (document.getElementById("balDisplay")) document.getElementById("balDisplay").innerText = "$" + ((u.bnb * BNB_USD) + (u.tvx * TVX_USD)).toFixed(2);
 
     let l1 = u.directs.length; let l2 = 0, l3 = 0;
-    u.directs.forEach(id => { 
-        if(d[id]) { l2 += d[id].directs.length; d[id].directs.forEach(id2 => { if(d[id2]) l3 += d[id2].directs.length; }); } 
-    });
+    u.directs.forEach(id => { if(d[id]) { l2 += d[id].directs.length; d[id].directs.forEach(id2 => { if(d[id2]) l3 += d[id2].directs.length; }); } });
     let totalSize = l1 + l2 + l3;
 
     if(document.getElementById("lvl1Count")) document.getElementById("lvl1Count").innerText = l1;
     if(document.getElementById("lvl2Count")) document.getElementById("lvl2Count").innerText = l2;
     if(document.getElementById("lvl3Count")) document.getElementById("lvl3Count").innerText = l3;
-
     document.getElementById("sideRank").innerText = (l1 >= 5) ? (totalSize >= 175 ? "V3 VIP" : totalSize >= 75 ? "V2 VIP" : totalSize >= 25 ? "V1 VIP" : "NONE") : "NONE";
 
     ['v1', 'v2', 'v3'].forEach(r => {
@@ -363,13 +342,13 @@ async function update() {
             if(u.claimed.includes(r.toUpperCase())) {
                 btn.innerText = "CLAIMED ✅"; btn.disabled = true; btn.className = "w-full mt-6 py-4 bg-emerald-500/20 text-emerald-400 rounded-2xl text-[10px] font-black uppercase";
             } else if(l1 >= 5 && totalSize >= target) {
-                btn.innerText = "CLAIM REWARD 🎁"; btn.disabled = false; btn.className = "w-full mt-6 py-4 bg-yellow-500 text-black rounded-2xl text-[10px] font-black uppercase animate-bounce shadow-xl";
+                btn.innerText = "CLAIM REWARD 🎁"; btn.disabled = false; btn.className = "w-full mt-6 py-4 bg-yellow-500 text-black rounded-2xl text-[10px] font-black uppercase animate-bounce";
             }
         }
     });
 
     if(document.getElementById("txList")) {
-        document.getElementById("txList").innerHTML = u.txHistory.slice(0,8).map(t => `<tr class="border-b border-white/5"><td class="py-3 text-emerald-400 font-bold uppercase font-mono">${t.type}</td><td>${t.amt}</td><td class="text-right text-emerald-400 font-bold font-mono">DONE</td></tr>`).join('') || '<tr><td colspan="3" class="py-6 text-center opacity-10">No History</td></tr>';
+        document.getElementById("txList").innerHTML = u.txHistory.slice(0,8).map(t => `<tr class="border-b border-white/5"><td class="py-3 text-emerald-400 font-bold font-mono">${t.type}</td><td>${t.amt}</td><td class="text-right text-emerald-400 font-bold font-mono">DONE</td></tr>`).join('') || '<tr><td colspan="3" class="py-6 text-center opacity-10">No History</td></tr>';
     }
 }
 
@@ -393,9 +372,8 @@ async function buy() {
 }
 
 function stakeTokens() {
-    if (!account) return Swal.fire("Error", "Please connect your wallet first!", "warning");
-    const stakeInputEl = document.getElementById('stakeInput'); if(!stakeInputEl) return;
-    const amount = parseFloat(stakeInputEl.value);
+    if (!account) return Swal.fire("Error", "Connect wallet first!", "warning");
+    const amount = parseFloat(document.getElementById('stakeInput').value);
     let d = db(); let u = d[account];
 
     if (isNaN(amount) || amount < 100) return Swal.fire("Error", "Min 100 TVX required!", "error");
@@ -405,7 +383,7 @@ function stakeTokens() {
     stakingData.startTime = Date.now(); stakingData.lastClaimTime = Date.now();
     localStorage.setItem('tvx_staking', JSON.stringify(stakingData));
     u.txHistory.unshift({ type: 'STAKE LOCK', amt: amount.toLocaleString() + ' TVX' });
-    save(d); update(); stakeInputEl.value = "";
+    save(d); update(); document.getElementById('stakeInput').value = "";
     Swal.fire("Success", `Staked ${amount} TVX successfully!`, "success");
 }
 
@@ -413,25 +391,20 @@ function updateStakingUI() {
     if (!stakingData.startTime || !account) return;
     const now = Date.now(); const elapsedSeconds = (now - stakingData.lastClaimTime) / 1000;
     const userDailyReward = (stakingData.stakedAmount * DAILY_APY * elapsedSeconds) / 86400;
-    const totalLiveReward = stakingData.totalRewards + userDailyReward;
-    if(document.getElementById('stakedReward')) document.getElementById('stakedReward').innerText = totalLiveReward.toFixed(6) + " TVX";
+    if(document.getElementById('stakedReward')) document.getElementById('stakedReward').innerText = userDailyReward.toFixed(6) + " TVX";
 
-    const timeLeft = (stakingData.startTime + (LOCK_PERIOD_DAYS * 86400000)) - now;
+    const timeLeft = (stakingData.startTime + (LOCK_DAYS * 86400000)) - now;
     const timerEl = document.getElementById("unlockTimer");
     if (timerEl) {
         if (timeLeft > 0) {
-            const d = Math.floor(timeLeft / 86400000);
-            const h = Math.floor((timeLeft % 86400000) / 3600000);
-            const m = Math.floor((timeLeft % 3600000) / 60000);
-            const s = Math.floor((timeLeft % 60000) / 1000);
+            const d = Math.floor(timeLeft / 86400000); const h = Math.floor((timeLeft % 86400000) / 3600000);
+            const m = Math.floor((timeLeft % 3600000) / 60000); const s = Math.floor((timeLeft % 60000) / 1000);
             timerEl.innerText = `${d}d ${h}h ${m}m ${s}s`;
         } else { timerEl.innerText = "Unlocked"; }
     }
 }
 
-window.addEventListener('load', () => {
-    if(localStorage.getItem("connected") === "true") connect();
-});
+window.addEventListener('load', () => { if(localStorage.getItem("connected") === "true") connect(); });
 
 function logout() {
     localStorage.removeItem("connected"); account = null;
