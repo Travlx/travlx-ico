@@ -47,230 +47,400 @@
 
     <!-- MAIN -->
     <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden">
-        
-        <!-- TOPBAR (Wallet Connect & Portal Header) -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-            <div>
-                <h2 class="text-3xl lg:text-4xl font-black italic uppercase">Investor Portal</h2>
-                <p class="text-gray-500 text-sm">Earn 36% APY & Global Rewards</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3 rounded-2xl font-black shadow-lg hover:bg-emerald-500 transition">Connect</button>
+        <!-- TOPBAR -->
+        <div class="flex justify-between items-center mb-8">
+            <div class="glass p-5 rounded-2xl mb-6 border border-emerald-400/20">
+    <p class="text-xs text-gray-400 uppercase font-bold">Referral Link</p>
+
+    <div class="flex gap-2 mt-3">
+        <input id="refLink" readonly
+            class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs"
+            placeholder="Generate your referral link" />
+
+        <button onclick="copyRef()"
+            class="bg-emerald-400 text-black px-4 rounded-xl font-bold text-xs">
+            COPY
+        </button>
+    </div>
+</div>
+
+            <div><h2 class="text-3xl lg:text-4xl font-black italic uppercase italic">Investor Portal</h2><p class="text-gray-500 text-sm">Earn 36% APY & Global Rewards</p></div>
+            <div class="flex gap-3">
+                <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3 rounded-2xl font-black shadow-lg">Connect</button>
                 <div id="walletDisplay" class="hidden glass px-4 py-2 rounded-xl text-emerald-400 text-xs font-mono border border-emerald-400/20">0x...</div>
             </div>
         </div>
 
-        <!-- PASAPASI CODES / WIDGETS SECTION -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            
-            <!-- ১ম বক্স: Referral Link (আপনার আগের কোড) -->
-            <div class="glass p-5 rounded-2xl border border-emerald-400/20 flex flex-col justify-center">
-                <p class="text-xs text-gray-400 uppercase font-bold">Referral Link</p>
-                <div class="flex gap-2 mt-3">
-                    <input id="refLink" readonly
-                        class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs focus:outline-none"
-                        placeholder="Generate your referral link" />
-                    <button onclick="copyRef()"
-                        class="bg-emerald-400 text-black px-5 rounded-xl font-bold text-xs hover:bg-emerald-500 transition">
-                        COPY
-                    </button>
-                </div>
-            </div>
-
-            <!-- ২য় বক্স: (এখানে আপনি আপনার অন্য কোড বা উইজেট বসাতে পারবেন) -->
-            <div class="glass p-5 rounded-2xl border border-white/10 flex flex-col justify-center">
-                <p class="text-xs text-gray-400 uppercase font-bold">Investment Overview</p>
-                <div class="grid grid-cols-2 gap-4 mt-3">
-                    <div class="bg-black/40 p-3 rounded-xl">
-                        <span class="text-[10px] text-gray-500 uppercase block">Total Staked</span>
-                        <span class="text-emerald-400 font-bold text-sm">$0.00</span>
-                    </div>
-                    <div class="bg-black/40 p-3 rounded-xl">
-                        <span class="text-[10px] text-gray-500 uppercase block">Total Rewards</span>
-                        <span class="text-emerald-400 font-bold text-sm">$0.00</span>
-                    </div>
-                </div>
-            </div>
-
+        <!-- STATS GRID -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="glass p-5 rounded-2xl border-l-4 border-white"><p class="text-gray-500 text-[10px] font-bold uppercase">BNB Balance</p><h3 id="bnbBal" class="text-xl font-black mt-1">0.0000</h3></div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-emerald-400"><p class="text-gray-500 text-[10px] font-bold uppercase">TVX Assets</p><h3 id="tvxBal" class="text-xl font-black mt-1 text-emerald-400">0</h3></div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-yellow-500 bg-yellow-500/5"><p class="text-yellow-500 text-[10px] font-bold uppercase italic">Stake Reward (18%)</p><h3 id="stakeProfit" class="text-xl font-black mt-1 text-yellow-500">0.00 TVX</h3></div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-blue-500"><p class="text-gray-500 text-[10px] font-bold uppercase italic">MLM Income (BNB)</p><h3 id="income" class="text-xl font-black mt-1 text-blue-400">0.0000</h3></div>
         </div>
 
-        <!-- বাকি সেকশনগুলোর জন্য এখানে কোড যুক্ত করতে পারেন -->
+        <!-- REWARDS -->
+        <div id="rewards" class="mb-10">
+            <h3 class="text-xl font-black mb-6 uppercase italic text-emerald-400">🏆 VIP Rewards (Min 5 Directs Required)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- V1, V2, V3 Cards -->
+                <div class="glass p-6 rounded-[35px] border border-white/5 relative">
+                    <h4 class="font-black text-xl italic uppercase">V1 VIP</h4>
+                    <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase italic">25 Team + 5 Directs</p>
+                    <div class="mt-4 p-3 bg-black/40 rounded-xl">
+                        <p class="text-[10px] text-emerald-400 font-bold">Directs: <span id="v1Directs">0/5</span></p>
+                        <div class="w-full h-1 bg-white/5 rounded-full mt-1"><div id="v1Bar" class="h-full bg-emerald-400 rounded-full" style="width: 0%"></div></div>
+                    </div>
+                    <p class="mt-4 text-xs font-black italic text-emerald-400">$500 BONUS + 1 TOUR</p>
+                    <button id="claimV1" onclick="claimReward('V1', 500)" disabled class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20">Locked</button>
+                </div>
+                <div class="glass p-6 rounded-[35px] border border-white/5 relative">
+                    <h4 class="font-black text-xl italic uppercase text-cyan-400">V2 VIP</h4>
+                    <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase italic">75 Team + 5 Directs</p>
+                    <div class="mt-4 p-3 bg-black/20 rounded-xl">
+                        <p class="text-[10px] text-cyan-400 font-bold">Directs: <span id="v2Directs">0/5</span></p>
+                        <div class="w-full h-1 bg-white/5 rounded-full mt-1"><div id="v2Bar" class="h-full bg-cyan-400 rounded-full" style="width: 0%"></div></div>
+                    </div>
+                    <p class="mt-4 text-xs font-black italic text-emerald-400">$1500 BONUS + FAMILY TOUR</p>
+                    <button id="claimV2" onclick="claimReward('V2', 1500)" disabled class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20">Locked</button>
+                </div>
+                <div class="glass p-6 rounded-[35px] border border-yellow-500/20 bg-yellow-500/5 relative">
+                    <h4 class="font-black text-xl italic uppercase text-yellow-500">V3 VIP</h4>
+                    <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase italic">175 Team + 5 Directs</p>
+                    <div class="mt-4 p-3 bg-black/20 rounded-xl">
+                        <p class="text-[10px] text-yellow-500 font-bold">Directs: <span id="v3Directs">0/5</span></p>
+                        <div class="w-full h-1 bg-white/5 rounded-full mt-1"><div id="v3Bar" class="h-full bg-yellow-500 rounded-full" style="width: 0%"></div></div>
+                    </div>
+                    <p class="mt-4 text-xs font-black italic text-emerald-400">$3000 BONUS + 2 TOURS</p>
+                    <button id="claimV3" onclick="claimReward('V3', 3000)" disabled class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20">Locked</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BUY & SWAP -->
+        <div id="buySection" class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+            <div class="glass p-6 lg:p-8 rounded-[35px] border border-white/5">
+                <h3 class="text-xl font-black mb-6 text-emerald-400 italic">Step 1: Buy TVX Tokens</h3>
+                <input id="bnbInput" type="number" step="0.01" oninput="updatePreview()" class="w-full p-4 bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-emerald-400 font-bold font-mono" placeholder="BNB Amount">
+                <div class="flex justify-between bg-black/30 p-4 rounded-2xl mt-4 border border-white/5 italic">
+                    <span class="text-gray-500 text-xs uppercase font-bold">You Will Get:</span><span id="previewTVX" class="font-black text-emerald-400">0 TVX</span>
+                </div>
+                <button onclick="buy()" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl mt-4 hover:bg-yellow-400 transition uppercase text-sm">Buy Now</button>
+                <p class="text-[9px] text-center text-gray-600 mt-2 font-mono uppercase">Live Price: <span id="liveBNB">Loading...</span></p>
+            </div>
+            <div class="glass p-6 lg:p-8 rounded-[35px] border-l-8 border-yellow-500">
+                <h3 class="text-xl font-black mb-6 text-yellow-500 italic uppercase">Step 3: Internal Swap</h3>
+                <input id="swapInput" type="number" oninput="updateSwapPreview()" class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-yellow-500 font-bold" placeholder="TVX Amount to Swap">
+                <div class="flex justify-between bg-black/30 p-4 rounded-2xl mt-4 border border-white/5 italic font-mono">
+                    <span class="text-gray-500 text-[10px] uppercase font-bold">Receive Approx:</span><span id="swapPreviewBNB" class="font-black text-yellow-500">0.0000 BNB</span>
+                </div>
+                <button onclick="internalSwap()" class="w-full bg-white text-black font-black py-4 rounded-2xl mt-4 hover:bg-yellow-500 transition uppercase text-sm shadow-xl">Swap To BNB</button>
+            </div>
+        </div>
+<div class="card">
+    <div class="glass p-6 lg:p-8 rounded-[35px] border-l-8 border-emerald-500">
+    <h3 class="text-xl font-black mb-6 text-yellow-500 italic">Stake TVX & Level Rewards</h3>
+   
+    <input id="stakeInput" type="number" class="w-full p-4 bg-black/40 border border-white/10 rounded-2xl outline-none focus:border-yellow-500 font-bold font-mono" placeholder="Amount to Stake">
+   
+    <!-- Level Info Table -->
+    <div class="mt-4 p-4 bg-black/20 rounded-2xl border border-white/5">
+        <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">Daily Referral Distribution (100% of Reward)</p>
+        <div class="flex justify-between text-[11px] font-mono">
+            <span class="text-emerald-400">L1: 40%</span>
+            <span class="text-emerald-400">L2: 30%</span>
+            <span class="text-emerald-400">L3: 30%</span>
+        </div>
+    </div>
+
+    <!-- Live Tracking -->
+    <div class="bg-black/30 p-4 rounded-2xl mt-4 border border-white/5 flex justify-between items-center">
+        <div>
+            <p class="text-gray-500 text-[10px] uppercase font-bold">Daily Stake Reward (0.1%)</p>
+            <span id="stakedReward" class="font-black text-yellow-500">0.0000 TVX</span>
+        </div>
+        <button onclick="stakeTokens()" class="bg-emerald-500 text-black text-[11px] font-black px-4 py-2 rounded-xl hover:bg-emerald-400 transition uppercase">Stake</button>
+    </div>
+
+    <p class="text-[9px] text-center text-gray-500 mt-4 font-mono uppercase italic">
+        Principal Unlock in: <span id="unlockTimer" class="text-white">360d</span>
+    </p>
+</div>
+
+
+        <!-- ACTIVATION -->
+        <div class="glass p-8 rounded-[40px] border-l-8 border-emerald-400 mb-8 flex flex-col lg:flex-row justify-between items-center gap-6">
+            <div><h3 class="text-2xl font-black mb-2 uppercase italic text-emerald-400">Step 2: Card Activation</h3><p class="text-gray-400 text-xs">Stake 10,000 TVX ($100) to start earning 18% APY and unlock Rank Rewards.</p></div>
+            <button id="activateBtn" onclick="activate()" class="w-full lg:w-72 bg-emerald-400 text-black font-black py-5 rounded-2xl hover:scale-105 transition shadow-xl uppercase italic">Activate Now</button>
+        </div>
+
+        <!-- REPORTS -->
+        <div id="reports" class="glass p-6 lg:p-8 rounded-[35px] mb-8 overflow-x-auto">
+            <h3 class="text-xl font-black mb-6 italic uppercase text-emerald-400">Transaction History</h3>
+            <table class="w-full text-left font-mono text-[10px]">
+                <thead><tr class="text-gray-500 border-b border-white/10 uppercase italic"><th class="pb-3 text-emerald-400 italic">Type</th><th class="pb-3 italic">Amount</th><th class="pb-3 text-right italic">Status</th></tr></thead>
+                <tbody id="txList" class="text-gray-300 italic"></tbody>
+            </table>
+        </div>
+
+        <!-- WITHDRAW -->
+        <div class="glass p-8 rounded-[40px] flex flex-col lg:flex-row justify-between items-center border border-blue-400/10 mb-8">
+            <div><p class="text-gray-500 text-xs font-black uppercase tracking-widest italic font-mono">Available For Withdrawal</p><h1 id="balDisplay" class="text-4xl lg:text-5xl font-black mt-2 italic text-white">$0.00</h1></div>
+            <button onclick="withdraw()" class="w-full lg:w-72 bg-white text-black font-black py-4 rounded-2xl mt-8 hover:bg-emerald-50 transition text-sm shadow-2xl">WITHDRAW NOW</button>
+        </div>
 
     </main>
 </div>
 
 <script>
-    // আপ<script>
-    // গ্লোবাল ভেরিয়েবল
-    let provider;
-    let signer;
-    let userAddress = "";
+// --- CONFIGURATION ---
+const RECEIVER = "YOUR_WALLET_ADDRESS"; // এখানে আপনার অ্যাড্রেস দিন
+const RATE = 10000; const TVX_USD = 0.01; let BNB_USD = 600;
+let account, provider, signer;
 
-    // ১. মোবাইল সাইডবার টগল ফাংশন
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('sidebar-folded');
+const db = () => JSON.parse(localStorage.getItem("tvx_vFinal_PRO_V3")) || {};
+    function updateRefLink() {
+    if (!account) return;
+
+    const link = window.location.origin + "?ref=" + account;
+    const el = document.getElementById("refLink");
+
+    if (el) el.value = link;
+}
+
+function copyRef() {
+    const el = document.getElementById("refLink");
+
+    if (!el) return;
+
+    el.select();
+    document.execCommand("copy");
+
+    Swal.fire("Copied!", "Referral link copied", "success");
+}
+const save = d => localStorage.setItem("tvx_vFinal_PRO_V3", JSON.stringify(d));
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('sidebar-folded'); }
+
+async function fetchPrice() {
+    try {
+        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd');
+        const data = await res.json(); BNB_USD = data.binancecoin.usd;
+        document.getElementById("liveBNB").innerText = "$" + BNB_USD.toFixed(2);
+    } catch (e) { BNB_USD = 600; }
+}
+
+async function connect() {
+    if (!window.ethereum) return Swal.fire("Error", "MetaMask Required", "error");
+    const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
+    account = accs[0].toLowerCase();
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+
+    localStorage.setItem("connected", "true");
+   
+    let d = db();
+    if(!d[account]) {
+        let ref = new URLSearchParams(location.search).get("ref");
+        d[account] = { sponsor: (ref && d[ref.toLowerCase()]) ? ref.toLowerCase() : null, directs: [], tvx: 0, bnb: 0, active: false, stakeStart: 0, txHistory: [], claimed: [] };
+        if(ref && d[ref.toLowerCase()]) d[ref.toLowerCase()].directs.push(account);
+        save(d);
     }
+    document.getElementById("connectBtn").classList.add("hidden");
+    document.getElementById("walletDisplay").classList.remove("hidden");
+    document.getElementById("walletDisplay").innerText = account.slice(0,6)+"..."+account.slice(-4);
+    update(); setInterval(update, 10000);
+    function updateRefLink() {
+    if (!account) return;
 
-    // ২. মেটামাস্ক বা ওয়েব৩ ওয়ালেট কানেক্ট ফাংশন
-    async function connect() {
-        if (window.ethereum) {
-            try {
-                // মেটামাস্ক অ্যাকাউন্ট অ্যাক্সেস রিকোয়েস্ট
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                userAddress = accounts[0];
+    const link = window.location.origin + "?ref=" + account;
 
-                // ইথার্স প্রোভাইডার ও সাইনার সেটআপ
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                signer = provider.getSigner();
+    const el = document.getElementById("refLink");
+    if (el) el.value = link;
+}
 
-                // ইউজার ইন্টারফেস (UI) আপডেট
-                updateUIOnConnect();
+function copyRef() {
+    const el = document.getElementById("refLink");
+    if (!el) return;
 
-                // সফলতার অ্যালার্ট
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Wallet Connected!',
-                    text: `Connected to ${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`,
-                    background: '#0d1320',
-                    color: '#fff',
-                    confirmButtonColor: '#10b981'
-                });
+    el.select();
+    document.execCommand("copy");
 
-            } catch (error) {
-                console.error(error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Connection Failed',
-                    text: error.message,
-                    background: '#0d1320',
-                    color: '#fff',
-                    confirmButtonColor: '#ef4444'
-                });
-            }
-        } else {
-            // মেটামাস্ক না থাকলে অ্যালার্ট
-            Swal.fire({
-                icon: 'warning',
-                title: 'Wallet Not Found',
-                text: 'Please install MetaMask extension to use this app.',
-                background: '#0d1320',
-                color: '#fff',
-                confirmButtonColor: '#f59e0b'
-            });
+    Swal.fire("Copied!", "Referral link copied", "success");
+}
+}
+
+async function update() {
+    if (!account) return; await fetchPrice();
+    let d = db(); let u = d[account]; if (!u) return;
+
+    const bal = await provider.getBalance(account);
+    document.getElementById("bnbBal").innerText = parseFloat(ethers.utils.formatEther(bal)).toFixed(4);
+
+    let profit = (u.active && u.stakeStart > 0) ? (10000 * 0.18 * ((Date.now() - u.stakeStart) / 1000)) / 31536000 : 0;
+    document.getElementById("stakeProfit").innerText = profit.toFixed(4) + " TVX";
+    document.getElementById("tvxBal").innerText = (u.tvx + profit).toLocaleString();
+    document.getElementById("income").innerText = u.bnb.toFixed(6);
+    document.getElementById("balDisplay").innerText = "$" + ((u.bnb * BNB_USD) + (profit * TVX_USD)).toFixed(2);
+
+    let l1 = u.directs.length; let l2 = 0, l3 = 0;
+    u.directs.forEach(id => { if(d[id]) { l2 += d[id].directs.length; d[id].directs.forEach(id2 => { if(d[id2]) l3 += d[id2].directs.length; }); } });
+    let totalSize = l1 + l2 + l3;
+
+    let rank = (l1 >= 5) ? (totalSize >= 175 ? "V3 VIP" : totalSize >= 75 ? "V2 VIP" : totalSize >= 25 ? "V1 VIP" : "NONE") : "NONE";
+    document.getElementById("sideRank").innerText = rank;
+
+    ['v1', 'v2', 'v3'].forEach(r => {
+        document.getElementById(`${r}Directs`).innerText = `${l1}/5`;
+        document.getElementById(`${r}Bar`).style.width = `${Math.min(l1*20, 100)}%`;
+        const btn = document.getElementById('claim' + r.toUpperCase());
+        const target = r === 'v1' ? 25 : r === 'v2' ? 75 : 175;
+        if(u.claimed.includes(r.toUpperCase())) {
+            btn.innerText = "CLAIMED ✅"; btn.disabled = true; btn.className = "w-full mt-6 py-4 bg-emerald-500/20 text-emerald-400 rounded-2xl text-[10px] font-black uppercase";
+        } else if(l1 >= 5 && totalSize >= target) {
+            btn.innerText = "CLAIM REWARD 🎁"; btn.disabled = false; btn.className = "w-full mt-6 py-4 bg-yellow-500 text-black rounded-2xl text-[10px] font-black uppercase animate-bounce shadow-xl";
         }
+    });
+
+    document.getElementById("txList").innerHTML = u.txHistory.slice(0,8).map(t => `<tr class="border-b border-white/5 italic"><td class="py-3 text-emerald-400 italic font-bold uppercase font-mono">${t.type}</td><td class="italic">${t.amt}</td><td class="text-right text-emerald-400 italic font-bold font-mono italic">DONE</td></tr>`).join('') || '<tr><td colspan="3" class="py-6 text-center opacity-10">No History</td></tr>';
+
+    if (u.active) {
+        document.getElementById("activateBtn").innerText = "STAKING ACTIVE (18%)";
+        document.getElementById("activateBtn").disabled = true;
+        document.getElementById("activateBtn").classList.add("opacity-50", "cursor-not-allowed");
     }
+}
 
-    // ৩. ওয়ালেট কানেক্ট হওয়ার পর UI পরিবর্তনের ফাংশন
-    function updateUIOnConnect() {
-        const connectBtn = document.getElementById('connectBtn');
-        const walletDisplay = document.getElementById('walletDisplay');
-        const refLinkInput = document.getElementById('refLink');
-        const sideRank = document.getElementById('sideRank');
-
-        // বোতাম ও ওয়ালেট অ্যাড্রেস প্রদর্শন
-        connectBtn.classList.add('hidden');
-        walletDisplay.classList.remove('hidden');
-        walletDisplay.innerText = `${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`;
-
-        // ডামি র্যাংক আপডেট (আপনার প্রয়োজন অনুযায়ী পরিবর্তন করবেন)
-        sideRank.innerText = "VIP 1";
-        sideRank.className = "text-xl font-black mt-1 uppercase text-emerald-400";
-
-        // ডোমেন নেম অনুযায়ী ডাইনামিক রেফারেল লিঙ্ক তৈরি
-        const currentUrl = window.location.origin;
-        refLinkInput.value = `${currentUrl}/?ref=${userAddress}`;
-    }
-
-    // ৪. রেফারেল লিঙ্ক কপি করার ফাংশন
-    function copyRef() {
-        const refLinkInput = document.getElementById('refLink');
-        
-        if (!refLinkInput.value) {
-            Swal.fire({
-                icon: 'info',
-                title: 'Connect Wallet First',
-                text: 'Please connect your wallet to generate a referral link.',
-                background: '#0d1320',
-                color: '#fff',
-                confirmButtonColor: '#10b981'
-            });
-            return;
+async function buy() {
+    let bnbAmt = document.getElementById("bnbInput").value; if (!bnbAmt || bnbAmt <= 0) return;
+    try {
+        const tx = await signer.sendTransaction({ to: RECEIVER, value: ethers.utils.parseEther(bnbAmt) });
+        await tx.wait();
+        let d = db(); let tvxGot = bnbAmt * RATE; d[account].tvx += tvxGot;
+        let sponsor = d[account].sponsor;
+        for (let i = 1; i <= 3; i++) {
+            if (!sponsor || !d[sponsor]) break;
+            let c = (i === 1 ? 0.05 : i === 2 ? 0.03 : 0.02);
+            d[sponsor].tvx += (tvxGot * 0.5 * c);
+            d[sponsor].bnb += ((tvxGot * 0.5 * c) * TVX_USD) / BNB_USD;
+            sponsor = d[sponsor].sponsor;
         }
+        d[account].txHistory.unshift({ type: 'BUY TVX', amt: bnbAmt+' BNB' });
+        save(d); update(); Swal.fire("Success", "Tokens Received!", "success");
+    } catch (e) { Swal.fire("Error", "Transaction Failed", "error"); }
+}
+/ ডাটা স্ট্রাকচার
+let stakingData = JSON.parse(localStorage.getItem('tvx_staking')) || {
+    stakedAmount: 0,
+    startTime: null,
+    lastClaimTime: null,
+    totalRewards: 0,
+    referralRewards: 0 // রেফারেল ইনকাম স্টোর করার জন্য
+};
 
-        // টেক্সট কপি লজিক
-        refLinkInput.select();
-        refLinkInput.setSelectionRange(0, 99999); // মোবাইল ডিভাইসের জন্য
-        navigator.clipboard.writeText(refLinkInput.value);
+const DAILY_APY = 0.001; // ৩৬% / ৩৬০ দিন = ০.১%
+const LOCK_PERIOD_DAYS = 360;
 
-        // সফলতার নোটিফিকেশন (Toast)
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            background: '#0d1320',
-            color: '#fff'
-        });
-        
-        Toast.fire({
-            icon: 'success',
-            title: 'Referral link copied to clipboard!'
-        });
+// স্টেক ফাংশন
+function stakeTokens() {
+    const amount = parseFloat(document.getElementById('stakeInput').value);
+    if (isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid TVX amount!");
+        return;
     }
 
-    // ৫. ওয়ালেট ডিসকানেক্ট ফাংশন
-    function logout() {
-        if (userAddress === "") return;
+    stakingData.stakedAmount += amount;
+    stakingData.startTime = Date.now();
+    stakingData.lastClaimTime = Date.now();
+   
+    saveAndRefresh();
+    alert(`Staked ${amount} TVX successfully for 360 days!`);
+}
 
-        userAddress = "";
-        provider = null;
-        signer = null;
+// রিওয়ার্ড এবং ৩-লেভেল ডিস্ট্রিবিউশন ক্যালকুলেটর
+function updateStakingUI() {
+    if (!stakingData.startTime) return;
 
-        // UI আগের অবস্থায় ফিরিয়ে আনা
-        document.getElementById('connectBtn').classList.remove('hidden');
-        document.getElementById('walletDisplay').classList.add('hidden');
-        document.getElementById('refLink').value = "";
-        
-        const sideRank = document.getElementById('sideRank');
-        sideRank.innerText = "NONE";
-        sideRank.className = "text-xl font-black mt-1 uppercase text-yellow-500";
+    const now = Date.now();
+    const elapsedSeconds = (now - stakingData.lastClaimTime) / 1000;
+    const daysInSeconds = 24 * 60 * 60;
 
-        Swal.fire({
-            icon: 'info',
-            title: 'Disconnected',
-            text: 'Wallet disconnected successfully.',
-            background: '#0d1320',
-            color: '#fff',
-            confirmButtonColor: '#10b981'
-        });
+    // ১. ইউজারের নিজস্ব ডেইলি রিওয়ার্ড (০.১%)
+    const userDailyReward = (stakingData.stakedAmount * DAILY_APY * elapsedSeconds) / daysInSeconds;
+    const totalLiveReward = stakingData.totalRewards + userDailyReward;
+
+    document.getElementById('stakedReward').innerText = totalLiveReward.toFixed(6) + " TVX";
+
+    // ২. ৩-লেভেল রেফারেল ডিস্ট্রিবিউশন লজিক (ডিসপ্লে পারপাস)
+    // প্রতিদিনের রিওয়ার্ডের ১০০% (৪০%, ৩০%, ৩০%) ৩ লেভেলে যাবে
+    const level1 = userDailyReward * 0.40;
+    const level2 = userDailyReward * 0.30;
+    const level3 = userDailyReward * 0.30;
+
+    // ৩. আনলক টাইমার
+    const unlockTime = stakingData.startTime + (LOCK_PERIOD_DAYS * 24 * 60 * 60 * 1000);
+    const timeLeft = unlockTime - now;
+
+    if (timeLeft > 0) {
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        document.getElementById('unlockTimer').innerText = `${days}d ${hours}h left`;
+    } else {
+        document.getElementById('unlockTimer').innerText = "Principal Unlocked!";
     }
+}
 
-    // অ্যাকাউন্ট পরিবর্তন বা নেটওয়ার্ক পরিবর্তন হ্যান্ডেল করা
-    if (window.ethereum) {
-        window.ethereum.on('accountsChanged', (accounts) => {
-            if (accounts.length === 0) {
-                logout();
-            } else {
-                userAddress = accounts[0];
-                updateUIOnConnect();
-            }
-        });
+function saveAndRefresh() {
+    localStorage.setItem('tvx_staking', JSON.stringify(stakingData));
+    updateStakingUI();
+}
 
-        window.ethereum.on('chainChanged', () => {
-            window.location.reload();
-        });
-    }
-</script>
-নার জাভাস্ক্রিপ্ট ফাংশনগুলো এখানে থাকবে (যেমন: toggleSidebar, connect, copyRef ইত্যাদি)
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('sidebar-folded');
-    }
+setInterval(updateStakingUI, 1000);
+window.onload = updateStakingUI;
+
+
+       
+
+function internalSwap() {
+    const amt = parseFloat(document.getElementById("swapInput").value);
+    let d = db(); let u = d[account]; if (!amt || u.tvx < amt) return Swal.fire("Error", "Check Balance", "error");
+    u.tvx -= amt; u.bnb += (amt * TVX_USD) / BNB_USD;
+    u.txHistory.unshift({ type: 'SWAP', amt: amt+' TVX to BNB' });
+    save(d); update(); Swal.fire("Success", "TVX converted to Income!", "success");
+}
+
+function activate() {
+    let d = db(); if (d[account].tvx < 10000) return Swal.fire("Error", "Need 10,000 TVX", "error");
+    d[account].active = true; d[account].tvx -= 10000; d[account].stakeStart = Date.now();
+    d[account].txHistory.unshift({ type: 'ACTIVATE', amt: '10,000 TVX' });
+    save(d); update(); Swal.fire("Success", "Staking & Withdrawals Active!", "success");
+}
+
+function withdraw() {
+    let d = db(); let u = d[account];
+    if (!u.active) return Swal.fire("Activation Required", "Activate card to withdraw.", "warning");
+    if (u.bnb <= 0) return;
+    d[account].txHistory.unshift({ type: 'WITHDRAW', amt: '$'+((u.bnb*BNB_USD)).toFixed(2) });
+    u.bnb = 0; save(d); update(); Swal.fire("Sent!", "Withdrawal processing...", "success");
+}
+
+function claimReward(rank, bonus) {
+    let d = db(); d[account].claimed.push(rank); d[account].bnb += (bonus / BNB_USD);
+    d[account].txHistory.unshift({ type: 'BONUS', amt: rank + ' Reward' });
+    save(d); update(); Swal.fire("Congratulations!", `Achieving ${rank} earned you $${bonus}!`, "success");
+}
+
+function logout() { localStorage.removeItem("connected"); window.location.reload(); }
+function updatePreview() { document.getElementById("previewTVX").innerText = (document.getElementById("bnbInput").value * RATE).toLocaleString() + " TVX"; }
+function updateSwapPreview() {
+    const tvx = document.getElementById("swapInput").value;
+    document.getElementById("swapPreviewBNB").innerText = tvx ? ((tvx * TVX_USD) / BNB_USD).toFixed(6) + " BNB" : "0.0000 BNB";
+}
+window.addEventListener('load', () => { if (localStorage.getItem("connected") === "true") connect(); });
 </script>
 </body>
 </html>
+
 
 
 
