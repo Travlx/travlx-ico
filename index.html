@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TravelX | Professional Web3 MLM</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://tailwindcss.com"></script>
+    <script src="https://jsdelivr.net"></script>
+    <script src="https://jsdelivr.net"></script>
     <style>
         body { background-color: #060b14; scroll-behavior: smooth; }
         .glass { background: rgba(13, 19, 32, 0.95); border: 1px solid rgba(255,255,255,0.05); }
@@ -25,7 +25,7 @@
     <div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-[100]">
         <h1 class="text-2xl font-black text-emerald-400 italic">TRAVELX</h1>
         <button onclick="toggleSidebar()" class="p-2 bg-emerald-400/10 rounded-lg text-emerald-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+            <svg xmlns="http://w3.org" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
         </button>
     </div>
 
@@ -33,7 +33,7 @@
     <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-[99] flex flex-col">
         <h1 class="text-3xl font-black text-emerald-400 mb-10 italic">TRAVELX</h1>
         <nav class="space-y-3 flex-1 text-sm font-bold">
-            <a href="#" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black">Dashboard</a>
+            <a href="#dashboard" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black">Dashboard</a>
             <a href="#buySection" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Buy & Swap</a>
             <a href="#rewards" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">VIP Rewards</a>
             <a href="#reports" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Reports</a>
@@ -46,10 +46,10 @@
     </aside>
 
     <!-- MAIN -->
-    <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden">
+    <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden space-y-10">
         
         <!-- TOPBAR (Wallet Connect & Portal Header) -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-6">
             <div>
                 <h2 class="text-3xl lg:text-4xl font-black italic uppercase">Investor Portal</h2>
                 <p class="text-gray-500 text-sm">Earn 36% APY & Global Rewards</p>
@@ -60,49 +60,270 @@
             </div>
         </div>
 
-        <!-- PASAPASI CODES / WIDGETS SECTION -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            
-            <!-- ১ম বক্স: Referral Link (আপনার আগের কোড) -->
-            <div class="glass p-5 rounded-2xl border border-emerald-400/20 flex flex-col justify-center">
-                <p class="text-xs text-gray-400 uppercase font-bold">Referral Link</p>
-                <div class="flex gap-2 mt-3">
-                    <input id="refLink" readonly
-                        class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs focus:outline-none"
-                        placeholder="Generate your referral link" />
-                    <button onclick="copyRef()"
-                        class="bg-emerald-400 text-black px-5 rounded-xl font-bold text-xs hover:bg-emerald-500 transition">
-                        COPY
-                    </button>
-                </div>
-            </div>
-
-            <!-- ২য় বক্স: (এখানে আপনি আপনার অন্য কোড বা উইজেট বসাতে পারবেন) -->
-            <div class="glass p-5 rounded-2xl border border-white/10 flex flex-col justify-center">
-                <p class="text-xs text-gray-400 uppercase font-bold">Investment Overview</p>
-                <div class="grid grid-cols-2 gap-4 mt-3">
-                    <div class="bg-black/40 p-3 rounded-xl">
-                        <span class="text-[10px] text-gray-500 uppercase block">Total Staked</span>
-                        <span class="text-emerald-400 font-bold text-sm">$0.00</span>
+        <!-- 1. DASHBOARD SECTION (Referral & Overview) -->
+        <section id="dashboard" class="scroll-mt-24 space-y-4">
+            <h3 class="text-lg font-extrabold tracking-wide text-emerald-400 uppercase">📊 Dashboard Overview</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Referral Box -->
+                <div class="glass p-5 rounded-2xl border border-emerald-400/20 flex flex-col justify-center">
+                    <p class="text-xs text-gray-400 uppercase font-bold">Referral Link</p>
+                    <div class="flex gap-2 mt-3">
+                        <input id="refLink" readonly class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs focus:outline-none" placeholder="Generate your referral link" />
+                        <button onclick="copyRef()" class="bg-emerald-400 text-black px-5 rounded-xl font-bold text-xs hover:bg-emerald-500 transition">COPY</button>
                     </div>
-                    <div class="bg-black/40 p-3 rounded-xl">
-                        <span class="text-[10px] text-gray-500 uppercase block">Total Rewards</span>
-                        <span class="text-emerald-400 font-bold text-sm">$0.00</span>
+                </div>
+                <!-- Overview Box -->
+                <div class="glass p-5 rounded-2xl border border-white/10 flex flex-col justify-center">
+                    <p class="text-xs text-gray-400 uppercase font-bold">Investment Statistics</p>
+                    <div class="grid grid-cols-2 gap-4 mt-3">
+                        <div class="bg-black/40 p-3 rounded-xl">
+                            <span class="text-[10px] text-gray-500 uppercase block">Total Staked</span>
+                            <span class="text-emerald-400 font-bold text-sm">$0.00</span>
+                        </div>
+                        <div class="bg-black/40 p-3 rounded-xl">
+                            <span class="text-[10px] text-gray-500 uppercase block">Total Rewards</span>
+                            <span class="text-emerald-400 font-bold text-sm">$0.00</span>
+                        </div>
                     </div>
                 </div>
             </div>
+        </section>
 
-        </div>
+        <!-- 2. BUY & SWAP SECTION -->
+        <section id="buySection" class="scroll-mt-24 space-y-4">
+            <h3 class="text-lg font-extrabold tracking-wide text-emerald-400 uppercase">💱 Buy & Swap Tokens</h3>
+            <div class="glass p-6 rounded-2xl border border-white/10 max-w-xl">
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">From (USDT / BNB)</label>
+                        <div class="relative">
+                            <input type="number" placeholder="0.0" class="w-full p-3 bg-black/40 rounded-xl text-white font-mono focus:outline-none border border-white/10 p-4 pr-16" />
+                            <span class="absolute right-4 top-3 text-sm font-bold text-gray-400">Crypto</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-center"><span class="bg-emerald-400/10 p-2 rounded-full text-emerald-400 font-bold text-sm">⬇️</span></div>
+                    <div>
+                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">To (TRAVELX)</label>
+                        <div class="relative">
+                            <input type="number" readonly placeholder="0.0" class="w-full p-3 bg-black/20 rounded-xl text-emerald-400 font-mono focus:outline-none border border-white/5 p-4 pr-20" />
+                            <span class="absolute right-4 top-3 text-sm font-bold text-emerald-400">TRAVELX</span>
+                        </div>
+                    </div>
+                    <button class="w-full bg-emerald-400 text-black font-black py-3.5 rounded-xl hover:bg-emerald-500 transition uppercase tracking-wider text-xs">Swap Tokens</button>
+                </div>
+            </div>
+        </section>
 
-        <!-- বাকি সেকশনগুলোর জন্য এখানে কোড যুক্ত করতে পারেন -->
+        <!-- 3. VIP REWARDS SECTION -->
+        <section id="rewards" class="scroll-mt-24 space-y-4">
+            <h3 class="text-lg font-extrabold tracking-wide text-emerald-400 uppercase">🏆 VIP Rewards Program</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass p-5 rounded-2xl border border-emerald-500/10 bg-gradient-to-br from-emerald-950/20 to-transparent">
+                    <span class="text-[10px] font-bold text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded-full uppercase">Rank 1</span>
+                    <h4 class="text-base font-black mt-2">Silver Explorer</h4>
+                    <p class="text-xs text-gray-400 mt-2 leading-relaxed">Requires $500 Team Volume. Unlocks 2% global pool bonus share.</p>
+                </div>
+                <div class="glass p-5 rounded-2xl border border-blue-500/10 bg-gradient-to-br from-blue-950/20 to-transparent">
+                    <span class="text-[10px] font-bold text-blue-400 bg-blue-400/10 px-2 py-0.5 rounded-full uppercase">Rank 2</span>
+                    <h4 class="text-base font-black mt-2">Gold Voyager</h4>
+                    <p class="text-xs text-gray-400 mt-2 leading-relaxed">Requires $2,500 Team Volume. Unlocks 5% global pool bonus share.</p>
+                </div>
+                <div class="glass p-5 rounded-2xl border border-purple-500/10 bg-gradient-to-br from-purple-950/20 to-transparent">
+                    <span class="text-[10px] font-bold text-purple-400 bg-purple-400/10 px-2 py-0.5 rounded-full uppercase">Rank 3</span>
+                    <h4 class="text-base font-black mt-2">Diamond Elite</h4>
+                    <p class="text-xs text-gray-400 mt-2 leading-relaxed">Requires $10,000 Team Volume. Unlocks 10% global pool bonus share.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. REPORTS SECTION -->
+        <section id="reports" class="scroll-mt-24 space-y-4">
+            <h3 class="text-lg font-extrabold tracking-wide text-emerald-400 uppercase">📋 Affiliate Reports</h3>
+            <div class="glass rounded-2xl border border-white/10 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-black/40 text-gray-400 uppercase font-bold tracking-wider border-b border-white/5">
+                                <th class="p-4">User Address</th>
+                                <th class="p-4">Level</th>
+                                <th class="p-4">Total Investment</th>
+                                <th class="p-4">Your Commission</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5 font-mono text-gray-300">
+                            <tr class="hover:bg-white/5 transition">
+                                <td class="p-4 text-emerald-400">0x71C...3a92</td>
+                                <td class="p-4 font-sans font-bold">Lvl 1</td>
+                                <td class="p-4">$150.00</td>
+                                <td class="p-4 text-emerald-400 font-bold">+$12.00</td>
+                            </tr>
+                            <tr class="hover:bg-white/5 transition">
+                                <td class="p-4 text-emerald-400">0xAA3...90f1</td>
+                                <td class="p-4 font-sans font-bold">Lvl 2</td>
+                                <td class="p-4">$300.00</td>
+                                <td class="p-4 text-emerald-400 font-bold">+$15.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
 
     </main>
 </div>
 
+<script>
+    let provider = null;
+    let signer = null;
+    let userAddress = "";
 
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('sidebar-folded');
+    }
+
+    async function connect() {
+        if (window.ethereum) {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                userAddress = accounts[0];
+
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+
+                updateUIOnConnect();
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Wallet Connected!',
+                    text: `Connected to: ${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`,
+                    background: '#0d1320',
+                    color: '#fff',
+                    confirmButtonColor: '#10b981'
+                });
+
+            } catch (error) {
+                console.error("Connection error:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Connection Failed',
+                    text: error.message,
+                    background: '#0d1320',
+                    color: '#fff',
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Wallet Not Found',
+                text: 'Please install MetaMask extension to use this dApp.',
+                background: '#0d1320',
+                color: '#fff',
+                confirmButtonColor: '#f59e0b'
+            });
+        }
+    }
+
+    function updateUIOnConnect() {
+        const connectBtn = document.getElementById('connectBtn');
+        const walletDisplay = document.getElementById('walletDisplay');
+        const refLinkInput = document.getElementById('refLink');
+        const sideRank = document.getElementById('sideRank');
+
+        if(connectBtn) connectBtn.classList.add('hidden');
+        if(walletDisplay) {
+            walletDisplay.classList.remove('hidden');
+            walletDisplay.innerText = `${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`;
+        }
+
+        if(sideRank) {
+            sideRank.innerText = "VIP 1";
+            sideRank.className = "text-xl font-black mt-1 uppercase text-emerald-400";
+        }
+
+        if(refLinkInput) {
+            const currentUrl = window.location.origin;
+            refLinkInput.value = `${currentUrl}/?ref=${userAddress}`;
+        }
+    }
+
+    function copyRef() {
+        const refLinkInput = document.getElementById('refLink');
+        
+        if (!refLinkInput || !refLinkInput.value) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Connect Wallet First',
+                text: 'Please connect your Web3 wallet to generate a referral link.',
+                background: '#0d1320',
+                color: '#fff',
+                confirmButtonColor: '#10b981'
+            });
+            return;
+        }
+
+        refLinkInput.select();
+        refLinkInput.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(refLinkInput.value);
+
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2500,
+            timerProgressBar: true,
+            background: '#0d1320',
+            color: '#fff'
+        });
+        
+        Toast.fire({
+            icon: 'success',
+            title: 'Referral URL copied!'
+        });
+    }
+
+    function logout() {
+        if (!userAddress) return;
+
+        userAddress = "";
+        provider = null;
+        signer = null;
+
+        document.getElementById('connectBtn').classList.remove('hidden');
+        document.getElementById('walletDisplay').classList.add('hidden');
+        document.getElementById('refLink').value = "";
+        
+        const sideRank = document.getElementById('sideRank');
+        if(sideRank) {
+            sideRank.innerText = "NONE";
+            sideRank.className = "text-xl font-black mt-1 uppercase text-yellow-500";
+        }
+
+        Swal.fire({
+            icon: 'info',
+            title: 'Disconnected',
+            text: 'Wallet reference cleared.',
+            background: '#0d1320',
+            color: '#fff',
+            confirmButtonColor: '#10b981'
+        });
+    }
+
+    if (window.ethereum) {
+        window.ethereum.on('accountsChanged', (accounts) => {
+            if (accounts.length === 0) {
+                logout();
+            } else {
+                userAddress = accounts[0];
+                updateUIOnConnect();
+            }
+        });
+
+        window.ethereum.on('chainChanged', () => {
+            window.location.reload();
+        });
+    }
+</script>
 </body>
 </html>
-
-
-
-
