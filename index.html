@@ -225,4 +225,281 @@
 
     </main>
 </div>
+<script>
+// --- CONFIGURATION ---
+const RECEIVER = "0x95222294dd7278aa3ddd389cc1e1d165cc4bafe5"; // ⚠️ অবশ্যই এখানে আপনার নিজের আসল ওয়ালেট অ্যাড্রেস বসাবেন
+const RATE = 10000; 
+const TVX_USD = 0.01; 
+let BNB_USD = 600;
+let account, provider, signer;
 
+// Integrated Unified Database Logic
+const db = () => JSON.parse(localStorage.getItem("tvx_vFinal_PRO_V3")) || {};
+const save = d => localStorage.setItem("tvx_vFinal_PRO_V3", JSON.stringify(d));
+
+function toggleSidebar() { 
+    if(document.getElementById('sidebar')) {
+        document.getElementById('sidebar').classList.toggle('sidebar-folded'); 
+    }
+}
+
+function updateRefLink() {
+    if (!account) return;
+    const link = window.location.origin + "?ref=" + account;
+    const el = document.getElementById("refLink");
+    if (el) el.value = link;
+}
+
+function copyRef() {
+    const el = document.getElementById("refLink");
+    if (!el) return;
+    el.select();
+    navigator.clipboard.writeText(el.value).then(() => {
+        Swal.fire("Copied!", "Referral link copied to clipboard", "success");
+    }).catch(() => {
+        document.execCommand("copy");
+        Swal.fire("Copied!", "Referral link copied", "success");
+    });
+}
+
+async function fetchPrice() {
+    try {
+        const res = await fetch('https://coingecko.com');
+        const data = await res.json(); 
+        BNB_USD = data.binancecoin.usd;
+        if(document.getElementById("liveBNB")) document.getElementById("liveBNB").innerText = "$" + BNB_USD.toFixed(2);
+    } catch (e) { 
+        BNB_USD = 600; 
+    }
+}
+
+async function connect() {
+    if (!window.ethereum) return Swal.fire("Error", "MetaMask Required", "error");
+    try {
+        const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
+        account = accs[0].toLowerCase(); // 🛠️ Fixed Array Pointer Error
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+
+        localStorage.setItem("connected", "true");
+       
+        let d = db();
+        if(!d[account]) {
+            let ref = new URLSearchParams(location.search).get("ref");
+            if (ref) ref = ref.toLowerCase();
+            d[account] = { 
+                sponsor: (ref && d[ref]) ? ref : null, 
+                directs: [], 
+                tvx: 0, 
+                bnb: 0, 
+                active: false, 
+                stakeStart: 0, 
+                txHistory: [], 
+                claimed: [],
+                stakedAmount: 0,
+                stakingStart: 0,
+                lastClaimTime: 0
+            };
+            if(ref && d[ref]) {
+                if(!d[ref].directs.includes(account)) d[ref].directs.push(account);
+            }
+            save(d);
+        }
+        
+        if(document.getElementById("connectBtn")) document.getElementById("connectBtn").classList.add("hidden");
+        const walletDisplay = document.getElementById("walletDisplay");
+        if(walletDisplay) {
+            walletDisplay.classList.remove("hidden");
+            walletDisplay.innerText = account.slice(0,6) + "..." + account.slice(-4);
+        }
+        
+        updateRefLink();
+        await update(); 
+        setInterval(update, 5000);
+    } catch (e) {
+        console.error("Connection rejected:", e);
+        Swal.fire("Error", "Wallet connection failed", "error");
+    }
+}
+
+async function update() {
+    if (!account || !provider) return; 
+    await fetchPrice();
+    let d = db(); 
+    let u = d[account]; 
+    if (!u) return;
+
+    try {
+        const bal = await provider.getBalance(account);
+        if(document.getElementById("bnbBal")) {
+            document.getElementById("bnbBal").innerText = parseFloat(ethers.utils.formatEther(bal)).toFixed(4);
+        }
+    } catch(e) {}
+
+    let cardProfit = (u.active && u.stakeStart > 0) ? (10000 * 0.18 * ((Date.now() - u.stakeStart) / 1000)) / 31536000 : 0;
+    let poolProfit = 0;
+    if(u.stakedAmount > 0 && u.lastClaimTime > 0) {
+        const elapsedSeconds = (Date.now() - u.lastClaimTime) / 1000;
+        poolProfit = (u.stakedAmount * 0.001 * elapsedSeconds) / 86400;
+    }
+
+    let totalLiveRewards = cardProfit + poolProfit;
+    if(document.getElementById("stakeProfit")) document.getElementById("stakeProfit").innerText = totalLiveRewards.toFixed(4) + " TVX";
+    if(document.getElementById("stakedReward")) document.getElementById("stakedReward").innerText = poolProfit.toFixed(6) + " TVX";
+    if(document.getElementById("tvxBal")) document.getElementById("tvxBal").innerText = (u.tvx + totalLiveRewards).toLocaleString(undefined, {maximumFractionDigits: 2});
+    if(document.getElementById("income")) document.getElementById("income").innerText = u.bnb.toFixed(6);
+    if(document.getElementById("balDisplay")) document.getElementById("balDisplay").innerText = "$" + ((u.bnb * BNB_USD) + (totalLiveRewards * TVX_USD)).toFixed(2);
+
+    const txList = document.getElementById("txList");
+    if(txList) {
+        txList.innerHTML = u.txHistory.slice(0,8).map(t => `
+            <tr class="border-b border-white/5 italic">
+                <td class="py-3 text-emerald-400 font-bold uppercase font-mono">${t.type}</td>
+                <td>${t.amt}</td>
+                <td class="text-right text-emerald-400 font-bold font-mono">DONE</td>
+            </tr>
+        `).join('') || '<tr><td colspan="3" class="py-6 text-center opacity-10">No History</td></tr>';
+    }
+
+    if (u.active && document.getElementById("activateBtn")) {
+        const actBtn = document.getElementById("activateBtn");
+        actBtn.innerText = "STAKING ACTIVE (18%)";
+        actBtn.disabled = true;
+        actBtn.className = "w-full lg:w-72 bg-emerald-400/20 text-emerald-400/50 font-black py-5 rounded-2xl cursor-not-allowed uppercase italic text-center";
+    }
+
+    let l1 = u.directs.length; let l2 = 0, l3 = 0;
+    u.directs.forEach(id => { if(d[id]) { l2 += d[id].directs.length; d[id].directs.forEach(id2 => { if(d[id2]) l3 += d[id2].directs.length; }); } });
+    let totalSize = l1 + l2 + l3;
+
+    if(document.getElementById("sideRank")) {
+        document.getElementById("sideRank").innerText = (l1 >= 5) ? (totalSize >= 175 ? "V3 VIP" : totalSize >= 75 ? "V2 VIP" : totalSize >= 25 ? "V1 VIP" : "NONE") : "NONE";
+    }
+
+    ['v1', 'v2', 'v3'].forEach(r => {
+        if(document.getElementById(`${r}Directs`)) document.getElementById(`${r}Directs`).innerText = `${l1}/5`;
+        if(document.getElementById(`${r}Bar`)) document.getElementById(`${r}Bar`).style.width = `${Math.min(l1*20, 100)}%`;
+        const btn = document.getElementById('claim' + r.toUpperCase());
+        if(!btn) return;
+        const target = r === 'v1' ? 25 : r === 'v2' ? 75 : 175;
+        if(u.claimed && u.claimed.includes(r.toUpperCase())) {
+            btn.innerText = "CLAIMED ✅"; btn.disabled = true; btn.className = "w-full mt-6 py-4 bg-emerald-500/20 text-emerald-400 rounded-2xl text-[10px] font-black uppercase cursor-not-allowed";
+        } else if(l1 >= 5 && totalSize >= target) {
+            btn.innerText = "CLAIM REWARD 🎁"; btn.disabled = false; btn.className = "w-full mt-6 py-4 bg-yellow-500 text-black rounded-2xl text-[10px] font-black uppercase animate-bounce shadow-xl";
+        } else {
+            btn.innerText = "Locked"; btn.disabled = true; btn.className = "w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20 cursor-not-allowed";
+        }
+    });
+
+    if (u.stakedAmount > 0 && u.stakingStart > 0 && document.getElementById('unlockTimer')) {
+        const unlockTime = u.stakingStart + (360 * 24 * 60 * 60 * 1000);
+        const timeLeft = unlockTime - Date.now();
+        if (timeLeft > 0) {
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            document.getElementById('unlockTimer').innerText = `${days}d ${hours}h left`;
+        } else {
+            document.getElementById('unlockTimer').innerText = "Principal Unlocked!";
+        }
+    }
+}
+
+async function buy() {
+    if (!account) return Swal.fire("Error", "Connect Wallet First", "error");
+    let bnbAmt = document.getElementById("bnbInput").value; 
+    if (!bnbAmt || bnbAmt <= 0) return Swal.fire("Invalid Amount", "Enter valid BNB", "warning");
+    try {
+        const tx = await signer.sendTransaction({ to: RECEIVER, value: ethers.utils.parseEther(bnbAmt) });
+        await tx.wait();
+        
+        let d = db(); let tvxGot = bnbAmt * RATE; d[account].tvx += tvxGot;
+        let sponsor = d[account].sponsor;
+        
+        for (let i = 1; i <= 3; i++) {
+            if (!sponsor || !d[sponsor]) break;
+            let c = (i === 1 ? 0.05 : i === 2 ? 0.03 : 0.02);
+            d[sponsor].tvx += (tvxGot * 0.5 * c);
+            d[sponsor].bnb += ((tvxGot * 0.5 * c) * TVX_USD) / BNB_USD;
+            sponsor = d[sponsor].sponsor;
+        }
+        d[account].txHistory.unshift({ type: 'BUY TVX', amt: bnbAmt+' BNB' });
+        save(d); update(); Swal.fire("Success", "Tokens Received!", "success");
+    } catch (e) { Swal.fire("Error", "Transaction Failed", "error"); }
+}
+
+function stakeTokens() {
+    if (!account) return Swal.fire("Error", "Connect Wallet First", "error");
+    const amount = parseFloat(document.getElementById('stakeInput').value);
+    let d = db();
+    
+    if (isNaN(amount) || amount <= 0) return Swal.fire("Error", "Enter valid TVX amount", "warning");
+    if (d[account].tvx < amount) return Swal.fire("Insufficient Balance", "You don't have enough TVX", "error");
+
+    d[account].tvx -= amount;
+    d[account].stakedAmount += amount;
+    d[account].stakingStart = Date.now();
+    d[account].lastClaimTime = Date.now();
+    d[account].txHistory.unshift({ type: 'STAKE', amt: amount + ' TVX' });
+   
+    save(d); update();
+    Swal.fire("Staked!", `Staked ${amount} TVX successfully!`, "success");
+}
+
+function internalSwap() {
+    if (!account) return;
+    const amt = parseFloat(document.getElementById("swapInput").value);
+    let d = db(); let u = d[account]; 
+    if (!amt || u.tvx < amt) return Swal.fire("Error", "Check Balance", "error");
+    u.tvx -= amt; u.bnb += (amt * TVX_USD) / BNB_USD;
+    u.txHistory.unshift({ type: 'SWAP', amt: amt+' TVX to BNB' });
+    save(d); update(); Swal.fire("Success", "TVX converted to Income!", "success");
+}
+
+function activate() {
+    if (!account) return;
+    let d = db(); if (d[account].tvx < 10000) return Swal.fire("Error", "Need 10,000 TVX", "error");
+    d[account].active = true; d[account].tvx -= 10000; d[account].stakeStart = Date.now();
+    d[account].txHistory.unshift({ type: 'ACTIVATE', amt: '10,000 TVX' });
+    save(d); update(); Swal.fire("Success", "Staking & Withdrawals Active!", "success");
+}
+
+function withdraw() {
+    if (!account) return;
+    let d = db(); let u = d[account];
+    if (!u.active) return Swal.fire("Activation Required", "Activate card to withdraw.", "warning");
+    if (u.bnb <= 0) return Swal.fire("Empty Balance", "Nothing available to withdraw.", "info");
+    
+    d[account].txHistory.unshift({ type: 'WITHDRAW', amt: '$'+((u.bnb*BNB_USD)).toFixed(2) });
+    u.bnb = 0; save(d); update(); Swal.fire("Sent!", "Withdrawal processing...", "success");
+}
+
+function claimReward(rank, bonus) {
+    if (!account) return;
+    let d = db(); d[account].claimed.push(rank); d[account].bnb += (bonus / BNB_USD);
+    d[account].txHistory.unshift({ type: 'BONUS', amt: rank + ' Reward' });
+    save(d); update(); Swal.fire("Congratulations!", `Achieving ${rank} earned you $${bonus}!`, "success");
+}
+
+function logout() { 
+    localStorage.removeItem("connected"); 
+    window.location.reload(); 
+}
+
+function updatePreview() { 
+    if(document.getElementById("bnbInput") && document.getElementById("previewTVX")) {
+        document.getElementById("previewTVX").innerText = (document.getElementById("bnbInput").value * RATE).toLocaleString() + " TVX"; 
+    }
+}
+function updateSwapPreview() {
+    const tvx = document.getElementById("swapInput").value;
+    if(document.getElementById("swapPreviewBNB")) {
+        document.getElementById("swapPreviewBNB").innerText = tvx ? ((tvx * TVX_USD) / BNB_USD).toFixed(6) + " BNB" : "0.0000 BNB";
+    }
+}
+
+window.addEventListener('load', () => { 
+    if (localStorage.getItem("connected") === "true") connect(); 
+});
+</script>
+</body>
+</html>
