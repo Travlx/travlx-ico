@@ -98,47 +98,46 @@
 
     </main>
 </div>
-
 <script>
-    // আপ<script>
-    // গ্লোবাল ভেরিয়েবল
-    let provider;
-    let signer;
+    // ১. গ্লোবাল স্টেট ম্যানেজমেন্ট (Web3 State)
+    let provider = null;
+    let signer = null;
     let userAddress = "";
 
-    // ১. মোবাইল সাইডবার টগল ফাংশন
+    // ২. মোবাইল সাইডবার ওপেন/ক্লোজ লজিক
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         sidebar.classList.toggle('sidebar-folded');
     }
 
-    // ২. মেটামাস্ক বা ওয়েব৩ ওয়ালেট কানেক্ট ফাংশন
+    // ৩. মেটামাস্ক ওয়ালেট কানেক্ট ফাংশন
     async function connect() {
+        // ব্রাউজারে মেটামাস্ক বা কোনো ওয়েব৩ ওয়ালেট আছে কিনা চেক
         if (window.ethereum) {
             try {
-                // মেটামাস্ক অ্যাকাউন্ট অ্যাক্সেস রিকোয়েস্ট
+                // ইউজারের অ্যাকাউন্ট অ্যাক্সেস পারমিশন রিকোয়েস্ট
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                userAddress = accounts[0];
+                userAddress = accounts[0]; // প্রথম অ্যাকাউন্টটি নেওয়া হলো
 
-                // ইথার্স প্রোভাইডার ও সাইনার সেটআপ
+                // ইথার্স প্রোভাইডার এবং সাইনার অবজেক্ট তৈরি
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 signer = provider.getSigner();
 
-                // ইউজার ইন্টারফেস (UI) আপডেট
+                // কানেক্ট হওয়ার পর ইন্টারফেস (UI) পরিবর্তন
                 updateUIOnConnect();
 
-                // সফলতার অ্যালার্ট
+                // সফলতার ডার্ক-থিম অ্যালার্ট (SweetAlert2)
                 Swal.fire({
                     icon: 'success',
                     title: 'Wallet Connected!',
-                    text: `Connected to ${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`,
+                    text: `Connected to: ${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`,
                     background: '#0d1320',
                     color: '#fff',
                     confirmButtonColor: '#10b981'
                 });
 
             } catch (error) {
-                console.error(error);
+                console.error("Connection error:", error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Connection Failed',
@@ -149,11 +148,11 @@
                 });
             }
         } else {
-            // মেটামাস্ক না থাকলে অ্যালার্ট
+            // মেটামাস্ক এক্সটেনশন না থাকলে সতর্কবার্তা
             Swal.fire({
                 icon: 'warning',
                 title: 'Wallet Not Found',
-                text: 'Please install MetaMask extension to use this app.',
+                text: 'Please install MetaMask extension to use this dApp.',
                 background: '#0d1320',
                 color: '#fff',
                 confirmButtonColor: '#f59e0b'
@@ -161,36 +160,43 @@
         }
     }
 
-    // ৩. ওয়ালেট কানেক্ট হওয়ার পর UI পরিবর্তনের ফাংশন
+    // ৪. ওয়ালেট কানেক্টের পর ড্যাশবোর্ড UI আপডেট লজিক
     function updateUIOnConnect() {
         const connectBtn = document.getElementById('connectBtn');
         const walletDisplay = document.getElementById('walletDisplay');
         const refLinkInput = document.getElementById('refLink');
         const sideRank = document.getElementById('sideRank');
 
-        // বোতাম ও ওয়ালেট অ্যাড্রেস প্রদর্শন
-        connectBtn.classList.add('hidden');
-        walletDisplay.classList.remove('hidden');
-        walletDisplay.innerText = `${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`;
+        // কানেক্ট বাটন হাইড করে ওয়ালেট অ্যাড্রেস দেখানো
+        if(connectBtn) connectBtn.classList.add('hidden');
+        if(walletDisplay) {
+            walletDisplay.classList.remove('hidden');
+            walletDisplay.innerText = `${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`;
+        }
 
-        // ডামি র্যাংক আপডেট (আপনার প্রয়োজন অনুযায়ী পরিবর্তন করবেন)
-        sideRank.innerText = "VIP 1";
-        sideRank.className = "text-xl font-black mt-1 uppercase text-emerald-400";
+        // সাইডবারের র্যাংক স্ট্যাটাস আপডেট (VIP 1)
+        if(sideRank) {
+            sideRank.innerText = "VIP 1";
+            sideRank.className = "text-xl font-black mt-1 uppercase text-emerald-400 animate-pulse";
+        }
 
-        // ডোমেন নেম অনুযায়ী ডাইনামিক রেফারেল লিঙ্ক তৈরি
-        const currentUrl = window.location.origin;
-        refLinkInput.value = `${currentUrl}/?ref=${userAddress}`;
+        // আপনার বর্তমান ডোমেন অনুযায়ী ডাইনামিক রেফারেল লিঙ্ক জেনারেট
+        if(refLinkInput) {
+            const currentUrl = window.location.origin;
+            refLinkInput.value = `${currentUrl}/?ref=${userAddress}`;
+        }
     }
 
-    // ৪. রেফারেল লিঙ্ক কপি করার ফাংশন
+    // ৫. রেফারেল লিঙ্ক ক্লিপবোর্ডে কপি করার লজিক
     function copyRef() {
         const refLinkInput = document.getElementById('refLink');
         
-        if (!refLinkInput.value) {
+        // ওয়ালেট কানেক্ট না থাকলে কপি করতে বাধা দেওয়া
+        if (!refLinkInput || !refLinkInput.value) {
             Swal.fire({
                 icon: 'info',
                 title: 'Connect Wallet First',
-                text: 'Please connect your wallet to generate a referral link.',
+                text: 'Please connect your Web3 wallet to generate a referral link.',
                 background: '#0d1320',
                 color: '#fff',
                 confirmButtonColor: '#10b981'
@@ -198,17 +204,17 @@
             return;
         }
 
-        // টেক্সট কপি লজিক
+        // ইনপুট ফিল্ডের টেক্সট সিলেক্ট করে কপি করা
         refLinkInput.select();
-        refLinkInput.setSelectionRange(0, 99999); // মোবাইল ডিভাইসের জন্য
+        refLinkInput.setSelectionRange(0, 99999); // মোবাইল রেস্পন্সিবিলিটির জন্য
         navigator.clipboard.writeText(refLinkInput.value);
 
-        // সফলতার নোটিফিকেশন (Toast)
+        // স্ক্রিনের কোণায় সুন্দর একটি স্লাইডিং টোস্ট নোটিফিকেশন
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
-            timer: 2000,
+            timer: 2500,
             timerProgressBar: true,
             background: '#0d1320',
             color: '#fff'
@@ -216,57 +222,56 @@
         
         Toast.fire({
             icon: 'success',
-            title: 'Referral link copied to clipboard!'
+            title: 'Referral URL copied to clipboard!'
         });
     }
 
-    // ৫. ওয়ালেট ডিসকানেক্ট ফাংশন
+    // ৬. ডিসকানেক্ট বা লগআউট লজিক
     function logout() {
-        if (userAddress === "") return;
+        if (!userAddress) return;
 
+        // স্টেট রিসেট
         userAddress = "";
         provider = null;
         signer = null;
 
-        // UI আগের অবস্থায় ফিরিয়ে আনা
+        // UI এলিমেন্টগুলোকে পূর্বের অবস্থায় ফিরিয়ে নেওয়া
         document.getElementById('connectBtn').classList.remove('hidden');
         document.getElementById('walletDisplay').classList.add('hidden');
         document.getElementById('refLink').value = "";
         
         const sideRank = document.getElementById('sideRank');
-        sideRank.innerText = "NONE";
-        sideRank.className = "text-xl font-black mt-1 uppercase text-yellow-500";
+        if(sideRank) {
+            sideRank.innerText = "NONE";
+            sideRank.className = "text-xl font-black mt-1 uppercase text-yellow-500";
+        }
 
         Swal.fire({
             icon: 'info',
             title: 'Disconnected',
-            text: 'Wallet disconnected successfully.',
+            text: 'Wallet reference cleared from session.',
             background: '#0d1320',
             color: '#fff',
             confirmButtonColor: '#10b981'
         });
     }
 
-    // অ্যাকাউন্ট পরিবর্তন বা নেটওয়ার্ক পরিবর্তন হ্যান্ডেল করা
+    // ৭. মেটামাস্ক লাইভ ইভেন্ট হ্যান্ডলার (অ্যাকাউন্ট বা নেটওয়ার্ক পরিবর্তন ট্র্যাকিং)
     if (window.ethereum) {
+        // ইউজার মেটামাস্ক থেকে অ্যাকাউন্ট পরিবর্তন বা ডিসকানেক্ট করলে
         window.ethereum.on('accountsChanged', (accounts) => {
             if (accounts.length === 0) {
-                logout();
+                logout(); // সব অ্যাকাউন্ট ডিসকানেক্ট করলে লগআউট হবে
             } else {
                 userAddress = accounts[0];
-                updateUIOnConnect();
+                updateUIOnConnect(); // অন্য অ্যাকাউন্ট সিলেক্ট করলে ড্যাশবোর্ড আপডেট হবে
             }
         });
 
+        // ইউজার ব্লকচেইন নেটওয়ার্ক পরিবর্তন করলে পেজ রিলোড হবে স্টেট ঠিক রাখার জন্য
         window.ethereum.on('chainChanged', () => {
             window.location.reload();
         });
-    }
-</script>
-নার জাভাস্ক্রিপ্ট ফাংশনগুলো এখানে থাকবে (যেমন: toggleSidebar, connect, copyRef ইত্যাদি)
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('sidebar-folded');
     }
 </script>
 </body>
