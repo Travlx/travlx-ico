@@ -45,7 +45,7 @@
         </div>
     </aside>
 
-    <!-- MAIN -->
+    <!-- MAIN SECTION -->
     <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden space-y-10">
         
         <!-- TOPBAR (Wallet Connect & Portal Header) -->
@@ -173,15 +173,18 @@
 </div>
 
 <script>
+    // গ্লোবাল ভেরিয়েবল ডিক্লেয়ারেশন
     let provider = null;
     let signer = null;
     let userAddress = "";
 
+    // ১. মোবাইল সাইডবার টগল ফাংশন
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('sidebar-folded');
+        if(sidebar) sidebar.classList.toggle('sidebar-folded');
     }
 
+    // ২. মেটামাস্ক ওয়ালেট কানেক্ট লজিক
     async function connect() {
         if (window.ethereum) {
             try {
@@ -225,6 +228,7 @@
         }
     }
 
+    // ৩. কানেক্ট হওয়ার পর ড্যাশবোর্ড UI আপডেট
     function updateUIOnConnect() {
         const connectBtn = document.getElementById('connectBtn');
         const walletDisplay = document.getElementById('walletDisplay');
@@ -248,6 +252,7 @@
         }
     }
 
+    // ৪. রেফারেল লিঙ্ক ক্লিপবোর্ডে কপি লজিক
     function copyRef() {
         const refLinkInput = document.getElementById('refLink');
         
@@ -283,6 +288,7 @@
         });
     }
 
+    // ৫. ওয়ালেট ডিসকানেক্ট লজিক
     function logout() {
         if (!userAddress) return;
 
@@ -310,6 +316,7 @@
         });
     }
 
+    // মেটামাস্ক এর অ্যাকাউন্ট এবং নেটওয়ার্ক পরিবর্তন পর্যবেক্ষণ
     if (window.ethereum) {
         window.ethereum.on('accountsChanged', (accounts) => {
             if (accounts.length === 0) {
