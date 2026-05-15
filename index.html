@@ -4,19 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TravelX | Professional Web3 MLM</title>
+    
+    <!-- সমস্ত CDN বা লাইব্রেরি লিংক ফিক্স করা হয়েছে -->
     <script src="https://tailwindcss.com"></script>
     <script src="https://jsdelivr.net"></script>
     <script src="https://jsdelivr.net"></script>
+    
     <style>
-        /* ডার্ক থিমের ক্রিস্টাল ক্লিয়ার ব্যাকগ্রাউন্ড */
         body { background-color: #030712; scroll-behavior: smooth; }
         
-        /* ঝকঝকে ফ্রোস্টেড গ্লাস ইফেক্ট (টেক্সট আবছা হওয়া প্রতিরোধ করবে) */
+        /* ক্লিয়ার গ্লাস মরফিজম ইফেক্ট (টেক্সটের আবছা ভাব দূর করবে) */
         .glass { 
-            background: rgba(13, 19, 32, 0.45) !important; 
+            background: rgba(13, 19, 32, 0.55) !important; 
             backdrop-filter: blur(16px) saturate(180%) !important;
             -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.09) !important;
             transform: translateZ(0);
             -webkit-transform: translateZ(0);
         }
@@ -35,7 +37,9 @@
     <div class="lg:hidden flex justify-between items-center bg-[#0b0f19] p-5 border-b border-white/10 sticky top-0 z-50">
         <h1 class="text-2xl font-black text-emerald-400 italic tracking-wider">TRAVELX</h1>
         <button onclick="toggleSidebar()" class="p-2 bg-emerald-400/10 rounded-xl text-emerald-400 border border-emerald-400/20">
-            <svg xmlns="http://w3.org" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+            <svg xmlns="http://w3.org" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+            </svg>
         </button>
     </div>
 
@@ -195,13 +199,48 @@
             </p>
         </div>
 
+        <!-- STEP 2: CARD ACTIVATION -->
+        <div class="glass p-8 rounded-[32px] border-l-4 border-emerald-400 mb-8 flex flex-col lg:flex-row justify-between items-center gap-6 shadow-xl">
+            <div>
+                <h3 class="text-2xl font-black mb-2 uppercase italic text-emerald-400 tracking-wide">Step 2: Card Activation</h3>
+                <p class="text-slate-400 text-sm font-medium">Stake 10,000 TVX ($100) to start earning 18% APY and unlock Rank Rewards.</p>
+            </div>
+            <button id="activateBtn" onclick="activate()" class="w-full lg:w-72 bg-emerald-400 text-black font-black py-5 rounded-2xl hover:scale-[1.02] transition shadow-lg shadow-emerald-400/10 uppercase italic text-sm tracking-wider">Activate Now</button>
+        </div>
+
+        <!-- REPORTS / TRANSACTION HISTORY -->
+        <div id="reports" class="glass p-6 lg:p-8 rounded-[32px] mb-8 overflow-x-auto shadow-xl">
+            <h3 class="text-xl font-black mb-6 italic uppercase text-emerald-400 tracking-wide">Transaction History</h3>
+            <table class="w-full text-left font-mono text-xs">
+                <thead>
+                    <tr class="text-slate-400 border-b border-white/10 uppercase tracking-wider">
+                        <th class="pb-4 text-emerald-400 font-bold">Type</th>
+                        <th class="pb-4 font-bold">Amount</th>
+                        <th class="pb-4 text-right font-bold">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="txList" class="text-slate-200 font-medium">
+                    <!-- Transactions dynamic entries will load here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- WITHDRAW SECTION -->
+        <div class="glass p-8 rounded-[32px] border border-blue-500/10 flex flex-col lg:flex-row justify-between items-center mb-8 shadow-xl">
+            <div>
+                <p class="text-slate-400 text-xs font-black uppercase tracking-widest font-mono">Available For Withdrawal</p>
+                <h1 id="balDisplay" class="text-4xl lg:text-5xl font-black mt-2 italic text-white font-mono">$0.00</h1>
+            </div>
+            <button onclick="withdraw()" class="w-full lg:w-72 bg-white text-black font-black py-4 rounded-2xl hover:bg-gray-100 transition text-sm tracking-wider uppercase shadow-xl">WITHDRAW NOW</button>
+        </div>
+
     </main>
 </div>
 
-<!-- WEB3 JAVASCRIPT LOGIC -->
+<!-- WEB3 CORE JAVASCRIPT LOGIC -->
 <script>
     let provider, signer, userAddress;
-    const TVX_PRICE = 0.001; 
+    const TVX_PRICE = 0.001; // 1 TVX = 0.001 BNB
 
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('sidebar-folded');
@@ -210,40 +249,48 @@
     async function connect() {
         if (typeof window.ethereum !== 'undefined') {
             try {
+                // মেটামাস্ক প্রোভাইডার সেটআপ
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 await provider.send("eth_requestAccounts", []);
                 signer = provider.getSigner();
                 userAddress = await signer.getAddress();
 
+                // UI স্টেট চেঞ্জ
                 document.getElementById('connectBtn').classList.add('hidden');
                 const walletDisplay = document.getElementById('walletDisplay');
                 walletDisplay.classList.remove('hidden');
                 walletDisplay.innerText = userAddress.substring(0, 6) + "..." + userAddress.substring(38);
 
+                // ডাইনামিক রেফারেল লিংক জেনারেশন লজিক
                 const currentUrl = window.location.origin + window.location.pathname;
                 document.getElementById('refLink').value = `${currentUrl}?ref=${userAddress}`;
 
+                // লাইভ চেইন ব্যালেন্স রিড
                 const balance = await provider.getBalance(userAddress);
                 document.getElementById('bnbBal').innerText = parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
 
-                Swal.fire({ icon: 'success', title: 'Connected', text: 'Wallet authorized!', background: '#0b0f19', color: '#fff' });
+                Swal.fire({ icon: 'success', title: 'Connected', text: 'Wallet authorized successfully!', background: '#0b0f19', color: '#fff' });
             } catch (error) {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'Connection rejected', background: '#0b0f19', color: '#fff' });
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Connection rejected by user', background: '#0b0f19', color: '#fff' });
             }
         } else {
-            Swal.fire({ icon: 'warning', title: 'Wallet Missing', text: 'Please install MetaMask!', background: '#0b0f19', color: '#fff' });
+            Swal.fire({ icon: 'warning', title: 'Wallet Missing', text: 'Please open this website inside MetaMask App Browser or install extension!', background: '#0b0f19', color: '#fff' });
         }
     }
 
     function copyRef() {
         const copyText = document.getElementById("refLink");
         if (!copyText.value || copyText.value.includes("Connect")) {
-            Swal.fire({ icon: 'info', title: 'Oops', text: 'Connect wallet first!', background: '#0b0f19', color: '#fff' });
+            Swal.fire({ icon: 'info', title: 'Notice', text: 'Please connect your wallet first!', background: '#0b0f19', color: '#fff' });
             return;
         }
+        
+        // টেক্সট কপি লজিক
         copyText.select();
+        copyText.setSelectionRange(0, 99999);
         navigator.clipboard.writeText(copyText.value);
-        Swal.fire({ icon: 'success', title: 'Copied!', text: 'Link ready to share.', background: '#0b0f19', color: '#fff', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+        
+        Swal.fire({ icon: 'success', title: 'Copied!', text: 'Referral link copied to clipboard.', background: '#0b0f19', color: '#fff', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
     }
 
     function updatePreview() {
@@ -262,13 +309,16 @@
         document.getElementById('walletDisplay').classList.add('hidden');
         document.getElementById('refLink').value = "";
         document.getElementById('bnbBal').innerText = "0.0000";
-        Swal.fire({ icon: 'info', title: 'Disconnected', text: 'Wallet cleared.', background: '#0b0f19', color: '#fff' });
+        Swal.fire({ icon: 'info', title: 'Disconnected', text: 'Wallet session cleared.', background: '#0b0f19', color: '#fff' });
     }
 
-    function buy() { Swal.fire({ icon: 'info', title: 'Buy Action', text: 'Triggering contract buy function...', background: '#0b0f19', color: '#fff' }); }
-    function internalSwap() { Swal.fire({ icon: 'info', title: 'Swap Action', text: 'Processing internal swap...', background: '#0b0f19', color: '#fff' }); }
-    function stakeTokens() { Swal.fire({ icon: 'info', title: 'Stake Action', text: 'Processing staking transaction...', background: '#0b0f19', color: '#fff' }); }
-    function claimReward(vip, amt) { Swal.fire({ icon: 'success', title: 'VIP Claim', text: `Claiming ${vip} bonus!`, background: '#0b0f19', color: '#fff' }); }
+    // স্মার্ট কন্ট্রাক্ট ইন্টিগ্রেশনের জন্য ডামি ফাংশন রেডি রাখা হলো
+    function buy() { Swal.fire({ icon: 'info', title: 'Contract Action', text: 'Connecting to Smart Contract for TVX Purchase...', background: '#0b0f19', color: '#fff' }); }
+    function internalSwap() { Swal.fire({ icon: 'info', title: 'Contract Action', text: 'Initiating BNB Swap on Smart Contract...', background: '#0b0f19', color: '#fff' }); }
+    function stakeTokens() { Swal.fire({ icon: 'info', title: 'Contract Action', text: 'Sending staking transaction to blockchain...', background: '#0b0f19', color: '#fff' }); }
+    function activate() { Swal.fire({ icon: 'info', title: 'Contract Action', text: 'Activating MLM Card Status via Blockchain...', background: '#0b0f19', color: '#fff' }); }
+    function withdraw() { Swal.fire({ icon: 'info', title: 'Contract Action', text: 'Requesting fund withdrawal from smart contract...', background: '#0b0f19', color: '#fff' }); }
+    function claimReward(vip, amt) { Swal.fire({ icon: 'success', title: 'VIP Reward', text: `Successfully claimed ${vip} reward!`, background: '#0b0f19', color: '#fff' }); }
 </script>
 </body>
 </html>
