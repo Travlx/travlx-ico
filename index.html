@@ -3,20 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TravelX - Professional Web3 MLM Platform">
     <title>TravelX | Professional Web3 MLM</title>
+    
+    <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Custom Styles -->
     <style>
         body { background-color: #060b14; scroll-behavior: smooth; }
         .glass { background: rgba(13, 19, 32, 0.95); border: 1px solid rgba(255,255,255,0.05); }
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
         #sidebar { transition: transform 0.3s ease-in-out; }
-        @media (max-width: 1024px) { .sidebar-folded { transform: translateX(-100%); } }
-        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+        
+        /* Responsive Sidebar Fix */
+        @media (max-width: 1023px) { 
+            #sidebar.sidebar-folded { transform: translateX(-100%); } 
+        }
+        
+        /* Hide Number Spinners */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
     </style>
 </head>
+
 <body class="text-white font-sans custom-scrollbar overflow-x-hidden">
 
 <div class="min-h-screen flex flex-col lg:flex-row relative">
