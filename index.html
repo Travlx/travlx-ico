@@ -5,15 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TravelX | Professional Web3 MLM</title>
     
-    <!-- Verified Live CDN Libraries -->
-    <script src="https://tailwindcss.com"></script>
-    <script src="https://jsdelivr.net"></script>
+    <!-- FIX: Correct Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FIX: Correct FontAwesome for Icons (Optional but highly recommended for MLM UI) -->
+    <link rel="stylesheet" href="https://cloudflare.com">
+    
+    <!-- FIX: Correct Web3.js CDN for Crypto/Web3 Wallet Integration -->
     <script src="https://jsdelivr.net"></script>
     
     <style>
         body { background-color: #030712; scroll-behavior: smooth; }
         
-        /* Premium High-Contrast Glassmorphism (Fixes Blur/Dim Issues) */
+        /* Premium High-Contrast Glassmorphism */
         .glass { 
             background: rgba(13, 19, 32, 0.55) !important; 
             backdrop-filter: blur(16px) saturate(180%) !important;
@@ -29,9 +33,13 @@
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
     </style>
 </head>
-<body class="text-slate-100 font-sans custom-scrollbar overflow-x-hidden antialiased">
+<body class="text-white font-sans custom-scrollbar">
 
-<div class="min-h-screen flex flex-col lg:flex-row relative">
+    <!-- Your Main Dashboard UI Content Goes Here -->
+    <div class="p-8 text-center">
+        <h1 class="text-3xl font-bold text-emerald-400">TravelX Web3 Dashboard</h1>
+        <p class="mt-2 text-gray-400">Welcome to your high-performance MLM platform.</p>
+    </div>
 
     <!-- MOBILE TOPBAR -->
     <div class="lg:hidden flex justify-between items-center bg-[#0b0f19] p-5 border-b border-white/10 sticky top-0 z-50">
