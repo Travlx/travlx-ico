@@ -302,49 +302,81 @@ async function fetchPrice() {
 }
 
 
-// --- মেটামাস্ক কানেক্ট ফাংশন ---
+let updateInterval = null; // ইন্টারভাল ট্র্যাক করার জন্য গ্লোবাল ভ্যারিয়েবল
+
 async function connect() {
     if (!window.ethereum) return Swal.fire("Error", "MetaMask Required", "error");
+    
     try {
+        // অ্যাকাউন্ট রিকোয়েস্ট
         const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
         account = accs[0].toLowerCase();
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
+        
+        // Ethers.js v5 এবং v6 উভয়ের জন্য সামঞ্জস্যপূর্ণ প্রোভাইডার চেক
+        if (typeof ethers.providers !== "undefined") {
+            provider = new ethers.providers.Web3Provider(window.ethereum); // v5
+        } else {
+            provider = new ethers.BrowserProvider(window.ethereum); // v6
+        }
+        signer = await provider.getSigner();
 
         localStorage.setItem("connected", "true");
        
         let d = db();
-        if(!d[account]) {
+        if (!d[account]) {
+            // URL থেকে রেফারেল বা স্পন্সর অ্যাড্রেস নেওয়া
             let ref = new URLSearchParams(location.search).get("ref");
+            ref = ref ? ref.trim().toLowerCase() : null;
+
+            // বৈধ স্পন্সর চেক (নিজের অ্যাড্রেস যেন স্পন্সর না হয়)
+            const validSponsor = (ref && d[ref] && ref !== account) ? ref : null;
+
             d[account] = {
-                sponsor: (ref && d[ref.toLowerCase()]) ? ref.toLowerCase() : null,
+                sponsor: validSponsor,
                 directs: [],
-                tvx: 0,          // কার্যপ্রণালী ২: ক্রয়কৃত টোকেন ওয়ালেট
-                stakedTvx: 0,    // কার্যপ্রণালী ৩ ও ৪: স্ট্যাকিং ওয়ালেট
-                stakeRewards: 0, // কার্যপ্রণালী ৭: জমাকৃত স্ট্যাকিং প্রফিট
-                bnb: 0,          // কার্যপ্রণালী ৫,６,৮: রেফার ও সোয়াপের অর্জিত মোট BNB
+                tvx: 0,          
+                stakedTvx: 0,    
+                stakeRewards: 0, 
+                bnb: 0,          
                 active: false,
                 stakeStart: 0,
                 txHistory: [],
                 claimed: []
             };
-            if(ref && d[ref.toLowerCase()]) d[ref.toLowerCase()].directs.push(account);
+            
+            // স্পন্সরের ডিরেক্টস লিস্টে এই অ্যাকাউন্ট যুক্ত করা
+            if (validSponsor) {
+                d[validSponsor].directs.push(account);
+            }
             save(d);
         }
        
-        document.getElementById("connectBtn").classList.add("hidden");
-        document.getElementById("walletDisplay").classList.remove("hidden");
-        document.getElementById("walletDisplay").innerText = account.slice(0,6)+"..."+account.slice(-4);
+        // UI আপডেট
+        const connectBtn = document.getElementById("connectBtn");
+        const walletDisplay = document.getElementById("walletDisplay");
+        
+        if (connectBtn) connectBtn.classList.add("hidden");
+        if (walletDisplay) {
+            walletDisplay.classList.remove("hidden");
+            walletDisplay.innerText = account.slice(0, 6) + "..." + account.slice(-4);
+        }
        
         updateRefLink();
-        update();
-        setInterval(update, 3000); // প্রতি ৩ সেকেন্ডে ইন্টারফেস আপডেট হবে
+        
+        // আগের কোনো ইন্টারভাল সচল থাকলে তা বন্ধ করা (মেমোরি লিক রোধে)
+        if (updateInterval) clearInterval(updateInterval);
+        
+        if (typeof update === "function") {
+            update();
+            updateInterval = setInterval(update, 3000); 
+        }
        
     } catch (error) {
-        console.error(error);
-        Swal.fire("Error", "Connection rejected", "error");
+        console.error("Connection Error:", error);
+        Swal.fire("Error", "Connection rejected or failed", "error");
     }
 }
+
 
 // --- ড্যাশবোর্ড ডেটা রেন্ডারিং ও প্রফিট লজিক ---
 async function update() {
