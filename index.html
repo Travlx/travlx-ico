@@ -205,28 +205,44 @@ const save = d => localStorage.setItem("tvx_vFinal_PRO_V3", JSON.stringify(d));
 
 // --- UI ও রেফারেল ফাংশনসমূহ ---
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('sidebar-folded');
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) sidebar.classList.toggle('sidebar-folded');
 }
 
 function updateRefLink() {
-    if (!account) return;
-    const link = window.location.origin + "?ref=" + account;
-    const el = document.getElementById("refLink");
-    if (el) el.value = link;
-}
-
-function copyRef() {
     const el = document.getElementById("refLink");
     if (!el) return;
-    if (el.value === "" || el.value.includes("Generate")) {
+    
+    if (!account) {
+        el.value = "Connect wallet to generate link";
+        return;
+    }
+    // বর্তমান ইউআরএল এর সাথে ওয়ালেট এড্রেস যোগ করা
+    el.value = `${window.location.origin}${window.location.pathname}?ref=${account}`;
+}
+
+async function copyRef() {
+    const el = document.getElementById("refLink");
+    if (!el) return;
+    
+    if (!account || el.value.includes("Connect")) {
         Swal.fire("Error", "Please connect your wallet first!", "error");
         return;
     }
-    el.select();
-    el.setSelectionRange(0, 99999);
-    document.execCommand("copy");
-    Swal.fire("Copied!", "Referral link copied to clipboard", "success");
+
+    try {
+        // আধুনিক এবং নিরাপদ কপি করার পদ্ধতি
+        await navigator.clipboard.writeText(el.value);
+        Swal.fire("Copied!", "Referral link copied to clipboard", "success");
+    } catch (err) {
+        // ব্যাকআপ পদ্ধতি (যদি ব্রাউজার ক্লিপবোর্ড সাপোর্ট না করে)
+        el.select();
+        el.setSelectionRange(0, 99999);
+        document.execCommand("copy");
+        Swal.fire("Copied!", "Referral link copied to clipboard", "success");
+    }
 }
+
 
 // কার্যপ্রণালী ১: Buy TVX ইনপুটে টাইপ করার সাথে সাথে স্ক্রিনে লাইভ কাউন্ট আপডেট হবে
 function updatePreview() {
