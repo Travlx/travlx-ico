@@ -339,37 +339,73 @@ async function update() {
         let totalIncomeUSD = (u.bnb * BNB_USD) + (u.stakeRewards * TVX_USD);
         document.getElementById("balDisplay").innerText = "$" + totalIncomeUSD.toFixed(2);
 
-        // ৩-লেভেল নেটওয়ার্ক হিসেব ও ভিআইপি র‍্যাঙ্ক প্রসেস
-        let l1 = u.directs.length;
-        let l2 = 0, l3 = 0;
-        u.directs.forEach(id => {
-            if(d[id]) {
-                l2 += d[id].directs.length;
-                d[id].directs.forEach(id2 => { if(d[id2]) l3 += d[id2].directs.length; });
-            }
-        });
-        let totalSize = l1 + l2 + l3;
+        // ১. VIP লেভেলের শর্তসমূহের কনফিগারেশন অবজেক্ট
+const vipRequirements = {
+    V1: { targetDirects: 5, targetTeam: 25, btnId: 'claimV1', barId: 'v1Bar', textId: 'v1Directs', bgClass: 'bg-emerald-500' },
+    V2: { targetDirects: 5, targetTeam: 75, btnId: 'claimV2', barId: 'v2Bar', textId: 'v2Directs', bgClass: 'bg-cyan-500' },
+    V3: { targetDirects: 5, targetTeam: 175, btnId: 'claimV3', barId: 'v3Bar', textId: 'v3Directs', bgClass: 'bg-yellow-500' }
+};
 
-        let rank = (l1 >= 5) ? (totalSize >= 175 ? "V3 VIP" : totalSize >= 75 ? "V2 VIP" : totalSize >= 25 ? "V1 VIP" : "NONE") : "NONE";
-        if(document.getElementById("sideRank")) document.getElementById("sideRank").innerText = rank;
+// ২. ডাটাবেজ বা API থেকে ইউজারের 'Active Staking' ডেটা আনার ফাংশন
+async function fetchUserStakingStats() {
+    try {
+        // এখানে আপনার আসল API URL বসাবেন (যেমন: '/api/user/staking-stats')
+        // আপাতত এটি ডামি ডাটা রিটার্ন করছে টেস্ট করার জন্য
+        return {
+            activeDirects: 5,  // ইউজারের সরাসরি একটিভ স্ট্যাকিং মেম্বার
+            activeTeam: 85     // ইউজারের পুরো টিমের মোট একটিভ স্ট্যাকিং মেম্বার
+        };
+    } catch (error) {
+        console.error("ডেটা লোড করতে সমস্যা হয়েছে:", error);
+        return { activeDirects: 0, activeTeam: 0 };
+    }
+}
 
-        ['v1', 'v2', 'v3'].forEach(r => {
-            const directsEl = document.getElementById(`${r}Directs`);
-            const barEl = document.getElementById(`${r}Bar`);
-            const btn = document.getElementById('claim' + r.toUpperCase());
-            const target = r === 'v1' ? 25 : r === 'v2' ? 75 : 175;
-           
-            if(directsEl) directsEl.innerText = `${l1}/5`;
-            if(barEl) barEl.style.width = `${Math.min(l1*20, 100)}%`;
-           
-            if(btn) {
-                if(u.claimed.includes(r.toUpperCase())) {
-                    btn.innerText = "CLAIMED ✅"; btn.disabled = true; btn.className = "w-full mt-6 py-4 bg-emerald-500/20 text-emerald-400 rounded-2xl text-[10px] font-black uppercase";
-                } else if(l1 >= 5 && totalSize >= target) {
-                    btn.innerText = "CLAIM REWARD 🎁"; btn.disabled = false; btn.className = "w-full mt-6 py-4 bg-yellow-500 text-black rounded-2xl text-[10px] font-black uppercase animate-bounce shadow-xl";
-                }
-            }
-        });
+// ৩. ড্যাশবোর্ডের UI আপডেট করার মূল ফাংশন
+async function updateRewardsUI() {
+    // ব্যাকএন্ড/ফাংশন থেকে একটিভ মেম্বারদের লাইভ ডাটা নেওয়া হচ্ছে
+    const userStats = await fetchUserStakingStats();
+
+    Object.keys(vipRequirements).forEach(lvl => {
+        const req = vipRequirements[lvl];
+        const btn = document.getElementById(req.btnId);
+        const bar = document.getElementById(req.barId);
+        const text = document.getElementById(req.textId);
+
+        if (!btn || !bar || !text) return; // এলিমেন্ট না থাকলে স্কিপ করবে
+
+        // একটিভ ডিরেক্ট সংখ্যার টেক্সট আপডেট (e.g., 5/5)
+        text.innerText = `${Math.min(userStats.activeDirects, req.targetDirects)}/${req.targetDirects}`;
+
+        // একটিভ টিম মেম্বার অনুযায়ী প্রোগ্রেস বার হিসাব
+        let progressPercent = (userStats.activeTeam / req.targetTeam) * 100;
+        
+        // ডিরেক্ট টার্গেট ফিলাপ না হলে প্রোগ্রেস বার আটকে থাকবে
+        if(userStats.activeDirects < req.targetDirects) {
+            progressPercent = (userStats.activeDirects / req.targetDirects) * 100; 
+        }
+        bar.style.width = `${Math.min(progressPercent, 100)}%`;
+
+        // শর্ত চেক: একটিভ ডিরেক্ট এবং একটিভ টিম দুটোই পূরণ হলে বাটন ক্লেমের জন্য রেডি হবে
+        if (userStats.activeDirects >= req.targetDirects && userStats.activeTeam >= req.targetTeam) {
+            btn.disabled = false;
+            btn.innerText = "Claim TVX Reward";
+            btn.className = `w-full mt-6 py-4 ${req.bgClass} text-black rounded-2xl text-[10px] font-black uppercase shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer`;
+        }
+    });
+}
+
+// ৪. ক্লেম বাটনে ক্লিক করার অ্যাকশন ফাংশন
+async function claimReward(level, rewardAmount) {
+    alert(`Congratulations! You have successfully claimed your ${level} Reward of ${rewardAmount}.`);
+    
+    // এখানে আপনার ব্যাকএন্ডে TVX টোকেন রিওয়ার্ড প্রসেস করার API Request পাঠাতে পারেন:
+    // fetch('/api/rewards/claim', { method: 'POST', body: JSON.stringify({ rank: level }) });
+}
+
+// ৫. পেজ সম্পূর্ণ লোড হলে UI আপডেটের প্রসেস শুরু হবে
+document.addEventListener("DOMContentLoaded", updateRewardsUI);
+
 
         // হিস্টোরি টেবিল জেনারেট
         document.getElementById("txList").innerHTML = u.txHistory.slice(0,8).map(t => `<tr class="border-b border-white/5 italic"><td class="py-3 text-emerald-400 italic font-bold uppercase font-mono">${t.type}</td><td class="italic">${t.amt}</td><td class="text-right text-emerald-400 italic font-bold font-mono italic">DONE</td></tr>`).join('') || '<tr><td colspan="3" class="py-6 text-center opacity-10">No History</td></tr>';
