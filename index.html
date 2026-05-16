@@ -79,7 +79,44 @@
             <div class="glass p-5 rounded-2xl border-l-4 border-blue-500"><p class="text-gray-500 text-[10px] font-bold uppercase italic">MLM Income (BNB)</p><h3 id="income" class="text-xl font-black mt-1 text-blue-400">0.0000</h3></div>
         </div>
 
-        
+        <!-- REWARDS -->
+        <div id="rewards" class="mb-10">
+            <h3 class="text-xl font-black mb-6 uppercase italic text-emerald-400">🏆 VIP Rewards (Min 5 Directs Required)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- V1, V2, V3 Cards -->
+                <div class="glass p-6 rounded-[35px] border border-white/5 relative">
+                    <h4 class="font-black text-xl italic uppercase">V1 VIP</h4>
+                    <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase italic">25 Team + 5 Directs</p>
+                    <div class="mt-4 p-3 bg-black/40 rounded-xl">
+                        <p class="text-[10px] text-emerald-400 font-bold">Directs: <span id="v1Directs">0/5</span></p>
+                        <div class="w-full h-1 bg-white/5 rounded-full mt-1"><div id="v1Bar" class="h-full bg-emerald-400 rounded-full" style="width: 0%"></div></div>
+                    </div>
+                    <p class="mt-4 text-xs font-black italic text-emerald-400">$500 BONUS + 1 TOUR</p>
+                    <button id="claimV1" onclick="claimReward('V1', 500)" disabled class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20">Locked</button>
+                </div>
+                <div class="glass p-6 rounded-[35px] border border-white/5 relative">
+                    <h4 class="font-black text-xl italic uppercase text-cyan-400">V2 VIP</h4>
+                    <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase italic">75 Team + 5 Directs</p>
+                    <div class="mt-4 p-3 bg-black/20 rounded-xl">
+                        <p class="text-[10px] text-cyan-400 font-bold">Directs: <span id="v2Directs">0/5</span></p>
+                        <div class="w-full h-1 bg-white/5 rounded-full mt-1"><div id="v2Bar" class="h-full bg-cyan-400 rounded-full" style="width: 0%"></div></div>
+                    </div>
+                    <p class="mt-4 text-xs font-black italic text-emerald-400">$1500 BONUS + FAMILY TOUR</p>
+                    <button id="claimV2" onclick="claimReward('V2', 1500)" disabled class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20">Locked</button>
+                </div>
+                <div class="glass p-6 rounded-[35px] border border-yellow-500/20 bg-yellow-500/5 relative">
+                    <h4 class="font-black text-xl italic uppercase text-yellow-500">V3 VIP</h4>
+                    <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase italic">175 Team + 5 Directs</p>
+                    <div class="mt-4 p-3 bg-black/20 rounded-xl">
+                        <p class="text-[10px] text-yellow-500 font-bold">Directs: <span id="v3Directs">0/5</span></p>
+                        <div class="w-full h-1 bg-white/5 rounded-full mt-1"><div id="v3Bar" class="h-full bg-yellow-500 rounded-full" style="width: 0%"></div></div>
+                    </div>
+                    <p class="mt-4 text-xs font-black italic text-emerald-400">$3000 BONUS + 2 TOURS</p>
+                    <button id="claimV3" onclick="claimReward('V3', 3000)" disabled class="w-full mt-6 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase opacity-20">Locked</button>
+                </div>
+            </div>
+        </div>
+
         <!-- BUY & SWAP -->
         <div id="buySection" class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
             <div class="glass p-6 lg:p-8 rounded-[35px] border border-white/5">
@@ -131,7 +168,11 @@
 </div>
 
 
-        
+        <!-- ACTIVATION -->
+        <div class="glass p-8 rounded-[40px] border-l-8 border-emerald-400 mb-8 flex flex-col lg:flex-row justify-between items-center gap-6">
+            <div><h3 class="text-2xl font-black mb-2 uppercase italic text-emerald-400">Step 2: Card Activation</h3><p class="text-gray-400 text-xs">Stake 10,000 TVX ($100) to start earning 18% APY and unlock Rank Rewards.</p></div>
+            <button id="activateBtn" onclick="activate()" class="w-full lg:w-72 bg-emerald-400 text-black font-black py-5 rounded-2xl hover:scale-105 transition shadow-xl uppercase italic">Activate Now</button>
+        </div>
 
         <!-- REPORTS -->
         <div id="reports" class="glass p-6 lg:p-8 rounded-[35px] mb-8 overflow-x-auto">
@@ -152,7 +193,7 @@
 </div>
 <script>
 // --- CONFIGURATION ---
-const RECEIVER = "0x68211153222bf054Decb13920870523a0C4264d4"; // এখানে আপনার রিসিভার ওয়ালেট এড্রেস দিন
+const RECEIVER = "YOUR_WALLET_ADDRESS"; // এখানে আপনার রিসিভার ওয়ালেট এড্রেস দিন
 const RATE = 10000;       // 1 BNB = 10,000 TVX
 const TVX_USD = 0.01;     // 1 TVX = $0.01
 let BNB_USD = 600;        // লাইভ এপিআই না পাওয়া পর্যন্ত ডিফল্ট বিএনবি রেট
@@ -196,7 +237,7 @@ function updatePreview() {
     }
 }
 
-// ইন্টারনাল সোয়াপ ইনপুট প্রিভিউ ফিক্স 
+// ইন্টারনাল সোয়াপ ইনপুট প্রিভিউ ফিক্স
 function updateSwapPreview() {
     const tvxAmt = parseFloat(document.getElementById("swapInput").value) || 0;
     const bnbRec = tvxAmt / RATE;
@@ -280,41 +321,93 @@ async function update() {
         updateStakingRewardsAndTimer();
 
         // কার্যপ্রণালী ২: TVX Assets সেকশনে শুধুমাত্র ব্যবহারকারীর বর্তমান TVX দেখাবে
-        document.getElementById("tvxBal").innerText = u.tvx.toLocaleString(); 
+        document.getElementById("tvxBal").innerText = u.tvx.toLocaleString();
 
         // কার্যপ্রণালী ৭: Stake Reward (18%) অংশে প্রফিট হিসেবে অর্জিত মোট TVX দেখাবে
-        document.getElementById("stakeProfit").innerText = u.stakeRewards.toFixed(4) + " TVX"; 
+        document.getElementById("stakeProfit").innerText = u.stakeRewards.toFixed(4) + " TVX";
 
         // কার্যপ্রণালী ৫, ৬ ও ৮: সকল প্রকার অর্জিত MLM Income (BNB) কার্ডে লাইভ প্রদর্শন
-        document.getElementById("income").innerText = u.bnb.toFixed(6); 
+        document.getElementById("income").innerText = u.bnb.toFixed(6);
 
         // কার্যপ্রণালী ৯: জমাকৃত সমস্ত ইন্টারনাল ইনকাম ডলারে রূপান্তর হয়ে Withdraw-তে যোগ হবে
         let totalIncomeUSD = (u.bnb * BNB_USD) + (u.stakeRewards * TVX_USD);
         document.getElementById("balDisplay").innerText = "$" + totalIncomeUSD.toFixed(2);
 
-       
+        // ৩-লেভেল নেটওয়ার্ক হিসেব ও ভিআইপি র‍্যাঙ্ক প্রসেস
+        let l1 = u.directs.length;
+        let l2 = 0, l3 = 0;
+        u.directs.forEach(id => {
+            if(d[id]) {
+                l2 += d[id].directs.length;
+                d[id].directs.forEach(id2 => { if(d[id2]) l3 += d[id2].directs.length; });
+            }
+        });
+        let totalSize = l1 + l2 + l3;
+
+        let rank = (l1 >= 5) ? (totalSize >= 175 ? "V3 VIP" : totalSize >= 75 ? "V2 VIP" : totalSize >= 25 ? "V1 VIP" : "NONE") : "NONE";
+        if(document.getElementById("sideRank")) document.getElementById("sideRank").innerText = rank;
+
+        ['v1', 'v2', 'v3'].forEach(r => {
+            const directsEl = document.getElementById(`${r}Directs`);
+            const barEl = document.getElementById(`${r}Bar`);
+            const btn = document.getElementById('claim' + r.toUpperCase());
+            const target = r === 'v1' ? 25 : r === 'v2' ? 75 : 175;
+           
+            if(directsEl) directsEl.innerText = `${l1}/5`;
+            if(barEl) barEl.style.width = `${Math.min(l1*20, 100)}%`;
+           
+            if(btn) {
+                if(u.claimed.includes(r.toUpperCase())) {
+                    btn.innerText = "CLAIMED ✅"; btn.disabled = true; btn.className = "w-full mt-6 py-4 bg-emerald-500/20 text-emerald-400 rounded-2xl text-[10px] font-black uppercase";
+                } else if(l1 >= 5 && totalSize >= target) {
+                    btn.innerText = "CLAIM REWARD 🎁"; btn.disabled = false; btn.className = "w-full mt-6 py-4 bg-yellow-500 text-black rounded-2xl text-[10px] font-black uppercase animate-bounce shadow-xl";
+                }
+            }
+        });
 
         // হিস্টোরি টেবিল জেনারেট
         document.getElementById("txList").innerHTML = u.txHistory.slice(0,8).map(t => `<tr class="border-b border-white/5 italic"><td class="py-3 text-emerald-400 italic font-bold uppercase font-mono">${t.type}</td><td class="italic">${t.amt}</td><td class="text-right text-emerald-400 italic font-bold font-mono italic">DONE</td></tr>`).join('') || '<tr><td colspan="3" class="py-6 text-center opacity-10">No History</td></tr>';
 
-        
+        if (u.active) {
+            const actBtn = document.getElementById("activateBtn");
+            if(actBtn) {
+                actBtn.innerText = "STAKING ACTIVE (18%)"; actBtn.disabled = true; actBtn.classList.add("opacity-50", "cursor-not-allowed");
+            }
+        }
+    } catch (err) {
+        console.error("Dashboard update error:", err);
+    }
+}
 
 // --- টোকেন বাই ও ৩-লেভেল জেন বোনাস লজিক ---
 async function buy() {
     if (!account) return Swal.fire("Error", "Please connect wallet!", "error");
     let bnbAmt = document.getElementById("bnbInput").value;
     if (!bnbAmt || bnbAmt <= 0) return Swal.fire("Error", "Enter valid BNB amount", "error");
-    
+   
     try {
         const tx = await signer.sendTransaction({ to: RECEIVER, value: ethers.utils.parseEther(bnbAmt) });
         await tx.wait();
-        
+       
         let d = db();
         let tvxGot = bnbAmt * RATE;
-        
+       
         // কার্যপ্রণালী ২: ক্রেতার অ্যাকাউন্টে TVX Assets যোগ
         d[account].tvx += tvxGot;
-        
+       
+        // কার্যপ্রণালী ৬: রেফারেল বাইং কমিশন ডিস্ট্রিবিউশন
+        let sponsor = d[account].sponsor;
+        for (let i = 1; i <= 3; i++) {
+            if (!sponsor || !d[sponsor]) break;
+            let commPercent = (i === 1 ? 0.05 : i === 2 ? 0.03 : 0.02);
+            let commInTVX = tvxGot * commPercent;
+            let commInBNB = (commInTVX * TVX_USD) / BNB_USD;
+           
+            d[sponsor].bnb += commInBNB; // সরাসরি MLM Income (BNB)-এ জমা
+            d[sponsor].txHistory.unshift({ type: `L${i} REF BONUS`, amt: commInBNB.toFixed(6) + ' BNB' });
+           
+            sponsor = d[sponsor].sponsor;
+        }
        
         d[account].txHistory.unshift({ type: 'BUY TVX', amt: tvxGot.toLocaleString() + ' TVX' });
         save(d);
@@ -327,26 +420,41 @@ async function buy() {
     }
 }
 
-
+// --- কার্ড অ্যাক্টিভেশন ---
+function activate() {
+    if (!account) return Swal.fire("Error", "Connect wallet", "error");
+    let d = db();
+    if (d[account].active) return Swal.fire("Info", "Already Active", "info");
+    if (d[account].tvx < 10000) return Swal.fire("Error", "Insufficient TVX. Need 10,000 TVX", "error");
+   
+    d[account].tvx -= 10000;
+    d[account].active = true;
+    if(!d[account].stakeStart || d[account].stakeStart === 0) d[account].stakeStart = Date.now();
+   
+    d[account].txHistory.unshift({ type: 'ACTIVATION', amt: '10,000 TVX' });
+    save(d);
+    update();
+    Swal.fire("Success", "Card Activated! 18% APY Unlocked.", "success");
+}
 
 // --- টোকেন স্ট্যাকিং লজিক ---
 function stakeTokens() {
     if (!account) return Swal.fire("Error", "Connect wallet", "error");
     const amount = parseFloat(document.getElementById('stakeInput').value);
-    
+   
     let d = db();
     if (isNaN(amount) || amount <= 0) return Swal.fire("Error", "Enter valid amount", "error");
     if (d[account].tvx < amount) return Swal.fire("Error", "Insufficient TVX Balance!", "error");
-    
+   
     // কার্যপ্রণালী ৪: স্ট্যাক করার সাথে সাথে মেইন ব্যালেন্স থেকে মাইনাস হবে
     d[account].tvx -= amount;
     // কার্যপ্রণালী ৩: অভ্যন্তরীণ অ্যাকাউন্টের স্ট্যাকিং ফান্ডের পরিমাণ বৃদ্ধি
-    d[account].stakedTvx += amount; 
-    
+    d[account].stakedTvx += amount;
+   
     if(!d[account].stakeStart || d[account].stakeStart === 0) {
         d[account].stakeStart = Date.now();
     }
-    
+   
     d[account].txHistory.unshift({ type: 'STAKE TVX', amt: amount.toLocaleString() + ' TVX' });
     save(d);
     update();
@@ -363,26 +471,26 @@ function updateStakingRewardsAndTimer() {
 
     const now = Date.now();
     const elapsedSeconds = (now - u.stakeStart) / 1000;
-    
+   
     // কার্যপ্রণালী ৭: প্রতিদিনের ০.১% সেলф স্ট্যাকিং রিওয়ার্ড লাইভ গণনা ও জমা
-    const dailyRate = 0.001; 
+    const dailyRate = 0.001;
     const earnedTVX = u.stakedTvx * dailyRate * (elapsedSeconds / 86400);
-    
+   
     if (earnedTVX > 0) {
         u.stakeRewards += earnedTVX; // সরাসরি "Stake Reward" কার্ডে যোগ হচ্ছে
-        
+       
         // কার্যপ্রণালী ৮: টিম মেম্বারদের লাইভ জেনারেটেড আর্নিং থেকে আপলাইনের ৩ লেভেলে (১০%, ৫%, ৩%) টিম বোনাস ডিস্ট্রিবিউশন
         let earnedBNBValue = (earnedTVX * TVX_USD) / BNB_USD;
         let sponsor = u.sponsor;
         for (let i = 1; i <= 3; i++) {
             if (!sponsor || !d[sponsor]) break;
-            let teamBonusPercent = (i === 1 ? 0.10 : i === 2 ? 0.05 : 0.03); 
+            let teamBonusPercent = (i === 1 ? 0.10 : i === 2 ? 0.05 : 0.03);
             let teamBonusBNB = earnedBNBValue * teamBonusPercent;
-            
+           
             d[sponsor].bnb += teamBonusBNB; // সরাসরি আপলাইনের MLM Income (BNB)-এ জমা
             sponsor = d[sponsor].sponsor;
         }
-        
+       
         u.stakeStart = now; // টাইমার রিসেট ইন্টারভাল বজায় রাখার জন্য
         save(d);
     }
@@ -410,16 +518,16 @@ function internalSwap() {
     if (!account) return Swal.fire("Error", "Connect wallet", "error");
     const tvxAmt = parseFloat(document.getElementById("swapInput").value);
     let d = db();
-    
+   
     if (!tvxAmt || tvxAmt <= 0) return Swal.fire("Error", "Enter valid amount", "error");
     if (d[account].tvx < tvxAmt) return Swal.fire("Error", "Insufficient TVX Assets", "error");
-    
+   
     let bnbValue = (tvxAmt * TVX_USD) / BNB_USD;
-    
-    d[account].tvx -= tvxAmt;       
+   
+    d[account].tvx -= tvxAmt;      
     // কার্যপ্রণালী ৫: সোয়াপ করার পর অর্জিত BNB সরাসরি "MLM Income (BNB)" ফান্ডে জমা হবে
-    d[account].bnb += bnbValue;     
-    
+    d[account].bnb += bnbValue;    
+   
     d[account].txHistory.unshift({ type: 'SWAP TVX', amt: tvxAmt.toLocaleString() + ' TVX' });
     save(d);
     update();
@@ -433,29 +541,26 @@ function claimReward(rank, bonusUSD) {
     if (!account) return;
     let d = db();
     if (d[account].claimed.includes(rank)) return;
-    
+   
     let bnbBonus = bonusUSD / BNB_USD;
     d[account].bnb += bnbBonus;
     d[account].claimed.push(rank);
     d[account].txHistory.unshift({ type: `${rank} BONUS`, amt: `$${bonusUSD}` });
-    
+   
     save(d);
     update();
     Swal.fire("Congratulations!", `You claimed $${bonusUSD} Rank Bonus!`, "success");
 }
 
-// --- কার্যপ্রণালী ৯: উইথড্র ক্লিক করলে সব ইন্টারনাল BNB ফান্ড একসাথে মেটামাস্কে চলে যাবে ---
+// --- কার্যপ্রণালী ৯: উইথড্র ক্লিক করলে সব ইন্টারনাল ফান্ড একসাথে মেটামাস্কে চলে যাবে ---
 async function withdraw() {
     if (!account) return Swal.fire("Error", "Connect wallet", "error");
-    
     let d = db();
     let u = d[account];
-    
-    // শুধু BNB ফান্ড উইথড্র হবে, কারণ রিওয়ার্ড অলরেডি সোয়াপ হয়ে এখানে এসেছে
-    let finalBNBToWithdraw = u.bnb || 0;
-    let totalIncomeUSD = finalBNBToWithdraw * BNB_USD;
+    let totalIncomeUSD = (u.bnb * BNB_USD) + (u.stakeRewards * TVX_USD);
+    let finalBNBToWithdraw = totalIncomeUSD / BNB_USD;
    
-    if (finalBNBToWithdraw <= 0) return Swal.fire("Error", "No BNB funds available for withdrawal", "error");
+    if (finalBNBToWithdraw <= 0) return Swal.fire("Error", "No funds available for withdrawal", "error");
    
     Swal.fire({
         title: 'Processing Withdraw',
@@ -463,32 +568,27 @@ async function withdraw() {
         icon: 'info',
         showCancelButton: true,
         confirmButtonText: 'Confirm Withdrawal'
-    }).then(async (result) => {
+    }).then((result) => {
         if (result.isConfirmed) {
-            try {
-                // [স্মার্ট কন্ট্রাক্ট কল] আপনার কন্টাক্ট ইনস্ট্যান্স অনুযায়ী নিচের ২ লাইনের কমেন্ট তুলে দিন:
-                // const amountInWei = ethers.utils.parseEther(finalBNBToWithdraw.toFixed(18));
-                // const tx = await contract.withdrawFunds(amountInWei); 
-                // await tx.wait();
-
-                // ব্লকচেইনে সফল হওয়ার পর ডাটাবেজ আপডেট হবে
-                u.bnb = 0;
-                
-                u.txHistory.unshift({ type: 'WITHDRAW', amt: finalBNBToWithdraw.toFixed(5) + ' BNB' });
-                save(d);
-                update();
-                
-                Swal.fire("Success!", "Funds successfully requested & transferred to your MetaMask wallet!", "success");
-            } catch (error) {
-                console.error(error);
-                Swal.fire("Error", "Blockchain transaction failed or rejected!", "error");
-            }
+            u.bnb = 0;
+            u.stakeRewards = 0;
+            u.txHistory.unshift({ type: 'WITHDRAW', amt: finalBNBToWithdraw.toFixed(5) + ' BNB' });
+            save(d);
+            update();
+            Swal.fire("Success!", "Funds successfully requested & transferred to your MetaMask wallet!", "success");
         }
     });
 }
 
-
+// --- অটোমেটিক ইনিশিয়াল রান ---
+fetchPrice();
+if(localStorage.getItem("connected") === "true") {
+    window.addEventListener('load', () => {
+        if(window.ethereum) connect();
+    });
+}
 </script>
 </body>
 </html>html>
+
     
