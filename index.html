@@ -246,10 +246,16 @@ async function copyRef() {
 
 // কার্যপ্রণালী ১: Buy TVX ইনপুটে টাইপ করার সাথে সাথে স্ক্রিনে লাইভ কাউন্ট আপডেট হবে
 function updatePreview() {
-    const bnbAmt = parseFloat(document.getElementById("bnbInput").value) || 0;
+    const bnbInput = document.getElementById("bnbInput");
+    if (!bnbInput) return; // ইনপুট এলিমেন্ট না থাকলে কোড ক্র্যাশ হওয়া আটকাবে
+
+    const bnbAmt = parseFloat(bnbInput.value) || 0;
     const previewEl = document.getElementById("previewTVX");
+    
     if (previewEl) {
-        previewEl.innerText = (bnbAmt * RATE).toLocaleString() + " TVX";
+        // প্রথম ধাপের CONFIG অবজেক্ট থেকে RATE নেওয়া হয়েছে
+        const totalTVX = bnbAmt * CONFIG.RATE; 
+        previewEl.innerText = totalTVX.toLocaleString() + " TVX";
     }
 }
 
