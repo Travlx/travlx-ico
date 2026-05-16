@@ -261,13 +261,20 @@ function updatePreview() {
 
 // ইন্টারনাল সোয়াপ ইনপুট প্রিভিউ ফিক্স
 function updateSwapPreview() {
-    const tvxAmt = parseFloat(document.getElementById("swapInput").value) || 0;
-    const bnbRec = tvxAmt / RATE;
+    const swapInput = document.getElementById("swapInput");
+    if (!swapInput) return; // ইনপুট এলিমেন্ট না থাকলে কোড ক্র্যাশ হওয়া আটকাবে
+
+    const tvxAmt = parseFloat(swapInput.value) || 0;
+    
+    // প্রথম ধাপের CONFIG অবজেক্ট থেকে RATE নেওয়া হয়েছে
+    const bnbRec = tvxAmt / CONFIG.RATE; 
     const swapEl = document.getElementById("swapPreviewBNB");
+    
     if (swapEl) {
         swapEl.innerText = bnbRec.toFixed(4) + " BNB";
     }
 }
+
 
 // বিএনবি লাইভ প্রাইস আপডেট ফেচ
 async function fetchPrice() {
