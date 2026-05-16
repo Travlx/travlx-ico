@@ -276,18 +276,31 @@ function updateSwapPreview() {
 }
 
 
-// বিএনবি লাইভ প্রাইস আপডেট ফেচ
+// বিএনবি লাইভ প্রাইস আপডেট ফেচ (সঠিক এপিআই সহ)
 async function fetchPrice() {
     try {
+        // CoinGecko-এর সঠিক ফ্রি এপিআই ইউআরএল
         const res = await fetch('https://coingecko.com');
         const data = await res.json();
-        BNB_USD = data.binancecoin.usd;
-        const liveBNBEl = document.getElementById("liveBNB");
-        if (liveBNBEl) liveBNBEl.innerText = "$" + BNB_USD.toFixed(2);
+        
+        // সঠিক অবজেক্ট পাথ থেকে প্রাইস নেওয়া
+        if (data && data.binancecoin && data.binancecoin.usd) {
+            BNB_USD = data.binancecoin.usd;
+            const liveBNBEl = document.getElementById("liveBNB");
+            if (liveBNBEl) {
+                liveBNBEl.innerText = "$" + BNB_USD.toFixed(2);
+            }
+        }
     } catch (e) {
-        BNB_USD = 600;
+        console.error("Failed to fetch live price:", e);
+        BNB_USD = 600; // এপিআই ফেইল করলে ব্যাকআপ প্রাইস
+        const liveBNBEl = document.getElementById("liveBNB");
+        if (liveBNBEl) {
+            liveBNBEl.innerText = "$" + BNB_USD.toFixed(2);
+        }
     }
 }
+
 
 // --- মেটামাস্ক কানেক্ট ফাংশন ---
 async function connect() {
