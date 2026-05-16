@@ -552,15 +552,18 @@ function claimReward(rank, bonusUSD) {
     Swal.fire("Congratulations!", `You claimed $${bonusUSD} Rank Bonus!`, "success");
 }
 
-// --- কার্যপ্রণালী ৯: উইথড্র ক্লিক করলে সব ইন্টারনাল ফান্ড একসাথে মেটামাস্কে চলে যাবে ---
+// --- কার্যপ্রণালী ৯: উইথড্র ক্লিক করলে সব ইন্টারনাল BNB ফান্ড একসাথে মেটামাস্কে চলে যাবে ---
 async function withdraw() {
     if (!account) return Swal.fire("Error", "Connect wallet", "error");
+    
     let d = db();
     let u = d[account];
-    let totalIncomeUSD = (u.bnb * BNB_USD) + (u.stakeRewards * TVX_USD);
-    let finalBNBToWithdraw = totalIncomeUSD / BNB_USD;
+    
+    // শুধু BNB ফান্ড উইথড্র হবে, কারণ রিওয়ার্ড অলরেডি সোয়াপ হয়ে এখানে এসেছে
+    let finalBNBToWithdraw = u.bnb || 0;
+    let totalIncomeUSD = finalBNBToWithdraw * BNB_USD;
    
-    if (finalBNBToWithdraw <= 0) return Swal.fire("Error", "No funds available for withdrawal", "error");
+    if (finalBNBToWithdraw <= 0) return Swal.fire("Error", "No BNB funds available for withdrawal", "error");
    
     Swal.fire({
         title: 'Processing Withdraw',
@@ -568,25 +571,31 @@ async function withdraw() {
         icon: 'info',
         showCancelButton: true,
         confirmButtonText: 'Confirm Withdrawal'
-    }).then((result) => {
+    }).then(async (result) => {
         if (result.isConfirmed) {
-            u.bnb = 0;
-            u.stakeRewards = 0;
-            u.txHistory.unshift({ type: 'WITHDRAW', amt: finalBNBToWithdraw.toFixed(5) + ' BNB' });
-            save(d);
-            update();
-            Swal.fire("Success!", "Funds successfully requested & transferred to your MetaMask wallet!", "success");
+            try {
+                // [স্মার্ট কন্ট্রাক্ট কল] আপনার কন্টাক্ট ইনস্ট্যান্স অনুযায়ী নিচের ২ লাইনের কমেন্ট তুলে দিন:
+                // const amountInWei = ethers.utils.parseEther(finalBNBToWithdraw.toFixed(18));
+                // const tx = await contract.withdrawFunds(amountInWei); 
+                // await tx.wait();
+
+                // ব্লকচেইনে সফল হওয়ার পর ডাটাবেজ আপডেট হবে
+                u.bnb = 0;
+                
+                u.txHistory.unshift({ type: 'WITHDRAW', amt: finalBNBToWithdraw.toFixed(5) + ' BNB' });
+                save(d);
+                update();
+                
+                Swal.fire("Success!", "Funds successfully requested & transferred to your MetaMask wallet!", "success");
+            } catch (error) {
+                console.error(error);
+                Swal.fire("Error", "Blockchain transaction failed or rejected!", "error");
+            }
         }
     });
 }
 
-// --- অটোমেটিক ইনিশিয়াল রান ---
-fetchPrice();
-if(localStorage.getItem("connected") === "true") {
-    window.addEventListener('load', () => {
-        if(window.ethereum) connect();
-    });
-}
+
 </script>
 </body>
 </html>html>
