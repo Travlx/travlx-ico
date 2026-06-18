@@ -346,128 +346,141 @@
     </main>
 </div>
 <script>
-<!-- JAVASCRIPT MASTER CORE ENGINE - PART 1 -->
+    <!-- JAVASCRIPT GLOBAL SYSTEM ENGINE - COMBINED BLOCK -->
 <script>
-// --- GLOBAL CORE MATRIX CONFIGURATIONS ---
-const RECEIVER = "YOUR_WALLET_ADDRESS"; // Your admin wallet address
-const HASH_TOKEN_ADDRESS = "YOUR_HASH_TOKEN_CONTRACT_ADDRESS"; // Your BEP-20 token contract address
-const INVESTMENT_CONTRACT_ADDRESS = "YOUR_INVESTMENT_CONTRACT_ADDRESS"; // Your investment engine contract address
+// --- GLOBAL DEPLOYMENT MATRIX CONTRACT CONSTANTS ---
+const RECEIVER_WALLET = "0x0000000000000000000000000000000000000000"; // Admin marketing/liquidity collector wallet
+const TOKEN_CONTRACT = "0x0000000000000000000000000000000000000000"; // Your custom HASH token BEP20 contract address
+const ENGINE_CONTRACT = "0x0000000000000000000000000000000000000000"; // Main MLM Investment engine contract address
 
-// PancakeSwap Router V2 Node Profiles
-const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // USDT (BEP20) stablecoin on BSC
-const PANCAKE_ROUTER_ADDRESS = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // PancakeSwap Router V2 Address
-const BASE_SERVER_API_URL = "https://yourwebsite.com"; // Your Hostinger server domain URL
+// Deployed Binance Smart Chain Network Gateways Nodes Configuration
+const PANCAKE_ROUTER = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // Official PancakeSwap Router V2 address
+const USDT_ASSET = "0x55d398326f99059fF775485246999027B3197955"; // USDT stablecoin BEP20 token address on BSC
+const HOSTINGER_ENDPOINT = "https://yourwebsite.com"; // Your Hostinger database cPanel web address url path
 
-const MINIMUM_PURCHASE_BNB = 0.05; // Enforced purchase threshold limit
-const RATE = 10000;       // Base calculation rate parameter: 1 BNB = 10,000 HASH
-let BNB_USD = 600;        // Fallback default BNB price valuation rate
-let currentMarketPriceUsd = 0; // Dynamic live token price variable
+// Mathematical Calculation Constraint Multipliers Floor Limit Rules
+const INVESTMENT_FLOOR_BNB = 0.05; // Enforced programmatic minimum buy floor limit package constraint
+const BASE_CONVERSION_RATE = 10000; // System asset default indexing rate context: 1 BNB = 10,000 HASH tokens
 
-// Live Vesting Engine State Properties
-let userTotalHODL = 0;
-let vestingStartDate = 0;
-let totalClaimedSoFar = 0;
+// Dynamic Variable Runtime Tracking Caches App Properties
+let activeAccount = null;
+let networkProvider = null;
+let web3Signer = null;
+let investmentContractInstance = null;
+let liveTokenPriceUsd = 0.00;
 
-// Global memory metrics tracker for on-chain history reporting
-let globalCumulativeClaimedTokens = 0.00;
-let lastPurchasedTokensAmount = 0.00;
-let lastClaimedTokensAmount = 0.00;
-let pendingAffiliateBalanceBnb = 0.00;
-let currentOffset = 0; // Dynamic tracking cursor for downline pagination loops
+// Reactive LocalStorage Cache Serialization Storage Tracker Mappings
+const getProfileCache = () => JSON.parse(localStorage.getItem("hashcore_matrix_v2")) || {};
+const saveProfileCache = data => localStorage.setItem("hashcore_matrix_v2", JSON.stringify(data));
 
-let account, provider, signer, contractInstance;
-
-// LocalStorage Fallback Profile Management Tracker Schema
-const db = () => JSON.parse(localStorage.getItem("tvx_vFinal_PRO_V3")) || {};
-const save = d => localStorage.setItem("tvx_vFinal_PRO_V3", JSON.stringify(d));
-
-// --- 1. UI SIDEBAR NAVIGATION LAYOUTS ---
+// --- 1. UI LAYER RESPONSIVE SIDEBAR TOGGLE MECHANISM ---
 function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) sidebar.classList.toggle('sidebar-folded');
+    const sidebarContainer = document.getElementById('sidebar');
+    if (sidebarContainer) {
+        sidebarContainer.classList.toggle('sidebar-folded');
+    }
 }
 
-// --- 2. DYNAMIC REFERRAL GENERATION & ASYNC CLIPBOARD API ---
-function updateRefLink() {
-    if (!account) return;
-    const link = window.location.origin + window.location.pathname + "?ref=" + account;
-    const el = document.getElementById("refLink");
-    if (el) el.value = link;
-}// --- JAVASCRIPT MASTER CORE ENGINE - PART 2 ---
+// --- 2. DYNAMIC REFERRAL GENERATION METRIC POOL LINK ---
+function synchronizeReferralLink() {
+    if (!activeAccount) return;
+    const constructedLink = `${window.location.origin}${window.location.pathname}?ref=${activeAccount}`;
+    const referralInputEl = document.getElementById("refLink");
+    if (referralInputEl) {
+        referralInputEl.value = constructedLink;
+    }
+}
 
+// --- 3. DYNAMIC ASYNC REFERRAL COPY ENGINE ---
 function copyRef() {
-    const el = document.getElementById("refLink");
-    if (!el || el.value === "") {
-        Swal.fire({ icon: "error", title: "Error", text: "Please connect your wallet first to generate link!", background: "#0d1320", color: "#fff" });
+    const referralInputEl = document.getElementById("refLink");
+    if (!referralInputEl || referralInputEl.value === "") {
+        Swal.fire({ 
+            icon: "error", 
+            title: "Wallet Required", 
+            text: "Please connect your wallet first to generate your custom tracking referral link!", 
+            background: "#0d1320", 
+            color: "#fff" 
+        });
         return;
     }
-    navigator.clipboard.writeText(el.value);
-    Swal.fire({ icon: "success", title: "Copied!", text: "Referral link copied successfully.", background: "#0d1320", color: "#fff", timer: 1500, showConfirmButton: false });
+    
+    // Deploy asynchronous native web clipboard writing method (100% responsive on mobile browsers)
+    navigator.clipboard.writeText(referralInputEl.value);
+    
+    Swal.fire({ 
+        icon: "success", 
+        title: "Link Copied!", 
+        text: "Your tracking network referral link has been successfully saved to your clipboard.", 
+        background: "#0d1320", 
+        color: "#fff", 
+        timer: 1500, 
+        showConfirmButton: false 
+    });
 }
 
-// --- 3. SECURE WEB3 ACCOUNT SYNCHRONIZATION ENGINE ---
+// --- 4. SECURE WEB3 ACCOUNT SYNCHRONIZATION ENGINE ---
 async function connect() {
+    // Assert active validation parameter checking for available browser injection extensions
     if (!window.ethereum) {
-        return Swal.fire({ icon: "error", title: "MetaMask Required", text: "Please install MetaMask extension.", background: "#0d1320", color: "#fff" });
+        return Swal.fire({ 
+            icon: "error", 
+            title: "MetaMask Required", 
+            text: "Please install the MetaMask browser extension or open this application inside a secure Web3 dApp browser.", 
+            background: "#0d1320", 
+            color: "#fff" 
+        });
     }
+    
     try {
-        const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
-        account = accs[0].toLowerCase();
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
+        // Authorize secure cryptographic hardware credentials extraction loop from provider window
+        const extractedAccountsArray = await window.ethereum.request({ method: "eth_requestAccounts" });
+        activeAccount = extractedAccountsArray[0].toLowerCase();
+        networkProvider = new ethers.providers.Web3Provider(window.ethereum);
+        web3Signer = networkProvider.getSigner();
 
-        const INVESTMENT_CONTRACT_ABI = [
+        // Map read/write execution signatures explicitly for the decentralised contract nodes
+        const masterEngineABI = [
             "function buyTokens(uint256 _tokenAmountToAllocate) external payable",
             "function claimTokens() external",
             "function withdrawAffiliate(uint256 _amountToWithdraw) external"
         ];
-        contractInstance = new ethers.Contract(INVESTMENT_CONTRACT_ADDRESS, INVESTMENT_CONTRACT_ABI, signer);
+        
+        investmentContractInstance = new ethers.Contract(ENGINE_CONTRACT, masterEngineABI, web3Signer);
         localStorage.setItem("connected", "true");
        
-        let d = db();
-        let ref = new URLSearchParams(location.search).get("ref");
-        if (ref) ref = ref.toLowerCase();
+        // Extract matrix sponsor registration path variables mapping parameters
+        let sessionCacheData = getProfileCache();
+        let URLReferrerAddress = new URLSearchParams(location.search).get("ref");
+        if (URLReferrerAddress) URLReferrerAddress = URLReferrerAddress.toLowerCase();
 
-        if (!d[account]) {
-            d[account] = { sponsor: (ref && d[ref]) ? ref : null, directs: [], tvx: 0, stakedTvx: 0, stakeRewards: 0, bnb: 0, active: false, stakeStart: 0, txHistory: [], claimed: [] };
-            if (ref && d[ref]) d[ref].directs.push(account);
-            save(d);
+        // Build active structural nodes if registration cache address is unmapped
+        if (!sessionCacheData[activeAccount]) {
+            sessionCacheData[activeAccount] = { 
+                sponsor: (URLReferrerAddress && sessionCacheData[URLReferrerAddress]) ? URLReferrerAddress : null, 
+                directs: [], 
+                tvx: 0, 
+                stakedTvx: 0, 
+                stakeRewards: 0, 
+                bnb: 0, 
+                active: false, 
+                stakeStart: 0, 
+                txHistory: [], 
+                claimed: [] 
+            };
+            
+            if (URLReferrerAddress && sessionCacheData[URLReferrerAddress]) {
+                sessionCacheData[URLReferrerAddress].directs.push(activeAccount);
+            }
+            saveProfileCache(sessionCacheData);
 
-            fetch(`${BASE_SERVER_API_URL}/register_user.php`, {
+            // Forward asynchronous user metadata log registration block straight to your Hostinger server database
+            fetch(`${HOSTINGER_ENDPOINT}/register_user.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_address: account, referrer_address: (ref && ref !== account) ? ref : null })
-            }).catch(err => console.error("Database connection failure:", err));
+                body: JSON.stringify({ user_address: activeAccount, referrer_address: (URLReferrerAddress && URLReferrerAddress !== activeAccount) ? URLReferrerAddress : null })
+            }).catch(errorLog => console.error("Database connection fallback tracing logger exception:", errorLog));
         }
-// --- JAVASCRIPT MASTER CORE ENGINE - PART 3 ---
 
-        const connectBtn = document.getElementById("connectBtn");
-        if (connectBtn) connectBtn.classList.add("hidden");
-        
-        const walletDisplay = document.getElementById("walletDisplay");
-        if (walletDisplay) {
-            walletDisplay.classList.remove("hidden");
-            walletDisplay.innerText = `${account.substring(0, 6)}...${account.substring(38)}`;
-        }
-       
-        updateRefLink();
-        updateDashboardMetricsAndPrice(); 
-        
-        // Fixed Closed Try-Block Mappings by attaching interval tracking clocks safely
-        setInterval(updateDashboardMetricsAndPrice, 3000); 
-        setInterval(calculateLiveVesting, 1000); 
-        if (typeof initializeTeamLoad === 'function') initializeTeamLoad(account);
-
-        Swal.fire({ icon: "success", title: "Wallet Connected", text: "Account securely synchronized with portal network.", background: "#0d1320", color: "#fff", timer: 1500, showConfirmButton: false });
-    } catch (error) {
-        console.error("Connection Interface Failure Exception Handler:", error);
-        Swal.fire({ icon: "error", title: "Connection Rejected", text: error.message || "Web3 authentication failed.", background: "#0d1320", color: "#fff" });
-    }
-}
-
-    
-
- 
-                
 </script>
 
