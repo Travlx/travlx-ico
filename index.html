@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HashCore | Professional Web3 MLM</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://tailwindcss.com"></script>
+    <script src="https://jsdelivr.net"></script>
+    <script src="https://jsdelivr.net"></script>
     <style>
         body { background-color: #060b14; scroll-behavior: smooth; }
         .glass { background: rgba(13, 19, 32, 0.95); border: 1px solid rgba(255,255,255,0.05); }
@@ -19,101 +19,129 @@
 </head>
 <body class="text-white font-sans custom-scrollbar overflow-x-hidden">
 
-<div class="min-h-screen flex flex-col lg:flex-row relative">
+    <div class="min-h-screen flex flex-col lg:flex-row relative">
 
-    <!-- MOBILE TOP -->
-    <div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-[100]">
-        <h1 class="text-2xl font-black text-emerald-400 italic">Hash Core</h1>
-        <button onclick="toggleSidebar()" class="p-2 bg-emerald-400/10 rounded-lg text-emerald-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
-        </button>
-    </div>
-
-    <!-- SIDEBAR -->
-    <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-[99] flex flex-col">
-        <h1 class="text-3xl font-black text-emerald-400 mb-10 italic">Hash Core</h1>
-        <nav class="space-y-3 flex-1 text-sm font-bold">
-            <a href="#" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black">Dashboard</a>
-            <a href="#buySection" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Buy & HODL</a>
-            <a href="#rewards" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Team</a>
-            <a href="#reports" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Reports</a>
-        </nav>
-        <div class="mt-auto pt-6 border-t border-white/5 text-center">
-            <h4 class="font-bold text-[10px] text-emerald-400 uppercase italic">Rank Status</h4>
-            <p class="text-xl font-black mt-1 uppercase text-yellow-500" id="sideRank">NONE</p>
-            <button onclick="logout()" class="mt-6 text-red-500 text-xs font-bold uppercase hover:underline">Disconnect</button>
-        </div>
-    </aside>
-
-    <!-- MAIN -->
-<main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden">
-    
-    <!-- TOPBAR (Responsive Flex Layout) -->
-    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6 mb-8">
-        
-        <!-- REFERRAL LINK CARD -->
-        <div class="glass p-5 rounded-2xl border border-emerald-400/20 w-full lg:w-80 shadow-xl">
-            <p class="text-[10px] text-gray-400 uppercase font-black tracking-wider">Referral Link</p>
-            <div class="flex gap-2 mt-2">
-                <input id="refLink" readonly
-                    class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs focus:outline-none border border-white/5"
-                    placeholder="Generate your referral link" />
-                <button onclick="copyRef()"
-                    class="bg-emerald-400 text-black px-4 rounded-xl font-black text-xs hover:bg-emerald-500 transition duration-200">
-                    COPY
-                </button>
-            </div>
-        </div>
-
-        <!-- PORTAL TITLE -->
-        <div class="text-left lg:text-center">
-            <h2 class="text-3xl lg:text-5xl font-black uppercase italic tracking-tight text-white">Investor Portal</h2>
-            <p class="text-gray-400 text-xs mt-1 font-medium">Earn 36% APY & Global Rewards</p>
-        </div>
-
-        <!-- WALLET CONNECTION BUTTON -->
-        <div class="flex items-center lg:justify-end">
-            <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3 rounded-2xl font-black shadow-lg shadow-emerald-400/20 hover:bg-emerald-500 transition duration-200 text-sm">
-                Connect
+        <!-- MOBILE TOP NAV -->
+        <div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-[100]">
+            <h1 class="text-2xl font-black text-emerald-400 italic">Hash Core</h1>
+            <button onclick="toggleSidebar()" class="p-2 bg-emerald-400/10 rounded-lg text-emerald-400">
+                <svg xmlns="http://w3.org" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
             </button>
-            <div id="walletDisplay" class="hidden glass px-4 py-3 rounded-2xl text-emerald-400 text-xs font-mono border border-emerald-400/20 shadow-md">
-                0x...
+        </div>
+
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-[99] flex flex-col">
+            <h1 class="text-3xl font-black text-emerald-400 mb-10 italic">Hash Core</h1>
+            <nav class="space-y-3 flex-1 text-sm font-bold">
+                <a href="#" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black">Dashboard</a>
+                <a href="#buySection" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Buy & HODL</a>
+                <a href="#rewards" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Team</a>
+                <a href="#reports" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Reports</a>
+            </nav>
+            <div class="mt-auto pt-6 border-t border-white/5 text-center">
+                <h4 class="font-bold text-[10px] text-emerald-400 uppercase italic">Rank Status</h4>
+                <p class="text-xl font-black mt-1 uppercase text-yellow-500" id="sideRank">NONE</p>
+                <button onclick="logout()" class="mt-6 text-red-500 text-xs font-bold uppercase hover:underline">Disconnect</button>
             </div>
-        </div>
-    </div>
+        </aside>
 
-
-        <!-- STATS GRID -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div class="glass p-5 rounded-2xl border-l-4 border-white"><p class="text-gray-500 text-[10px] font-bold uppercase">BNB Balance</p><h3 id="bnbBal" class="text-xl font-black mt-1">0.0000</h3></div>
-            <div class="glass p-5 rounded-2xl border-l-4 border-emerald-400"><p class="text-gray-500 text-[10px] font-bold uppercase">HODL HASH Assets</p><h3 id="tvxBal" class="text-xl font-black mt-1 text-emerald-400">0</h3></div>
-            <div class="glass p-5 rounded-2xl border-l-4 border-yellow-500 bg-yellow-500/5"><p class="text-yellow-500 text-[10px] font-bold uppercase italic">Vesting Asset</p><h3 id="stakeProfit" class="text-xl font-black mt-1 text-yellow-500">0.00 HASH</h3></div>
-            <div class="glass p-5 rounded-2xl border-l-4 border-blue-500"><p class="text-gray-500 text-[10px] font-bold uppercase italic">Affiliate Income</p><h3 id="income" class="text-xl font-black mt-1 text-blue-400">0.0000</h3></div>
-        </div>
-
-
-        <!-- BUY & SWAP -->
-        <div id="buySection" class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-            <div class="glass p-6 lg:p-8 rounded-[35px] border border-white/5">
-                <h3 class="text-xl font-black mb-6 text-emerald-400 italic"> Buy & HOLD HASH Tokens</h3>
-                <input id="bnbInput" type="number" step="0.01" oninput="updatePreview()" class="w-full p-4 bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-emerald-400 font-bold font-mono" placeholder="BNB Amount">
-                <div class="flex justify-between bg-black/30 p-4 rounded-2xl mt-4 border border-white/5 italic">
-                    <span class="text-gray-500 text-xs uppercase font-bold">You Will Get:</span><span id="previewTVX" class="font-black text-emerald-400">0 TVX</span>
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden">
+            
+            <!-- TOPBAR WITH REFERRAL & PORTAL TITLE -->
+            <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6 mb-8">
+                
+                <!-- REFERRAL LINK CARD -->
+                <div class="glass p-5 rounded-2xl border border-emerald-400/20 w-full lg:w-80 shadow-xl">
+                    <p class="text-[10px] text-gray-400 uppercase font-black tracking-wider">Referral Link</p>
+                    <div class="flex gap-2 mt-2">
+                        <input id="refLink" readonly
+                            class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs focus:outline-none border border-white/5"
+                            placeholder="Generate your referral link" />
+                        <button onclick="copyRef()"
+                            class="bg-emerald-400 text-black px-4 rounded-xl font-black text-xs hover:bg-emerald-500 transition duration-200">
+                            COPY
+                        </button>
+                    </div>
                 </div>
-                <button onclick="buy()" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl mt-4 hover:bg-yellow-400 transition uppercase text-sm">Buy Now</button>
-                <p class="text-[9px] text-center text-gray-600 mt-2 font-mono uppercase">Live Price: <span id="liveBNB">Loading...</span></p>
+
+                <!-- PORTAL TITLE & LIVE PRICE -->
+                <div class="text-left lg:text-center">
+                    <h2 class="text-3xl lg:text-5xl font-black uppercase italic tracking-tight text-white">Investor Portal</h2>
+                    <div class="flex items-center justify-start lg:justify-center gap-2 mt-1">
+                        <p class="text-gray-400 text-xs font-medium">Earn 36% APY & Global Rewards</p>
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            1 HASH = <span id="tokenPrice">Loading...</span> USD
+                        </span>
+                    </div>
+                </div>
+
+                <!-- WALLET CONNECTION BUTTON -->
+                <div class="flex items-center lg:justify-end">
+                    <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3 rounded-2xl font-black shadow-lg shadow-emerald-400/20 hover:bg-emerald-500 transition duration-200 text-sm">
+                        Connect
+                    </button>
+                    <div id="walletDisplay" class="hidden glass px-4 py-3 rounded-2xl text-emerald-400 text-xs font-mono border border-emerald-400/20 shadow-md">
+                        0x...
+                    </div>
+                </div>
             </div>
-           
-    
 
-        <!-- WITHDRAW -->
-        <div class="glass p-8 rounded-[40px] flex flex-col lg:flex-row justify-between items-center border border-blue-400/10 mb-8">
-            <div><p class="text-gray-500 text-xs font-black uppercase tracking-widest italic font-mono">Available For Withdrawal</p><h1 id="balDisplay" class="text-4xl lg:text-5xl font-black mt-2 italic text-white">$0.00</h1></div>
-            <button onclick="withdraw()" class="w-full lg:w-72 bg-white text-black font-black py-4 rounded-2xl mt-8 hover:bg-emerald-50 transition text-sm shadow-2xl">WITHDRAW NOW</button>
-        </div>
+            <!-- STATS GRID -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 mt-8">
+                
+                <!-- Card 1: BNB Balance -->
+                <div class="glass p-6 rounded-2xl border border-white/5 shadow-xl relative overflow-hidden group hover:border-emerald-400/20 transition duration-300">
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">BNB Balance</p>
+                    <h3 class="text-2xl font-black text-white mt-2 font-mono" id="bnbBalance">0.0000 BNB</h3>
+                    <div class="absolute -right-2 -bottom-2 text-emerald-400/5 font-black text-6xl pointer-events-none select-none">BNB</div>
+                </div>
 
-    </main>
-</div>
+                <!-- Card 2: HODL Hash Assets -->
+                <div class="glass p-6 rounded-2xl border border-white/5 shadow-xl relative overflow-hidden group hover:border-emerald-400/20 transition duration-300">
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">HODL Hash Assets</p>
+                    <h3 class="text-2xl font-black text-emerald-400 mt-2 font-mono" id="totalHash">0.00 HASH</h3>
+                    <div class="absolute -right-2 -bottom-2 text-emerald-400/5 font-black text-6xl pointer-events-none select-none">HODL</div>
+                </div>
+
+                <!-- Card 3: Vesting Asset (Locked) -->
+                <div class="glass p-6 rounded-2xl border border-white/5 shadow-xl relative overflow-hidden group hover:border-yellow-500/20 transition duration-300">
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Vesting Asset</p>
+                    <h3 class="text-2xl font-black text-yellow-500 mt-2 font-mono" id="vestingLocked">0.00 HASH</h3>
+                    <div class="absolute -right-2 -bottom-2 text-yellow-500/5 font-black text-6xl pointer-events-none select-none">LOCK</div>
+                </div>
+
+                <!-- Card 4: Affiliate Income -->
+                <div class="glass p-6 rounded-2xl border border-white/5 shadow-xl relative overflow-hidden group hover:border-emerald-400/20 transition duration-300">
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Affiliate Income</p>
+                    <h3 class="text-2xl font-black text-emerald-400 mt-2 font-mono" id="affiliateIncome">0.00 BNB</h3>
+                    <div class="absolute -right-2 -bottom-2 text-emerald-400/5 font-black text-6xl pointer-events-none select-none">EARN</div>
+                </div>
+            </div>
+
+            <!-- ACTION SECTIONS (BUY & WITHDRAWAL) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+                
+                <!-- BUY & HODL SECTION -->
+                <div id="buySection" class="glass p-8 rounded-3xl border border-emerald-400/10 shadow-2xl">
+                    <h4 class="text-xl font-black text-white uppercase italic mb-2">Buy & HODL HASH</h4>
+                    <p class="text-xs text-gray-400 mb-6">70% to Liquidity | 30% to Marketing & Affiliates</p>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs font-bold text-gray-400 block mb-2">Enter BNB Amount</label>
+                            <div class="relative">
+                                <input type="number" id="buyAmount" step="0.01" min="0" placeholder="0.0" 
+                                    class="w-full p-4 bg-black/40 rounded-xl border border-white/10 text-white font-mono focus:outline-none focus:border-emerald-400" />
+                                <span class="absolute right-4 top-4 font-black text-gray-500 text-sm">BNB</span>
+                            </div>
+                        </div>
+                        
+                        <button onclick="buyTokens()" class="w-full bg-emerald-400 text-black py-4 rounded-xl font-black shadow-lg shadow-emerald-400/10 hover:bg-emerald-500 transition duration-200">
+                            BUY NOW
+
+
 <script>
 // --- CONFIGURATION ---
 const RECEIVER = "YOUR_WALLET_ADDRESS"; // এখানে আপনার রিসিভার ওয়ালেট এড্রেস দিন
