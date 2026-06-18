@@ -349,6 +349,8 @@
 <script>
 <!-- JAVASCRIPT MASTER CORE ENGINE (FINAL INTEGRATED ARCHITECTURE) -->
 <script>
+<!-- JAVASCRIPT MASTER CORE ENGINE - PART 1 -->
+<script>
 // --- GLOBAL CORE MATRIX CONFIGURATIONS ---
 const RECEIVER = "YOUR_WALLET_ADDRESS"; // Your admin wallet address
 const HASH_TOKEN_ADDRESS = "YOUR_HASH_TOKEN_CONTRACT_ADDRESS"; // Your BEP-20 token contract address
@@ -392,24 +394,21 @@ function updateRefLink() {
     const link = window.location.origin + window.location.pathname + "?ref=" + account;
     const el = document.getElementById("refLink");
     if (el) el.value = link;
-}
-
+}// --- 3. SECURE WEB3 ACCOUNT SYNCHRONIZATION ENGINE (Lines 51-100) ---
 function copyRef() {
     const el = document.getElementById("refLink");
     if (!el || el.value === "") {
-        Swal.fire({ icon: "error", title: "Error", text: "Please connect your wallet first to generate your referral tracking link!", background: "#0d1320", color: "#fff" });
+        Swal.fire({ icon: "error", title: "Error", text: "Please connect your wallet first to generate link!", background: "#0d1320", color: "#fff" });
         return;
     }
     navigator.clipboard.writeText(el.value);
-    Swal.fire({ icon: "success", title: "Copied!", text: "Your tracking referral link has been successfully copied to your clipboard.", background: "#0d1320", color: "#fff", timer: 1500, showConfirmButton: false });
+    Swal.fire({ icon: "success", title: "Copied!", text: "Referral link copied successfully.", background: "#0d1320", color: "#fff", timer: 1500, showConfirmButton: false });
 }
 
-// --- 3. SECURE WEB3 ACCOUNT SYNCHRONIZATION ENGINE ---
 async function connect() {
     if (!window.ethereum) {
-        return Swal.fire({ icon: "error", title: "MetaMask Required", text: "Please install MetaMask extension or open this website inside a secure dApp browser.", background: "#0d1320", color: "#fff" });
+        return Swal.fire({ icon: "error", title: "MetaMask Required", text: "Please install MetaMask extension.", background: "#0d1320", color: "#fff" });
     }
-    
     try {
         const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
         account = accs[0].toLowerCase();
@@ -437,9 +436,9 @@ async function connect() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ user_address: account, referrer_address: (ref && ref !== account) ? ref : null })
-            }).catch(err => console.error("Central server registration sync fallback:", err));
+            }).catch(err => console.error("Database connection failure:", err));
         }
-
+// --- 4. DYNAMIC DASHBOARD REFRESH ENGINE (Lines 101-150) ---
         const connectBtn = document.getElementById("connectBtn");
         if (connectBtn) connectBtn.classList.add("hidden");
         
@@ -455,14 +454,13 @@ async function connect() {
         setInterval(updateDashboardMetricsAndPrice, 3000); 
         setInterval(calculateLiveVesting, 1000); 
 
-        Swal.fire({ icon: "success", title: "Wallet Connected", text: "Your account credentials have been securely synchronized with the network matrix portal.", background: "#0d1320", color: "#fff", timer: 1500, showConfirmButton: false });
+        Swal.fire({ icon: "success", title: "Wallet Connected", text: "Account securely synchronized with portal network.", background: "#0d1320", color: "#fff", timer: 1500, showConfirmButton: false });
     } catch (error) {
         console.error("Connection Interface Failure Exception Handler:", error);
         Swal.fire({ icon: "error", title: "Connection Rejected", text: error.message || "Web3 authentication failed.", background: "#0d1320", color: "#fff" });
     }
 }
 
-// --- 4. ROUTINE INTERFACE STATISTICS & PANCAKESWAP PRICING REFRESH LOOP ---
 async function updateDashboardMetricsAndPrice() {
     try {
         const rpcProvider = provider || new ethers.providers.JsonRpcProvider("https://binance.org");
@@ -501,15 +499,12 @@ async function updateDashboardMetricsAndPrice() {
                 }).catch(err => console.error("Balance routine update failure:", err));
         }
         
-        // Auto synchronization linking with reports display
         updateTransactionReportsDisplay();
-
     } catch (err) {
         console.error("Metric Loop Exception Interruption:", err);
     }
 }
 
-// --- 5. REAL-TIME 20% DISCOUNT PREVIEW ENGINE ---
 function updatePreview() {
     const bnbInputEl = document.getElementById("bnbInput");
     const previewTvxEl = document.getElementById("previewTVX");
@@ -523,9 +518,7 @@ function updatePreview() {
     const discountedPriceUsd = currentMarketPriceUsd * 0.80;
     const finalTokens = (bnbAmount * BNB_USD) / discountedPriceUsd;
     previewTvxEl.innerText = `${finalTokens.toFixed(2)} HASH`;
-}
-
-// --- 6. CRYPTO SMART CONTRACT BUY ENGINE WITH 0.05 BNB LIMIT ---
+}// --- 5. SMART CONTRACT CORE INVESTMENT EXECUTION (Lines 151-200+) ---
 async function buy() {
     if (!signer || !contractInstance || !account) {
         return Swal.fire({ icon: 'warning', title: 'Wallet Required', text: 'Connect wallet first!', background: '#0d1320', color: '#fff' });
@@ -539,3 +532,275 @@ async function buy() {
     try {
         Swal.fire({ title: 'Initializing Investment...', text: 'Please sign transaction payload.', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => { Swal.showLoading(); } });
         const depositValueWei = ethers.utils.parseEther(bnbAmount.toString());
+        const estimatedTokens = parseFloat(document.getElementById("previewTVX")?.innerText || 0);
+        const tokensToAllocateWei = ethers.utils.parseUnits(estimatedTokens.toFixed(18), 18);
+
+        const tx = await contractInstance.buyTokens(tokensToAllocateWei, { value: depositValueWei });
+        Swal.fire({ title: 'Confirming Block...', text: 'Writing block node records...', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => { Swal.showLoading(); } });
+        await tx.wait(); 
+
+        let d = db();
+        if (d[account]) {
+            d[account].tvx = (parseFloat(d[account].tvx) || 0) + estimatedTokens;
+            d[account].stakedTvx = (parseFloat(d[account].stakedTvx) || 0) + estimatedTokens;
+            d[account].stakeStart = Math.floor(Date.now() / 1000); 
+            if (!d[account].txHistory) d[account].txHistory = [];
+            d[account].txHistory.push({ bnb: bnbAmount, tokens: estimatedTokens, timestamp: Date.now() });
+            save(d);
+        }
+        fetch(`${BASE_SERVER_API_URL}/process_investment.php`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user_address: account.toLowerCase(), bnb_amount: bnbAmount }) }).catch(err => console.error(err));
+        
+        bnbInputEl.value = "";
+        if (document.getElementById("previewTVX")) document.getElementById("previewTVX").innerText = "0 HASH";
+        Swal.fire({ icon: 'success', title: 'Investment Successful!', text: 'Discounted tokens are securely locked in vesting.', background: '#0d1320', color: '#fff' });
+        updateDashboardMetricsAndPrice();
+    } catch (error) {
+        Swal.fire({ icon: 'error', title: 'Transaction Aborted', text: error.message || 'Rejected.', background: '#0d1320', color: '#fff' });
+    }
+}
+
+function calculateLiveVesting() {
+    if (userTotalHODL === 0 || vestingStartDate === 0) return;
+    const currentTimeStamp = Math.floor(Date.now() / 1000);
+    const secondsElapsed = currentTimeStamp - vestingStartDate;
+    const releaseRatePerSecond = 0.05 / (30 * 24 * 60 * 60);
+
+    let totalUnlockedTokens = userTotalHODL * (secondsElapsed * releaseRatePerSecond);
+    if (totalUnlockedTokens > userTotalHODL) totalUnlockedTokens = userTotalHODL;
+
+    let currentClaimable = totalUnlockedTokens - totalClaimedSoFar;
+    if (currentClaimable < 0) currentClaimable = 0;
+    const remainingLocked = userTotalHODL - totalUnlockedTokens;
+
+    if (document.getElementById("claimableTokens")) document.getElementById("claimableTokens").innerText = currentClaimable.toFixed(5);
+    if (document.getElementById("stakeProfit")) document.getElementById("stakeProfit").innerText = `${remainingLocked.toFixed(2)} HASH`;
+}
+
+async function claimTokens() {
+    if (!signer || !contractInstance || !account) {
+        return Swal.fire({ icon: 'warning', title: 'Wallet Required', text: 'Please connect wallet first.', background: '#0d1320', color: '#fff' });
+    }
+    const claimableEl = document.getElementById("claimableTokens");
+    const availableToClaim = claimableEl ? parseFloat(claimableEl.innerText) : 0;
+    
+    if (availableToClaim <= 0) {
+        return Swal.fire({ icon: 'error', title: 'No Tokens Available', text: 'Vesting rewards are generating. Please wait.', background: '#0d1320', color: '#fff' });
+    }
+    try {
+        Swal.fire({ title: 'Claiming Tokens...', text: 'Please authorize inside your wallet.', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => { Swal.showLoading(); } });
+        const tx = await contractInstance.claimTokens();
+        await tx.wait();
+
+        totalClaimedSoFar += availableToClaim;
+        if (claimableEl) claimableEl.innerText = "0.00000";
+
+        let d = db();
+        if (!d[account].claimed) d[account].claimed = [];
+        d[account].claimed.push({ amount: availableToClaim, timestamp: Date.now() });
+        save(d);
+
+        Swal.fire({ icon: 'success', title: 'Claim Successful!', text: `${availableToClaim.toFixed(2)} HASH sent to wallet.`, background: '#0d1320', color: '#fff' });
+        updateDashboardMetricsAndPrice();
+    } catch (error) {
+        Swal.fire({ icon: 'error', title: 'Claim Failed', text: error.message, background: '#0d1320', color: '#fff' });
+    }
+}
+
+async function withdrawAffiliateIncome() {
+    if (!signer || !contractInstance || !account) {
+        return Swal.fire({ icon: 'warning', title: 'Wallet Required', text: 'Please connect wallet first.', background: '#0d1320', color: '#fff' });
+    }
+    if (isNaN(pendingAffiliateBalanceBnb) || pendingAffiliateBalanceBnb <= 0) {
+        return Swal.fire({ icon: 'error', title: 'No Earnings Available', text: 'No pending downline rewards found.', background: '#0d1320', color: '#fff' });
+    }
+    try {
+        Swal.fire({ title: 'Processing Payout...', text: 'Please sign direct payout inside wallet.', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => { Swal.showLoading(); } });
+        const withdrawValueWei = ethers.utils.parseEther(pendingAffiliateBalanceBnb.toString());
+        const tx = await contractInstance.withdrawAffiliate(withdrawValueWei);
+
+        Swal.fire({ title: 'Validating Payout...', text: 'Synchronizing logs with blockchain network nodes...', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => { Swal.showLoading(); } });
+        await tx.wait(); 
+
+        fetch(`${BASE_SERVER_API_URL}/update_withdraw_status.php?address=${account.toLowerCase()}`).catch(err => console.error(err));
+
+        pendingAffiliateBalanceBnb = 0;
+        if (document.getElementById("incomeDisplay")) document.getElementById("incomeDisplay").innerText = "0.0000 BNB";
+        if (document.getElementById("income")) document.getElementById("income").innerText = "0.0000 BNB"; 
+
+        Swal.fire({ icon: 'success', title: 'Withdrawal Complete!', text: '100% earnings deposited with zero fees.', background: '#0d1320', color: '#fff' });
+        updateDashboardMetricsAndPrice();
+    } catch (error) {
+        Swal.fire({ icon: 'error', title: 'Withdrawal Failed', text: error.message || 'Crashed.', background: '#0d1320', color: '#fff' });
+    }
+}
+
+function updateTransactionReportsDisplay() {
+    if (!account) return;
+    try {
+        let d = db();
+        if (d[account]) {
+            const localTxHistory = d[account].txHistory || [];
+            const localClaimedHistory = d[account].claimed || [];
+
+            globalCumulativeClaimedTokens = localClaimedHistory.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
+            if (document.getElementById("totalClaimedDisplay")) document.getElementById("totalClaimedDisplay").innerText = `${globalCumulativeClaimedTokens.toFixed(2)} HASH`;
+
+            if (localTxHistory.length > 0) {
+                lastPurchasedTokensAmount = parseFloat(localTxHistory[localTxHistory.length - 1].tokens || 0);
+            } else if (userTotalHODL > 0) {
+                lastPurchasedTokensAmount = userTotalHODL;
+            }
+            if (document.getElementById("reportLastBuy")) document.getElementById("reportLastBuy").innerText = `${lastPurchasedTokensAmount.toFixed(2)} HASH`;
+
+            if (localClaimedHistory.length > 0) {
+                lastClaimedTokensAmount = parseFloat(localClaimedHistory[localClaimedHistory.length - 1].amount || 0);
+            } else if (totalClaimedSoFar > 0) {
+                lastClaimedTokensAmount = totalClaimedSoFar;
+            }
+            if (document.getElementById("reportLastClaim")) document.getElementById("reportLastClaim").innerText = `${lastClaimedTokensAmount.toFixed(2)} HASH`;
+        }
+    } catch (error) { console.error(error); }
+}
+
+function logout() { localStorage.removeItem("connected"); location.reload(); }
+
+window.addEventListener('DOMContentLoaded', () => {
+    updateDashboardMetricsAndPrice();
+    setInterval(updateDashboardMetricsAndPrice, 3000); 
+
+    const connectButtonEl = document.getElementById("connectBtn");
+    if (connectButtonEl) {
+        connectButtonEl.removeAttribute("onclick");
+        connectButtonEl.addEventListener("click", (e) => { e.preventDefault(); connect(); });
+    }
+    const copyButtonEl = document.querySelector("button[onclick='copyRef()']") || document.getElementById("refLink")?.nextElementSibling;
+    if (copyButtonEl) {
+        copyButtonEl.removeAttribute("onclick");
+        copyButtonEl.addEventListener("click", (e) => { e.preventDefault(); copyRef(); });
+    }
+    const buyButtonEl = document.getElementById("buyBtn");
+    if (buyButtonEl) {
+        buyButtonEl.removeAttribute("onclick");
+        buyButtonEl.addEventListener("click", (e) => { e.preventDefault(); buy(); });
+    }
+    const claimButtonEl = document.getElementById("claimBtn");
+    if (claimButtonEl) {
+        claimButtonEl.removeAttribute("onclick");
+        claimButtonEl.addEventListener("click", (e) => { e.preventDefault(); claimTokens(); });
+    }
+    const withdrawButtonEl = document.getElementById("withdrawBtn");
+// --- 12. HOSTINGER 20-LEVEL MATRIX AFFILIATE NETWORKING TABLE PAGINATION ENGINE ---
+const DATA_LIMIT = 10; // Sets how many rows to load per page hit
+
+function initializeTeamLoad(walletAddress) {
+    const tableBody = document.getElementById("teamTableBody");
+    if (tableBody) tableBody.innerHTML = ""; // Clear fallback templates data safely
+    currentOffset = 0; // Reset pagination pointer cursor back to index zero point
+    fetchTeamDataFromHostinger(walletAddress); 
+}
+
+function loadMoreTeamMembers() {
+    if (!account) return;
+    currentOffset += DATA_LIMIT; // Push cursor offset up by 10 row units 
+    fetchTeamDataFromHostinger(account);
+}
+
+async function fetchTeamDataFromHostinger(walletAddress) {
+    const tableBody = document.getElementById("teamTableBody");
+    const loadMoreBtn = document.getElementById("loadMoreBtn");
+    if (!tableBody || !loadMoreBtn) return;
+
+    try {
+        loadMoreBtn.innerText = "Loading Partners...";
+        loadMoreBtn.disabled = true;
+
+        // Fetch dynamic page results from Hostinger Central PHP Matrix Router Endpoint
+        const response = await fetch(`${BASE_SERVER_API_URL}/get_team.php?address=${walletAddress.toLowerCase()}&limit=${DATA_LIMIT}&offset=${currentOffset}`);
+        const data = await response.json();
+
+        loadMoreBtn.innerHTML = `<svg xmlns="http://w3.org" class="h-4 w-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 13l-7 7m0 0l-7-7m7 7V3"/></svg> Load More Partners`;
+        loadMoreBtn.disabled = false;
+
+        if (document.getElementById("totalTeam")) {
+            document.getElementById("totalTeam").innerText = `${data.total_team || 0} Users`;
+        }
+
+        // Handle absolute layout reset if database row count mapping arrays return empty
+        if (!data.members || data.members.length === 0) {
+            if (currentOffset === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-gray-500 font-bold">No downline partners found in your 20-level network matrix yet.</td></tr>`;
+            }
+            if (document.getElementById("loadMoreContainer")) {
+                document.getElementById("loadMoreContainer").classList.add("hidden");
+            }
+            return;
+        }
+
+        // Sequentially iterate and push shortened addresses metrics inside the active DOM tree table
+        data.members.forEach(member => {
+            const shortAddress = `${member.from_address.substring(0, 6)}...${member.from_address.substring(38)}`;
+            
+            // Apply clean professional tiered color matching badge layouts dynamically
+            let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+            if (member.generation_level > 5 && member.generation_level <= 12) {
+                badgeClass = "bg-blue-500/10 text-blue-400 border-blue-500/20";
+            } else if (member.generation_level > 12) {
+                badgeClass = "bg-purple-500/10 text-purple-400 border-purple-500/20";
+            }
+
+            const row = `
+                <tr class="hover:bg-white/[0.02] transition">
+                    <td class="p-4 font-mono text-emerald-400 tracking-wider">${shortAddress}</td>
+                    <td class="p-4"><span class="px-2.5 py-0.5 rounded-full border font-bold text-[10px] ${badgeClass}">Level ${member.generation_level}</span></td>
+                    <td class="p-4 text-gray-500">Active Partner</td>
+                    <td class="p-4 font-mono text-emerald-400 font-bold">+${parseFloat(member.commission_amount_bnb).toFixed(4)} BNB</td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+        });
+
+        // Toggle pagination button container states if active table length satisfies full query depth limits
+        const currentRowsCount = tableBody.getElementsByTagName("tr").length;
+        if (document.getElementById("loadMoreContainer")) {
+            if (currentRowsCount >= data.total_team) {
+                document.getElementById("loadMoreContainer").classList.add("hidden");
+            } else {
+                document.getElementById("loadMoreContainer").classList.remove("hidden");
+            }
+        }
+    } catch (error) {
+        console.error("Hostinger pagination pipeline failure exception tracker log:", error);
+        loadMoreBtn.disabled = false;
+    }
+}
+
+// --- 13. REAL-TIME MULTI-PARAMETER SEARCH AND TIER FILTER MATRIX ---
+function filterTeamTable() {
+    const searchInput = document.getElementById("teamSearchInput").value.toLowerCase();
+    const levelSelect = document.getElementById("teamLevelSelect").value;
+    const table = document.getElementById("affiliateTable");
+    if (!table) return;
+    const tr = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < tr.length; i++) {
+        const tdAddress = tr[i].getElementsByTagName("td")[0];
+        const tdLevel = tr[i].getElementsByTagName("td")[1];
+        
+        if (tdAddress && tdLevel) {
+            const addressText = tdAddress.textContent || tdAddress.innerText;
+            const levelText = tdLevel.textContent || tdLevel.innerText;
+            
+            const matchesSearch = addressText.toLowerCase().indexOf(searchInput) > -1;
+            const matchesLevel = (levelSelect === "ALL") || (levelText.trim().indexOf(levelSelect) > -1);
+            
+            if (matchesSearch && matchesLevel) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+            </script>
+    }
+}
+
+
