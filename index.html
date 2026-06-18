@@ -394,5 +394,59 @@ function copyRef() {
     navigator.clipboard.writeText(el.value);
     Swal.fire({ icon: "success", title: "Copied!", text: "Referral link copied successfully.", background: "#0d1320", color: "#fff", timer: 1500, showConfirmButton: false });
 }
+// --- 3. SECURE WEB3 ACCOUNT SYNCHRONIZATION ENGINE (Lines 51-100) ---
+async function connect() {
+    if (!window.ethereum) {
+        return Swal.fire({ icon: "error", title: "MetaMask Required", text: "Please install MetaMask extension.", background: "#0d1320", color: "#fff" });
+    }
+    try {
+        const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
+        account = accs[0].toLowerCase();
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+
+        const INVESTMENT_CONTRACT_ABI = [
+            "function buyTokens(uint256 _tokenAmountToAllocate) external payable",
+            "function claimTokens() external"
+        ];
+        contractInstance = new ethers.Contract(INVESTMENT_CONTRACT_ADDRESS, INVESTMENT_CONTRACT_ABI, signer);
+        localStorage.setItem("connected", "true");
+       
+        let d = db();
+        let ref = new URLSearchParams(location.search).get("ref");
+        if (ref) ref = ref.toLowerCase();
+
+        if (!d[account]) {
+            d[account] = { sponsor: (ref && d[ref]) ? ref : null, directs: [], tvx: 0, stakedTvx: 0, stakeRewards: 0, bnb: 0, active: false, stakeStart: 0, txHistory: [], claimed: [] };
+            if (ref && d[ref]) d[ref].directs.push(account);
+            save(d);
+
+            fetch(`${BASE_SERVER_API_URL}/register_user.php`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_address: account, referrer_address: (ref && ref !== account) ? ref : null })
+            }).catch(err => console.error("Database connection failure:", err));
+        }
+
+        const connectBtn = document.getElementById("connectBtn");
+        if (connectBtn) connectBtn.classList.add("hidden");
+        
+        const walletDisplay = document.getElementById("walletDisplay");
+        if (walletDisplay) {
+            walletDisplay.classList.remove("hidden");
+            walletDisplay.innerText = `${account.substring(0, 6)}...${account.substring(38)}`;
+        }
+       
+        updateRefLink();
+        updateDashboardMetricsAndPrice(); 
+        setInterval(updateDashboardMetricsAndPrice, 3000); 
+        setInterval(calculateLiveVesting, 1000); 
+
+        Swal.fire({ icon: "success", title: "Wallet Connected", text: "Account securely synchronized with matrix.", background: "#0d1320", color: "#fff", timer: 1500, showConfirmButton: false });
+    } catch (error) {
+        console.error("Connection Interface Failure Error:", error);
+        Swal.fire({ icon: "error", title: "Connection Rejected", text: error.message || "Auth failed.", background: "#0d1320", color: "#fff" });
+    }
+}
 
 </script>
