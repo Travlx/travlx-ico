@@ -448,5 +448,326 @@ async function connect() {
         Swal.fire({ icon: "error", title: "Connection Rejected", text: error.message || "Auth failed.", background: "#0d1320", color: "#fff" });
     }
 }
+// --- 4. ROUTINE INTERFACE STATISTICS REFRESH LOOP (Lines 101-150) ---
+async function updateDashboardMetricsAndPrice() {
+    try {
+        const rpcProvider = provider || new ethers.providers.JsonRpcProvider("https://binance.org");
+        const routerABI = ["function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"];
+        const routerContract = new ethers.Contract(PANCAKE_ROUTER_ADDRESS, routerABI, rpcProvider);
+
+        const amountIn = ethers.utils.parseUnits("1", 18); 
+        const path = [HASH_TOKEN_ADDRESS, USDT_ADDRESS];
+
+        const amounts = await routerContract.getAmountsOut(amountIn, path);
+        currentMarketPriceUsd = parseFloat(ethers.utils.formatUnits(amounts, 18)); 
+        
+        if (document.getElementById("tokenPrice")) document.getElementById("tokenPrice").innerText = currentMarketPriceUsd.toFixed(4);
+        if (document.getElementById("liveBNB")) document.getElementById("liveBNB").innerText = `$${currentMarketPriceUsd.toFixed(4)}`;
+
+        if (account && provider) {
+            const rawBalance = await provider.getBalance(account);
+            const liveUserBnbBalance = parseFloat(ethers.utils.formatEther(rawBalance)).toFixed(4);
+            if (document.getElementById("bnbBal")) document.getElementById("bnbBal").innerText = `${liveUserBnbBalance} BNB`;
+
+            let d = db();
+            if (d[account]) {
+                userTotalHODL = parseFloat(d[account].tvx || 0);
+                vestingStartDate = parseInt(d[account].stakeStart || 0);
+                if (document.getElementById("tvxBal")) document.getElementById("tvxBal").innerText = `${userTotalHODL.toFixed(2)} HASH`;
+            }
+
+            fetch(`${BASE_SERVER_API_URL}/get_balance.php?address=${account}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && !data.error) {
+                        const liveUserAffiliateIncomeBnb = parseFloat(data.pending_balance || 0).toFixed(4);
+                        if (document.getElementById("income")) document.getElementById("income").innerText = `${liveUserAffiliateIncomeBnb} BNB`;
+                    }
+                }).catch(err => console.error("Balance routine update failure:", err));
+        }
+    } catch (err) {
+        console.error("Metric Loop Exception Interruption:", err);
+    }
+}
+
+// --- 5. REAL-TIME 20% DISCOUNT PREVIEW ENGINE ---
+function updatePreview() {
+    const bnbInputEl = document.getElementById("bnbInput");
+    const previewTvxEl = document.getElementById("previewTVX");
+    if (!bnbInputEl || !previewTvxEl) return;
+    const bnbAmount = parseFloat(bnbInputEl.value);
+    
+    if (isNaN(bnbAmount) || bnbAmount <= 0 || currentMarketPriceUsd <= 0) {
+        previewTvxEl.innerText = "0 HASH";
+        return;
+    }
+    const discountedPriceUsd = currentMarketPriceUsd * 0.80;
+    const finalTokens = (bnbAmount * BNB_USD) / discountedPriceUsd;
+    previewTvxEl.innerText = `${finalTokens.toFixed(2)} HASH`;
+}
+// --- 6. CRYPTO SMART CONTRACT BUY ENGINE (Lines 151-200+) ---
+async function buy() {
+    if (!signer || !contractInstance || !account) {
+        return Swal.fire({ icon: 'warning', title: 'Wallet Required', text: 'Connect wallet first!', background: '#0d1320', color: '#fff' });
+    }
+    const bnbInputEl = document.getElementById("bnbInput");
+    const bnbAmount = parseFloat(bnbInputEl ? bnbInputEl.value : 0);
+
+    if (isNaN(bnbAmount) || bnbAmount < MINIMUM_PURCHASE_BNB) {
+        return Swal.fire({ icon: 'error', title: 'Minimum Purchase required', text: `Minimum buy requirement is ${MINIMUM_PURCHASE_BNB} BNB.`, background: '#0d1320', color: '#fff' });
+    }
+    try {
+        Swal.fire({ title: 'Initializing Investment...', text: 'Please sign transaction payload.', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => { Swal.showLoading(); } });
+        const depositValueWei = ethers.utils.parseEther(bnbAmount.toString());
+        const estimatedTokens = parseFloat(document.getElementById("previewTVX")?.innerText || 0);
+        const tokensToAllocateWei = ethers.utils.parseUnits(estimatedTokens.toFixed(18), 18);
+
+        const tx = await contractInstance.buyTokens(tokensToAllocateWei, { value: depositValueWei });
+        Swal.fire({ title: 'Confirming Block...', text: 'Writing block node records...', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => { Swal.showLoading(); } });
+        await tx.wait(); 
+
+        let d = db();
+        if (d[account]) {
+            d[account].tvx = (parseFloat(d[account].tvx) || 0) + estimatedTokens;
+            d[account].stakedTvx = (parseFloat(d[account].stakedTvx) || 0) + estimatedTokens;
+            d[account].stakeStart = Math.floor(Date.now() / 1000); save(d);
+        }
+        fetch(`${BASE_SERVER_API_URL}/process_investment.php`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user_address: account.toLowerCase(), bnb_amount: bnbAmount }) }).catch(err => console.error(err));
+        
+        bnbInputEl.value = "";
+        if (document.getElementById("previewTVX")) document.getElementById("previewTVX").innerText = "0 HASH";
+        Swal.fire({ icon: 'success', title: 'Investment Successful!', text: 'Discounted tokens are securely locked in vesting.', background: '#0d1320', color: '#fff' });
+        updateDashboardMetricsAndPrice();
+    } catch (error) {
+        Swal.fire({ icon: 'error', title: 'Transaction Aborted', text: error.message || 'Rejected.', background: '#0d1320', color: '#fff' });
+    }
+}
+
+function logout() { localStorage.removeItem("connected"); location.reload(); }
+
+// --- 7. ADVANCED RELIABLE NATIVE EVENT ROUTER PIPELINE ---
+window.addEventListener('DOMContentLoaded', () => {
+    updateDashboardMetricsAndPrice();
+    setInterval(updateDashboardMetricsAndPrice, 3000); 
+
+    const connectButtonEl = document.getElementById("connectBtn");
+    if (connectButtonEl) {
+        connectButtonEl.removeAttribute("onclick");
+        connectButtonEl.addEventListener("click", (e) => { e.preventDefault(); connect(); });
+    }
+    const copyButtonEl = document.querySelector("button[onclick='copyRef()']") || document.getElementById("refLink")?.nextElementSibling;
+    if (copyButtonEl) {
+        copyButtonEl.removeAttribute("onclick");
+        copyButtonEl.addEventListener("click", (e) => { e.preventDefault(); copyRef(); });
+    }
+    const buyButtonEl = document.getElementById("buyBtn");
+    if (buyButtonEl) {
+        buyButtonEl.removeAttribute("onclick");
+        buyButtonEl.addEventListener("click", (e) => { e.preventDefault(); buy(); });
+    }
+    if (localStorage.getItem("connected") === "true") connect();
+});
+// --- 8. REAL-TIME 5% MONTHLY COUTNDOWN CALCULATION ENGINE ---
+function calculateLiveVesting() {
+    // Prevent calculations if the wallet hold balances are absolute zero
+    if (userTotalHODL === 0 || vestingStartDate === 0) return;
+
+    const currentTimeStamp = Math.floor(Date.now() / 1000);
+    const secondsElapsed = currentTimeStamp - vestingStartDate;
+    
+    // Mathematical formula setup parameters: 5% monthly reward release over 30 days
+    const monthlyRate = 0.05; 
+    const totalSecondsInMonth = 30 * 24 * 60 * 60; // Exact second duration count
+    const releaseRatePerSecond = monthlyRate / totalSecondsInMonth;
+
+    let totalUnlockedTokens = userTotalHODL * (secondsElapsed * releaseRatePerSecond);
+    if (totalUnlockedTokens > userTotalHODL) {
+        totalUnlockedTokens = userTotalHODL; // Clamp barrier to prevent calculation overflows
+    }
+
+    let currentClaimable = totalUnlockedTokens - totalClaimedSoFar;
+    if (currentClaimable < 0) currentClaimable = 0;
+
+    const remainingLocked = userTotalHODL - totalUnlockedTokens;
+
+    // Render calculated values directly into target responsive HTML IDs layouts
+    if (document.getElementById("claimableTokens")) {
+        document.getElementById("claimableTokens").innerText = currentClaimable.toFixed(5);
+    }
+    if (document.getElementById("stakeProfit")) {
+        document.getElementById("stakeProfit").innerText = `${remainingLocked.toFixed(2)} HASH`;
+    }
+}
+
+// --- 9. SECURE ON-CHAIN TOKEN REWARDS CLAIM PROCESSOR ---
+async function claimTokens() {
+    if (!signer || !contractInstance || !account) {
+        return Swal.fire({ icon: 'warning', title: 'Wallet Required', text: 'Please connect your secure Web3 account extension first.', background: '#0d1320', color: '#fff' });
+    }
+
+    const claimableEl = document.getElementById("claimableTokens");
+    const availableToClaim = claimableEl ? parseFloat(claimableEl.innerText) : 0;
+    
+    if (availableToClaim <= 0) {
+        return Swal.fire({ icon: 'error', title: 'No Tokens Unlocked', text: 'Vesting rewards are generating. Please wait until tokens release over time.', background: '#0d1320', color: '#fff' });
+    }
+
+    try {
+        Swal.fire({ title: 'Claiming Rewards...', text: 'Please authorize and sign the token release payload transaction inside your wallet.', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => { Swal.showLoading(); } });
+
+        // Dispatch call action explicitly to your main smart contract instance
+        const tx = await contractInstance.claimTokens();
+        await tx.wait(); // Listen for ledger block validation response
+
+        totalClaimedSoFar += availableToClaim;
+        if (claimableEl) claimableEl.innerText = "0.00000";
+
+        Swal.fire({ icon: 'success', title: 'Claim Successful!', text: `${availableToClaim.toFixed(2)} HASH tokens successfully pushed to your wallet layout.`, background: '#0d1320', color: '#fff' });
+        updateDashboardMetricsAndPrice();
+
+    } catch (error) {
+        console.error("Vesting runtime parsing engine failure exception log capture:", error);
+        Swal.fire({ icon: 'error', title: 'Claim Failed', text: error.message || 'The network sequence request payload was rejected.', background: '#0d1320', color: '#fff' });
+    }
+}
+// --- 10. AFFILIATE INCOME WITHDRAWAL PROCESSOR (ZERO ADMIN FEES) ---
+async function withdrawAffiliateIncome() {
+    // Assert active account authorization check properties configurations
+    if (!signer || !contractInstance || !account) {
+        return Swal.fire({
+            icon: 'warning',
+            title: 'Wallet Required',
+            text: 'Please connect your secure Web3 MetaMask wallet account extension first to process withdrawals.',
+            background: '#0d1320',
+            color: '#fff'
+        });
+    }
+
+    // Verify unwithdrawn balance metrics state constraints from Hostinger variables
+    if (isNaN(pendingAffiliateBalanceBnb) || pendingAffiliateBalanceBnb <= 0) {
+        return Swal.fire({
+            icon: 'error',
+            title: 'No Earnings Available',
+            text: 'You do not have any pending affiliate downline earnings available to withdraw right now.',
+            background: '#0d1320',
+            color: '#fff'
+        });
+    }
+
+    try {
+        Swal.fire({
+            title: 'Processing Payout Request...',
+            text: 'Please authorize and sign the 100% direct-payout transfer transaction inside your wallet.',
+            allowOutsideClick: false,
+            background: '#0d1320',
+            color: '#fff',
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        // Format decimal asset balance metrics cleanly down to hexadecimal Wei parameters 
+        const withdrawValueWei = ethers.utils.parseEther(pendingAffiliateBalanceBnb.toString());
+
+        // Dispatch call execution payload straight into your deployed Smart Contract write method
+        const tx = await contractInstance.withdrawAffiliate(withdrawValueWei);
+
+        Swal.fire({
+            title: 'Validating Payout Block...',
+            text: 'Synchronizing transaction records with decentral ledger nodes database registries...',
+            allowOutsideClick: false,
+            background: '#0d1320',
+            color: '#fff',
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        await tx.wait(); // Await block confirmation receipt parameters validation
+
+        // Trigger Hostinger SQL status update API request to alter record tables from PENDING to CLAIMED
+        fetch(`${BASE_SERVER_API_URL}/update_withdraw_status.php?address=${account.toLowerCase()}`)
+            .then(res => res.json())
+            .then(data => console.log("Hostinger Ledger Clear Status Sync:", data))
+            .catch(err => console.error("Hostinger Ledger Processing Exception:", err));
+
+        // Flush active dashboard interface text metrics back down to zero defaults
+        pendingAffiliateBalanceBnb = 0;
+        if (document.getElementById("incomeDisplay")) document.getElementById("incomeDisplay").innerText = "0.0000 BNB";
+        if (document.getElementById("income")) document.getElementById("income").innerText = "0.0000 BNB"; // Grid card 4
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Withdrawal Complete!',
+            text: '100% of your affiliate earnings have been deposited instantly into your wallet with zero admin fees charged.',
+            background: '#0d1320',
+            color: '#fff'
+        });
+
+        // Immediately update status metrics trackers to smooth layout numbers
+        if (typeof updateDashboardMetricsAndPrice === 'function') updateDashboardMetricsAndPrice();
+
+    } catch (error) {
+        console.error("Affiliate payment processing terminal sequence exception capture:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Withdrawal Failed',
+            text: error.message || 'The chain verification process payload transaction encountered an error.',
+            background: '#0d1320',
+            color: '#fff'
+        });
+    }
+}
+// Global memory metrics tracker for on-chain history reporting
+let globalCumulativeClaimedTokens = 0.00;
+let lastPurchasedTokensAmount = 0.00;
+let lastClaimedTokensAmount = 0.00;
+
+// --- 11. DYNAMIC BLOCKCHAIN TRANSACTION HISTORY REPORT GENERATOR ---
+function updateTransactionReportsDisplay() {
+    // Gracefully halt execution loop if user address mapping context is empty
+    if (!account) return;
+
+    try {
+        let d = db();
+        if (d[account]) {
+            // Read historical arrays parameters out of LocalStorage fallback layers
+            const localTxHistory = d[account].txHistory || [];
+            const localClaimedHistory = d[account].claimed || [];
+
+            // A. Compute Total HASH Claimed cumulative matrix metric sum
+            globalCumulativeClaimedTokens = localClaimedHistory.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
+            
+            const totalClaimedEl = document.getElementById("totalClaimedDisplay");
+            if (totalClaimedEl) {
+                totalClaimedEl.innerText = `${globalCumulativeClaimedTokens.toFixed(2)} HASH`;
+            }
+
+            // B. Extract and parse parameters matching the last investment block
+            if (localTxHistory.length > 0) {
+                const absoluteLastTx = localTxHistory[localTxHistory.length - 1];
+                lastPurchasedTokensAmount = parseFloat(absoluteLastTx.tokens || 0);
+            } else if (typeof userTotalHODL !== 'undefined' && userTotalHODL > 0) {
+                lastPurchasedTokensAmount = userTotalHODL;
+            }
+
+            const reportBuyEl = document.getElementById("reportLastBuy");
+            if (reportBuyEl) {
+                reportBuyEl.innerText = `${lastPurchasedTokensAmount.toFixed(2)} HASH`;
+            }
+
+            // C. Extract and parse parameters matching the last unlock reward claim block
+            if (localClaimedHistory.length > 0) {
+                const absoluteLastClaim = localClaimedHistory[localClaimedHistory.length - 1];
+                lastClaimedTokensAmount = parseFloat(absoluteLastClaim.amount || 0);
+            } else if (typeof totalClaimedSoFar !== 'undefined' && totalClaimedSoFar > 0) {
+                lastClaimedTokensAmount = totalClaimedSoFar;
+            }
+
+            const reportClaimEl = document.getElementById("reportLastClaim");
+            if (reportClaimEl) {
+                reportClaimEl.innerText = `${lastClaimedTokensAmount.toFixed(2)} HASH`;
+            }
+        }
+    } catch (error) {
+        console.error("Routine Transaction History UI Compilation Failure Exception:", error);
+    }
+}
 
 </script>
