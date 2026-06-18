@@ -715,5 +715,60 @@ async function withdrawAffiliateIncome() {
         });
     }
 }
+// Global memory metrics tracker for on-chain history reporting
+let globalCumulativeClaimedTokens = 0.00;
+let lastPurchasedTokensAmount = 0.00;
+let lastClaimedTokensAmount = 0.00;
+
+// --- 11. DYNAMIC BLOCKCHAIN TRANSACTION HISTORY REPORT GENERATOR ---
+function updateTransactionReportsDisplay() {
+    // Gracefully halt execution loop if user address mapping context is empty
+    if (!account) return;
+
+    try {
+        let d = db();
+        if (d[account]) {
+            // Read historical arrays parameters out of LocalStorage fallback layers
+            const localTxHistory = d[account].txHistory || [];
+            const localClaimedHistory = d[account].claimed || [];
+
+            // A. Compute Total HASH Claimed cumulative matrix metric sum
+            globalCumulativeClaimedTokens = localClaimedHistory.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
+            
+            const totalClaimedEl = document.getElementById("totalClaimedDisplay");
+            if (totalClaimedEl) {
+                totalClaimedEl.innerText = `${globalCumulativeClaimedTokens.toFixed(2)} HASH`;
+            }
+
+            // B. Extract and parse parameters matching the last investment block
+            if (localTxHistory.length > 0) {
+                const absoluteLastTx = localTxHistory[localTxHistory.length - 1];
+                lastPurchasedTokensAmount = parseFloat(absoluteLastTx.tokens || 0);
+            } else if (typeof userTotalHODL !== 'undefined' && userTotalHODL > 0) {
+                lastPurchasedTokensAmount = userTotalHODL;
+            }
+
+            const reportBuyEl = document.getElementById("reportLastBuy");
+            if (reportBuyEl) {
+                reportBuyEl.innerText = `${lastPurchasedTokensAmount.toFixed(2)} HASH`;
+            }
+
+            // C. Extract and parse parameters matching the last unlock reward claim block
+            if (localClaimedHistory.length > 0) {
+                const absoluteLastClaim = localClaimedHistory[localClaimedHistory.length - 1];
+                lastClaimedTokensAmount = parseFloat(absoluteLastClaim.amount || 0);
+            } else if (typeof totalClaimedSoFar !== 'undefined' && totalClaimedSoFar > 0) {
+                lastClaimedTokensAmount = totalClaimedSoFar;
+            }
+
+            const reportClaimEl = document.getElementById("reportLastClaim");
+            if (reportClaimEl) {
+                reportClaimEl.innerText = `${lastClaimedTokensAmount.toFixed(2)} HASH`;
+            }
+        }
+    } catch (error) {
+        console.error("Routine Transaction History UI Compilation Failure Exception:", error);
+    }
+}
 
 </script>
