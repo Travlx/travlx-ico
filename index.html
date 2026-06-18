@@ -631,5 +631,89 @@ async function claimTokens() {
         Swal.fire({ icon: 'error', title: 'Claim Failed', text: error.message || 'The network sequence request payload was rejected.', background: '#0d1320', color: '#fff' });
     }
 }
+// --- 10. AFFILIATE INCOME WITHDRAWAL PROCESSOR (ZERO ADMIN FEES) ---
+async function withdrawAffiliateIncome() {
+    // Assert active account authorization check properties configurations
+    if (!signer || !contractInstance || !account) {
+        return Swal.fire({
+            icon: 'warning',
+            title: 'Wallet Required',
+            text: 'Please connect your secure Web3 MetaMask wallet account extension first to process withdrawals.',
+            background: '#0d1320',
+            color: '#fff'
+        });
+    }
+
+    // Verify unwithdrawn balance metrics state constraints from Hostinger variables
+    if (isNaN(pendingAffiliateBalanceBnb) || pendingAffiliateBalanceBnb <= 0) {
+        return Swal.fire({
+            icon: 'error',
+            title: 'No Earnings Available',
+            text: 'You do not have any pending affiliate downline earnings available to withdraw right now.',
+            background: '#0d1320',
+            color: '#fff'
+        });
+    }
+
+    try {
+        Swal.fire({
+            title: 'Processing Payout Request...',
+            text: 'Please authorize and sign the 100% direct-payout transfer transaction inside your wallet.',
+            allowOutsideClick: false,
+            background: '#0d1320',
+            color: '#fff',
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        // Format decimal asset balance metrics cleanly down to hexadecimal Wei parameters 
+        const withdrawValueWei = ethers.utils.parseEther(pendingAffiliateBalanceBnb.toString());
+
+        // Dispatch call execution payload straight into your deployed Smart Contract write method
+        const tx = await contractInstance.withdrawAffiliate(withdrawValueWei);
+
+        Swal.fire({
+            title: 'Validating Payout Block...',
+            text: 'Synchronizing transaction records with decentral ledger nodes database registries...',
+            allowOutsideClick: false,
+            background: '#0d1320',
+            color: '#fff',
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        await tx.wait(); // Await block confirmation receipt parameters validation
+
+        // Trigger Hostinger SQL status update API request to alter record tables from PENDING to CLAIMED
+        fetch(`${BASE_SERVER_API_URL}/update_withdraw_status.php?address=${account.toLowerCase()}`)
+            .then(res => res.json())
+            .then(data => console.log("Hostinger Ledger Clear Status Sync:", data))
+            .catch(err => console.error("Hostinger Ledger Processing Exception:", err));
+
+        // Flush active dashboard interface text metrics back down to zero defaults
+        pendingAffiliateBalanceBnb = 0;
+        if (document.getElementById("incomeDisplay")) document.getElementById("incomeDisplay").innerText = "0.0000 BNB";
+        if (document.getElementById("income")) document.getElementById("income").innerText = "0.0000 BNB"; // Grid card 4
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Withdrawal Complete!',
+            text: '100% of your affiliate earnings have been deposited instantly into your wallet with zero admin fees charged.',
+            background: '#0d1320',
+            color: '#fff'
+        });
+
+        // Immediately update status metrics trackers to smooth layout numbers
+        if (typeof updateDashboardMetricsAndPrice === 'function') updateDashboardMetricsAndPrice();
+
+    } catch (error) {
+        console.error("Affiliate payment processing terminal sequence exception capture:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Withdrawal Failed',
+            text: error.message || 'The chain verification process payload transaction encountered an error.',
+            background: '#0d1320',
+            color: '#fff'
+        });
+    }
+}
 
 </script>
