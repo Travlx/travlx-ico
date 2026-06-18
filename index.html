@@ -211,6 +211,53 @@
 
             </div>
         </div>
+        <!-- TEAM NETWORK SECTION -->
+        <div id="rewards" class="glass p-6 lg:p-8 rounded-[35px] border border-white/5 mb-8 shadow-2xl">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                    <h3 class="text-xl font-black text-emerald-400 italic uppercase">Your Affiliate Network</h3>
+                    <p class="text-xs text-gray-400 mt-1">Track your downline partners and generation level rewards up to 20 tiers</p>
+                </div>
+                <div class="bg-black/40 px-4 py-2 rounded-xl border border-white/5 text-center sm:text-right">
+                    <p class="text-[9px] text-gray-500 font-bold uppercase">Total Team Size</p>
+                    <h4 class="text-lg font-black text-white font-mono" id="totalTeam">0 Users</h4>
+                </div>
+            </div>
+
+            <!-- RESPONSIVE TABLE -->
+            <div class="overflow-x-auto custom-scrollbar bg-black/20 rounded-2xl border border-white/5">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-white/5 text-gray-400 font-black uppercase tracking-wider border-b border-white/5">
+                            <th class="p-4">User Address</th>
+                            <th class="p-4">Generation Level</th>
+                            <th class="p-4">Contribution Status</th>
+                            <th class="p-4">Your Commission</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teamTableBody" class="divide-y divide-white/5 font-medium text-gray-300">
+                        <!-- Demo Row 1 (Short Address Template) -->
+                        <tr class="hover:bg-white/[0.02] transition">
+                            <td class="p-4 font-mono text-emerald-400 tracking-wider">0x71C...3a92</td>
+                            <td class="p-4">
+                                <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold text-[10px]">Level 1</span>
+                            </td>
+                            <td class="p-4 text-gray-500">Active Investor</td>
+                            <td class="p-4 font-mono text-emerald-400 font-bold">+0.0500 BNB</td>
+                        </tr>
+                        <!-- Demo Row 2 (Short Address Template) -->
+                        <tr class="hover:bg-white/[0.02] transition">
+                            <td class="p-4 font-mono text-emerald-400 tracking-wider">0xEaa...8f12</td>
+                            <td class="p-4">
+                                <span class="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold text-[10px]">Level 2</span>
+                            </td>
+                            <td class="p-4 text-gray-500">Active Investor</td>
+                            <td class="p-4 font-mono text-emerald-400 font-bold">+0.0150 BNB</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
     </main>
 </div>
