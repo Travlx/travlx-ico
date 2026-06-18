@@ -149,48 +149,18 @@
                 </div>
             </div> <!-- End of Card 2 (Vesting Claim Box) -->
 
-        </async function withdrawAffiliateIncome() {
-    if (!signer) {
-        return Swal.fire({ icon: 'warning', title: 'Please connect wallet first!', background: '#0d1320', color: '#fff' });
-    }
-
-    if (pendingAffiliateBalanceBnb <= 0) {
-        return Swal.fire({ icon: 'error', title: 'No affiliate income available to withdraw!', background: '#0d1320', color: '#fff' });
-    }
-
-    try {
-        Swal.fire({ 
-            title: 'Processing Withdrawal...', 
-            text: 'Please confirm the transaction in your MetaMask wallet.', 
-            allowOutsideClick: false, 
-            didOpen: () => { Swal.showLoading(); } 
-        });
-
-        // সরাসরি পুরো অ্যামাউন্ট দিয়ে কন্ট্রাক্ট ফাংশন কল করা
-        const txAmountWei = ethers.utils.parseEther(pendingAffiliateBalanceBnb.toString());
-        const tx = await contractInstance.withdrawAffiliate(txAmountWei);
-        await tx.wait(); // ব্লকচেইনে সফল হওয়া পর্যন্ত অপেক্ষা
-
-        // হোস্টিনজার ডাটাবেজ আপডেট করার API কল
-        await fetch(`https://yourwebsite.com{userAddress.toLowerCase()}`);
-
-        // ড্যাশবোর্ড স্ক্রিন ব্যালেন্স রিসেট
-        pendingAffiliateBalanceBnb = 0;
-        document.getElementById("incomeDisplay").innerText = "0.0000 BNB";
-        document.getElementById("income").innerText = "0.0000 BNB"; // ৪ নম্বর কার্ড
-
-        Swal.fire({ icon: 'success', title: 'Withdrawal Successful!', text: '100% of your earnings have been sent to your wallet.', background: '#0d1320', color: '#fff' });
-
-    } catch (error) {
-        console.error(error);
-        Swal.fire({ icon: 'error', title: 'Withdrawal Failed', text: error.message, background: '#0d1320', color: '#fff' });
-    }
-}
-div> <!-- End of Grid Container -->
-        
-
-                
-
+                <!-- WITHDRAW SECTION (Affiliate Income Withdrawal Area - 100% Direct Pay) -->
+        <div class="glass p-8 rounded-[40px] flex flex-col lg:flex-row justify-between items-center border border-blue-400/10 mb-8 shadow-xl">
+            <div>
+                <p class="text-gray-500 text-xs font-black uppercase tracking-widest italic font-mono">Available For Withdrawal</p>
+                <!-- id="incomeDisplay" updates real-time affiliate earnings via database -->
+                <h1 id="incomeDisplay" class="text-4xl lg:text-5xl font-black mt-2 italic text-white font-mono">0.0000 BNB</h1>
+                <p class="text-[10px] text-gray-400 mt-1">* 100% of your earnings will be transferred directly to your wallet with zero admin fees.</p>
+            </div>
+            <button onclick="withdrawAffiliateIncome()" class="w-full lg:w-72 bg-white text-black font-black py-4 rounded-2xl mt-6 lg:mt-0 hover:bg-emerald-50 transition text-sm shadow-xl uppercase tracking-wider">
+                WITHDRAW NOW
+            </button>
+        </div>
 
        
         <!-- TRANSACTION REPORTS SECTION -->
