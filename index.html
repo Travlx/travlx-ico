@@ -550,3 +550,200 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
+// Global threshold and allocation parameters mappings
+const MINIMUM_PURCHASE_BNB = 0.05;
+let userTotalHODL = 0;
+let vestingStartDate = 0;
+let totalClaimedSoFar = 0;
+
+// --- 1. REAL-TIME 20% DISCOUNT CALCULATION PREVIEW ENGINE ---
+function updatePreview() {
+    const bnbInputEl = document.getElementById("bnbInput");
+    const previewTvxEl = document.getElementById("previewTVX");
+    
+    if (!bnbInputEl || !previewTvxEl) return;
+    const bnbAmount = parseFloat(bnbInputEl.value);
+    
+    if (isNaN(bnbAmount) || bnbAmount <= 0 || currentMarketPriceUsd <= 0) {
+        previewTvxEl.innerText = "0 HASH";
+        return;
+    }
+
+    // Apply specialized mathematical formula parameter: 20% discount deduction off pool price
+    const discountedTokenPriceUsd = currentMarketPriceUsd * 0.80;
+    const totalInvestmentInUsd = bnbAmount * BNB_USD;
+    const allocationTokensAmount = totalInvestmentInUsd / discountedTokenPriceUsd;
+
+    previewTvxEl.innerText = `${allocationTokensAmount.toFixed(2)} HASH`;
+}
+
+// --- 2. CRYPTO SMART CONTRACT BUY ENGINE WITH 0.05 BNB FLOOR CHECK ---
+async function buy() {
+    if (!signer || !contractInstance || !account) {
+        return Swal.fire({
+            icon: 'warning',
+            title: 'Wallet Required',
+            text: 'Please connect your Web3 MetaMask account first to process investments.',
+            background: '#0d1320',
+            color: '#fff'
+        });
+    }
+
+    const bnbInputEl = document.getElementById("bnbInput");
+    if (!bnbInputEl) return;
+
+    const bnbAmount = parseFloat(bnbInputEl.value);
+
+    // Enforce strict 0.05 BNB minimum investment constraint barrier filter
+    if (isNaN(bnbAmount) || bnbAmount < MINIMUM_PURCHASE_BNB) {
+        return Swal.fire({
+            icon: 'error',
+            title: 'Minimum Purchase Limit',
+            text: `The minimum purchase requirement is set to ${MINIMUM_PURCHASE_BNB} BNB. Please enter a valid equivalent amount or higher.`,
+            background: '#0d1320',
+            color: '#fff'
+        });
+    }
+
+    try {
+        Swal.fire({
+            title: 'Initializing Investment...',
+            text: 'Please authorize and sign the 70/30 smart contract gas transaction inside your wallet extension window popup.',
+            allowOutsideClick: false,
+            background: '#0d1320',
+            color: '#fff',
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        const depositValueWei = ethers.utils.parseEther(bnbAmount.toString());
+        const rawPreviewText = document.getElementById("previewTVX") ? document.getElementById("previewTVX").innerText : "0";
+        const estimatedTokens = parseFloat(rawPreviewText);
+        const tokensToAllocateWei = ethers.utils.parseUnits(estimatedTokens.toFixed(18), 18);
+
+        // Dispatch value transaction directly to your smart contract instance
+        const tx = await contractInstance.buyTokens(tokensToAllocateWei, { value: depositValueWei });
+
+        Swal.fire({
+            title: 'Confirming Block...',
+            text: 'Synchronizing network block logs with nodes ledgers database registries...',
+            allowOutsideClick: false,
+            background: '#0d1320',
+            color: '#fff',
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        await tx.wait(); // Await blockchain confirmation receipt
+
+        // Sync local storage state parameters configurations for real-time validation tracking
+        let d = db();
+        if (d[account]) {
+            d[account].tvx = (parseFloat(d[account].tvx) || 0) + estimatedTokens;
+            d[account].stakedTvx = (parseFloat(d[account].stakedTvx) || 0) + estimatedTokens;
+            d[account].stakeStart = Math.floor(Date.now() / 1000); // Initialize vesting base timestamp
+            save(d);
+        }
+
+        // Hostinger centralized database 20-level matrix update api request post dispatch trigger
+        fetch(`${BASE_SERVER_API_URL}/process_investment.php`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_address: account.toLowerCase(), bnb_amount: bnbAmount })
+        }).catch(err => console.error("Hostinger remote server alignment tracing exception:", err));
+
+        bnbInputEl.value = "";
+        if (document.getElementById("previewTVX")) document.getElementById("previewTVX").innerText = "0 HASH";
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Investment Successful!',
+            text: 'Funds allocated safely via smart contract. Your 20% discounted tokens are locked in vesting.',
+            background: '#0d1320',
+            color: '#fff'
+        });
+
+        updateDashboardMetricsAndPrice();
+
+    } catch (error) {
+        console.error("Investment deployment chain failure tracking exception capture:", error);
+        Swal.fire({ icon: 'error', title: 'Transaction Aborted', text: error.message || 'The transaction request signed payload was rejected.', background: '#0d1320', color: '#fff' });
+    }
+}
+
+// --- 3. REAL-TIME 5% MONTHLY COUNTER CALCULATOR ENGINE ---
+function calculateLiveVesting() {
+    if (userTotalHODL === 0 || vestingStartDate === 0) return;
+
+    const currentTimeStamp = Math.floor(Date.now() / 1000);
+    const secondsElapsed = currentTimeStamp - vestingStartDate;
+    
+    const monthlyRate = 0.05; 
+    const totalSecondsInMonth = 30 * 24 * 60 * 60; 
+    const releaseRatePerSecond = monthlyRate / totalSecondsInMonth;
+
+    let totalUnlockedTokens = userTotalHODL * (secondsElapsed * releaseRatePerSecond);
+    if (totalUnlockedTokens > userTotalHODL) totalUnlockedTokens = userTotalHODL;
+
+    let currentClaimable = totalUnlockedTokens - totalClaimedSoFar;
+    if (currentClaimable < 0) currentClaimable = 0;
+
+    const remainingLocked = userTotalHODL - totalUnlockedTokens;
+
+    // Update real-time metric tags inside your layout UI elements
+    if (document.getElementById("claimableTokens")) {
+        document.getElementById("claimableTokens").innerText = currentClaimable.toFixed(5);
+    }
+    if (document.getElementById("stakeProfit")) {
+        document.getElementById("stakeProfit").innerText = `${remainingLocked.toFixed(2)} HASH`;
+    }
+}
+
+// --- 4. SECURE ON-CHAIN TOKEN REWARDS CLAIM PROCESSOR ---
+async function claimTokens() {
+    if (!signer || !contractInstance || !account) {
+        return Swal.fire({ icon: 'warning', title: 'Wallet Required', text: 'Please connect your secure Web3 wallet account first.', background: '#0d1320', color: '#fff' });
+    }
+
+    const claimableEl = document.getElementById("claimableTokens");
+    const availableToClaim = claimableEl ? parseFloat(claimableEl.innerText) : 0;
+    
+    if (availableToClaim <= 0) {
+        return Swal.fire({
+            icon: 'error',
+            title: 'No Tokens Available',
+            text: 'Your vesting rewards are generating. Please wait until more tokens unlock over time.',
+            background: '#0d1320',
+            color: '#fff'
+        });
+    }
+
+    try {
+        Swal.fire({
+            title: 'Claiming Tokens...',
+            text: 'Please authorize and sign the token release transaction payload parameters directly inside your wallet.',
+            allowOutsideClick: false,
+            background: '#0d1320',
+            color: '#fff',
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        const tx = await contractInstance.claimTokens();
+        await tx.wait();
+
+        totalClaimedSoFar += availableToClaim;
+        if (claimableEl) claimableEl.innerText = "0.00000";
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Claim Successful!',
+            text: `${availableToClaim.toFixed(2)} HASH tokens have been successfully transferred directly into your wallet.`,
+            background: '#0d1320',
+            color: '#fff'
+        });
+
+        updateDashboardMetricsAndPrice();
+
+    } catch (error) {
+        console.error("Vesting claim payload processing stack exception capture:", error);
+        Swal.fire({ icon: 'error', title: 'Claim Failed', text: error.message || 'The chain verification process sequence encountered an error.', background: '#0d1320', color: '#fff' });
+    }
+}
