@@ -568,5 +568,68 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     if (localStorage.getItem("connected") === "true") connect();
 });
+// --- 8. REAL-TIME 5% MONTHLY COUTNDOWN CALCULATION ENGINE ---
+function calculateLiveVesting() {
+    // Prevent calculations if the wallet hold balances are absolute zero
+    if (userTotalHODL === 0 || vestingStartDate === 0) return;
+
+    const currentTimeStamp = Math.floor(Date.now() / 1000);
+    const secondsElapsed = currentTimeStamp - vestingStartDate;
+    
+    // Mathematical formula setup parameters: 5% monthly reward release over 30 days
+    const monthlyRate = 0.05; 
+    const totalSecondsInMonth = 30 * 24 * 60 * 60; // Exact second duration count
+    const releaseRatePerSecond = monthlyRate / totalSecondsInMonth;
+
+    let totalUnlockedTokens = userTotalHODL * (secondsElapsed * releaseRatePerSecond);
+    if (totalUnlockedTokens > userTotalHODL) {
+        totalUnlockedTokens = userTotalHODL; // Clamp barrier to prevent calculation overflows
+    }
+
+    let currentClaimable = totalUnlockedTokens - totalClaimedSoFar;
+    if (currentClaimable < 0) currentClaimable = 0;
+
+    const remainingLocked = userTotalHODL - totalUnlockedTokens;
+
+    // Render calculated values directly into target responsive HTML IDs layouts
+    if (document.getElementById("claimableTokens")) {
+        document.getElementById("claimableTokens").innerText = currentClaimable.toFixed(5);
+    }
+    if (document.getElementById("stakeProfit")) {
+        document.getElementById("stakeProfit").innerText = `${remainingLocked.toFixed(2)} HASH`;
+    }
+}
+
+// --- 9. SECURE ON-CHAIN TOKEN REWARDS CLAIM PROCESSOR ---
+async function claimTokens() {
+    if (!signer || !contractInstance || !account) {
+        return Swal.fire({ icon: 'warning', title: 'Wallet Required', text: 'Please connect your secure Web3 account extension first.', background: '#0d1320', color: '#fff' });
+    }
+
+    const claimableEl = document.getElementById("claimableTokens");
+    const availableToClaim = claimableEl ? parseFloat(claimableEl.innerText) : 0;
+    
+    if (availableToClaim <= 0) {
+        return Swal.fire({ icon: 'error', title: 'No Tokens Unlocked', text: 'Vesting rewards are generating. Please wait until tokens release over time.', background: '#0d1320', color: '#fff' });
+    }
+
+    try {
+        Swal.fire({ title: 'Claiming Rewards...', text: 'Please authorize and sign the token release payload transaction inside your wallet.', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => { Swal.showLoading(); } });
+
+        // Dispatch call action explicitly to your main smart contract instance
+        const tx = await contractInstance.claimTokens();
+        await tx.wait(); // Listen for ledger block validation response
+
+        totalClaimedSoFar += availableToClaim;
+        if (claimableEl) claimableEl.innerText = "0.00000";
+
+        Swal.fire({ icon: 'success', title: 'Claim Successful!', text: `${availableToClaim.toFixed(2)} HASH tokens successfully pushed to your wallet layout.`, background: '#0d1320', color: '#fff' });
+        updateDashboardMetricsAndPrice();
+
+    } catch (error) {
+        console.error("Vesting runtime parsing engine failure exception log capture:", error);
+        Swal.fire({ icon: 'error', title: 'Claim Failed', text: error.message || 'The network sequence request payload was rejected.', background: '#0d1320', color: '#fff' });
+    }
+}
 
 </script>
