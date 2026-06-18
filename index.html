@@ -765,8 +765,141 @@ function updateTransactionReportsDisplay() {
                 reportClaimEl.innerText = `${lastClaimedTokensAmount.toFixed(2)} HASH`;
             }
         }
+        
     } catch (error) {
         console.error("Routine Transaction History UI Compilation Failure Exception:", error);
+    }
+}
+// --- JAVASCRIPT MASTER SYSTEM ENGINE - PART 3 (Lines 101-150) ---
+
+// --- 5. INITIAL CONTINUATION OF WEB3 WALLET SYNCHRONIZATION ENGINE ---
+        const connectionButtonEl = document.getElementById("connectBtn");
+        if (connectionButtonEl) connectionButtonEl.classList.add("hidden");
+        
+        const shortWalletDisplayEl = document.getElementById("walletDisplay");
+        if (shortWalletDisplayEl) {
+            shortWalletDisplayEl.classList.remove("hidden");
+            shortWalletDisplayEl.innerText = `${activeAccount.substring(0, 6)}...${activeAccount.substring(38)}`;
+        }
+       
+        synchronizeReferralLink();
+        updateDashboardMetricsAndPrice(); 
+        
+        // Initialize dynamic automated clock sequences for the active UI blocks
+        setInterval(updateDashboardMetricsAndPrice, 3000); 
+        setInterval(calculateLiveVesting, 1000); 
+        
+        // Trigger automated MLM affiliate network table population on connection success
+        if (typeof initializeTeamLoad === 'function') initializeTeamLoad(activeAccount);
+
+        Swal.fire({ 
+            icon: "success", 
+            title: "Wallet Synchronized", 
+            text: "Your Web3 account has been securely mapped with the 20-level matrix portal network.", 
+            background: "#0d1320", 
+            color: "#fff", 
+            timer: 1500, 
+            showConfirmButton: false 
+        });
+    } catch (errorException) {
+        console.error("Connection Interface Failure Exception Handler Stack Log:", errorException);
+        Swal.fire({ 
+            icon: "error", 
+            title: "Authorization Failed", 
+            text: errorException.message || "Web3 account sync sequence rejected.", 
+            background: "#0d1320", 
+            color: "#fff" 
+        });
+    }
+}
+
+// --- 6. ROUTINE INTERFACE STATISTICS & PANCAKESWAP PRICING REFRESH LOOP ---
+async function updateDashboardMetricsAndPrice() {
+    try {
+        // Swapped loose corporate endpoints for an absolute active BSC public RPC ledger node
+        const publicNetworkRpcProvider = provider || new ethers.providers.JsonRpcProvider("https://binance.org");
+        const poolRouterABI = ["function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"];
+        const routerLiquidityContract = new ethers.Contract(PANCAKE_ROUTER, poolRouterABI, publicNetworkRpcProvider);
+
+        const allocationAmountIn = ethers.utils.parseUnits("1", 18); 
+        const routingPathArray = [TOKEN_CONTRACT, USDT_ASSET];
+
+        const calculatedAmountsPayload = await routerLiquidityContract.getAmountsOut(allocationAmountIn, routingPathArray);
+        
+        // Targeted the second output index array item to pull token pool value constraints safely
+        liveTokenPriceUsd = parseFloat(ethers.utils.formatUnits(calculatedAmountsPayload, 18)); 
+        
+        if (document.getElementById("tokenPrice")) {
+            document.getElementById("tokenPrice").innerText = liveTokenPriceUsd.toFixed(4);
+        }
+        if (document.getElementById("liveBNB")) {
+            document.getElementById("liveBNB").innerText = `$${liveTokenPriceUsd.toFixed(4)}`;
+        }
+
+        if (activeAccount && networkProvider) {
+            const gasAccountBalanceWei = await networkProvider.getBalance(activeAccount);
+            const liveUserBnbBalance = parseFloat(ethers.utils.formatEther(gasAccountBalanceWei)).toFixed(4);
+            if (document.getElementById("bnbBal")) {
+                document.getElementById("bnbBal").innerText = `${liveUserBnbBalance} BNB`;
+            }
+
+            let d = db();
+            if (d[activeAccount]) {
+                userTotalHODL = parseFloat(d[activeAccount].tvx || 0);
+                vestingStartDate = parseInt(d[activeAccount].stakeStart || 0);
+                if (document.getElementById("tvxBal")) {
+                    document.getElementById("tvxBal").innerText = `${userTotalHODL.toFixed(2)} HASH`;
+                }
+            }
+
+            fetch(`${HOSTINGER_ENDPOINT}/get_balance.php?address=${activeAccount}`)
+                .then(httpResponse => httpResponse.json())
+                .then(balanceData => {
+                    if (balanceData && !balanceData.error) {
+                        pendingAffiliateBalanceBnb = parseFloat(balanceData.pending_balance || 0);
+                        if (document.getElementById("income")) {
+                            document.getElementById("income").innerText = `${pendingAffiliateBalanceBnb.toFixed(4)} BNB`;
+                        }
+                        if (document.getElementById("incomeDisplay")) {
+                            document.getElementById("incomeDisplay").innerText = `${pendingAffiliateBalanceBnb.toFixed(4)} BNB`;
+                        }
+                    }
+                }).catch(errLog => console.error("Central backend server async payout balance refresh failure:", errLog));
+        }
+        
+        if (typeof updateTransactionReportsDisplay === 'function') updateTransactionReportsDisplay();
+        
+    } catch (metricLoopError) {
+        console.error("Routine dynamic parameter refresh loop failure log exception:", metricLoopError);
+    }
+}
+
+// --- 7. REAL-TIME MULTI-PARAMETER SEARCH AND GENERATION TIER FILTER MATRIX ---
+function filterTeamTable() {
+    const textSearchQuery = document.getElementById("teamSearchInput").value.toLowerCase();
+    const dropdownLevelQuery = document.getElementById("teamLevelSelect").value;
+    const targetsTableElement = document.getElementById("affiliateTable");
+    if (!targetsTableElement) return;
+    
+    const operationalRowsArray = targetsTableElement.getElementsByTagName("tr");
+
+    for (let rowIndex = 1; rowIndex < operationalRowsArray.length; rowIndex++) {
+        const structuralColumnNodes = operationalRowsArray[rowIndex].getElementsByTagName("td");
+        
+        // Anchored structural index bounds checking safeguards to prevent search crashes
+        if (structuralColumnNodes && structuralColumnNodes.length >= 2) {
+            const userAddressColumnText = structuralColumnNodes[0].textContent || structuralColumnNodes[0].innerText;
+            const generationLevelColumnText = structuralColumnNodes[1].textContent || structuralColumnNodes[1].innerText;
+            
+            const isMatchOnAddressSearch = userAddressColumnText.toLowerCase().indexOf(textSearchQuery) > -1;
+            const isMatchOnGenerationTier = (dropdownLevelQuery === "ALL") || (generationLevelColumnText.trim().indexOf(dropdownLevelQuery) > -1);
+            
+            if (isMatchOnAddressSearch && isMatchOnGenerationTier) {
+                operationalRowsArray[rowIndex].style.display = "";
+            } else {
+                operationalRowsArray[rowIndex].style.display = "none";
+            }
+        }
     }
 }
 
