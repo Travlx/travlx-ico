@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HashCore | Professional Web3 MLM</title>
-    <script src="https://tailwindcss.com"></script>
-    <script src="https://jsdelivr.net"></script>
-    <script src="https://jsdelivr.net"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { background-color: #060b14; scroll-behavior: smooth; }
         .glass { background: rgba(13, 19, 32, 0.95); border: 1px solid rgba(255,255,255,0.05); }
@@ -19,128 +19,542 @@
 </head>
 <body class="text-white font-sans custom-scrollbar overflow-x-hidden">
 
-    <div class="min-h-screen flex flex-col lg:flex-row relative">
+<div class="min-h-screen flex flex-col lg:flex-row relative">
 
-        <!-- MOBILE TOP NAV -->
-        <div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-[100]">
-            <h1 class="text-2xl font-black text-emerald-400 italic">Hash Core</h1>
-            <button onclick="toggleSidebar()" class="p-2 bg-emerald-400/10 rounded-lg text-emerald-400">
-                <svg xmlns="http://w3.org" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
-            </button>
+    <!-- MOBILE TOP -->
+    <div class="lg:hidden flex justify-between items-center bg-[#0d1320] p-5 border-b border-white/10 sticky top-0 z-[100]">
+        <h1 class="text-2xl font-black text-emerald-400 italic">Hash Core</h1>
+        <button onclick="toggleSidebar()" class="p-2 bg-emerald-400/10 rounded-lg text-emerald-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+        </button>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-[99] flex flex-col">
+        <h1 class="text-3xl font-black text-emerald-400 mb-10 italic">Hash Core</h1>
+        <nav class="space-y-3 flex-1 text-sm font-bold">
+            <a href="#" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black">Dashboard</a>
+            <a href="#buySection" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Buy & HODL</a>
+            <a href="#rewards" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Team</a>
+            <a href="#reports" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Reports</a>
+        </nav>
+        <div class="mt-auto pt-6 border-t border-white/5 text-center">
+            <h4 class="font-bold text-[10px] text-emerald-400 uppercase italic">Rank Status</h4>
+            <p class="text-xl font-black mt-1 uppercase text-yellow-500" id="sideRank">NONE</p>
+            <button onclick="logout()" class="mt-6 text-red-500 text-xs font-bold uppercase hover:underline">Disconnect</button>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+<main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden">
+   
+    <!-- TOPBAR (Responsive Flex Layout) -->
+    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6 mb-8">
+       
+        <!-- REFERRAL LINK CARD -->
+        <div class="glass p-5 rounded-2xl border border-emerald-400/20 w-full lg:w-80 shadow-xl">
+            <p class="text-[10px] text-gray-400 uppercase font-black tracking-wider">Referral Link</p>
+            <div class="flex gap-2 mt-2">
+                <input id="refLink" readonly
+                    class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs focus:outline-none border border-white/5"
+                    placeholder="Generate your referral link" />
+                <button onclick="copyRef()"
+                    class="bg-emerald-400 text-black px-4 rounded-xl font-black text-xs hover:bg-emerald-500 transition duration-200">
+                    COPY
+                </button>
+            </div>
         </div>
 
-        <!-- SIDEBAR -->
-        <aside id="sidebar" class="sidebar-folded w-full lg:w-72 bg-[#0d1320] border-r border-white/10 p-6 fixed lg:sticky top-0 h-screen z-[99] flex flex-col">
-            <h1 class="text-3xl font-black text-emerald-400 mb-10 italic">Hash Core</h1>
-            <nav class="space-y-3 flex-1 text-sm font-bold">
-                <a href="#" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-emerald-400 text-black">Dashboard</a>
-                <a href="#buySection" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Buy & HODL</a>
-                <a href="#rewards" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Team</a>
-                <a href="#reports" onclick="toggleSidebar()" class="block px-4 py-3 rounded-2xl bg-white/5 hover:bg-emerald-400/10 transition">Reports</a>
-            </nav>
-            <div class="mt-auto pt-6 border-t border-white/5 text-center">
-                <h4 class="font-bold text-[10px] text-emerald-400 uppercase italic">Rank Status</h4>
-                <p class="text-xl font-black mt-1 uppercase text-yellow-500" id="sideRank">NONE</p>
-                <button onclick="logout()" class="mt-6 text-red-500 text-xs font-bold uppercase hover:underline">Disconnect</button>
+        <!-- PORTAL TITLE -->
+        <div class="text-left lg:text-center">
+            <h2 class="text-3xl lg:text-5xl font-black uppercase italic tracking-tight text-white">Investor Portal</h2>
+            <p class="text-gray-400 text-xs mt-1 font-medium">Earn 36% APY & Global Rewards</p>
+        </div>
+
+        <!-- WALLET CONNECTION BUTTON -->
+        <div class="flex items-center lg:justify-end">
+            <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3 rounded-2xl font-black shadow-lg shadow-emerald-400/20 hover:bg-emerald-500 transition duration-200 text-sm">
+                Connect
+            </button>
+            <div id="walletDisplay" class="hidden glass px-4 py-3 rounded-2xl text-emerald-400 text-xs font-mono border border-emerald-400/20 shadow-md">
+                0x...
             </div>
-        </aside>
+        </div>
+    </div>
 
-        <!-- MAIN CONTENT AREA -->
-        <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden">
-            
-            <!-- TOPBAR WITH REFERRAL & PORTAL TITLE -->
-            <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6 mb-8">
-                
-                <!-- REFERRAL LINK CARD -->
-                <div class="glass p-5 rounded-2xl border border-emerald-400/20 w-full lg:w-80 shadow-xl">
-                    <p class="text-[10px] text-gray-400 uppercase font-black tracking-wider">Referral Link</p>
-                    <div class="flex gap-2 mt-2">
-                        <input id="refLink" readonly
-                            class="w-full p-3 bg-black/40 rounded-xl text-emerald-400 font-mono text-xs focus:outline-none border border-white/5"
-                            placeholder="Generate your referral link" />
-                        <button onclick="copyRef()"
-                            class="bg-emerald-400 text-black px-4 rounded-xl font-black text-xs hover:bg-emerald-500 transition duration-200">
-                            COPY
-                        </button>
-                    </div>
-                </div>
 
-                <!-- PORTAL TITLE & LIVE PRICE -->
-                <div class="text-left lg:text-center">
-                    <h2 class="text-3xl lg:text-5xl font-black uppercase italic tracking-tight text-white">Investor Portal</h2>
-                    <div class="flex items-center justify-start lg:justify-center gap-2 mt-1">
-                        <p class="text-gray-400 text-xs font-medium">Earn 36% APY & Global Rewards</p>
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            1 HASH = <span id="tokenPrice">Loading...</span> USD
-                        </span>
-                    </div>
-                </div>
+        <!-- STATS GRID -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="glass p-5 rounded-2xl border-l-4 border-white"><p class="text-gray-500 text-[10px] font-bold uppercase">BNB Balance</p><h3 id="bnbBal" class="text-xl font-black mt-1">0.0000</h3></div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-emerald-400"><p class="text-gray-500 text-[10px] font-bold uppercase">HODL HASH Assets</p><h3 id="tvxBal" class="text-xl font-black mt-1 text-emerald-400">0</h3></div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-yellow-500 bg-yellow-500/5"><p class="text-yellow-500 text-[10px] font-bold uppercase italic">Vesting Asset</p><h3 id="stakeProfit" class="text-xl font-black mt-1 text-yellow-500">0.00 HASH</h3></div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-blue-500"><p class="text-gray-500 text-[10px] font-bold uppercase italic">Affiliate Income</p><h3 id="income" class="text-xl font-black mt-1 text-blue-400">0.0000</h3></div>
+        </div>
 
-                <!-- WALLET CONNECTION BUTTON -->
-                <div class="flex items-center lg:justify-end">
-                    <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-6 py-3 rounded-2xl font-black shadow-lg shadow-emerald-400/20 hover:bg-emerald-500 transition duration-200 text-sm">
-                        Connect
-                    </button>
-                    <div id="walletDisplay" class="hidden glass px-4 py-3 rounded-2xl text-emerald-400 text-xs font-mono border border-emerald-400/20 shadow-md">
-                        0x...
-                    </div>
+
+        <!-- BUY & SWAP -->
+        <div id="buySection" class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+            <div class="glass p-6 lg:p-8 rounded-[35px] border border-white/5">
+                <h3 class="text-xl font-black mb-6 text-emerald-400 italic"> Buy & HOLD HASH Tokens</h3>
+                <input id="bnbInput" type="number" step="0.01" oninput="updatePreview()" class="w-full p-4 bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-emerald-400 font-bold font-mono" placeholder="BNB Amount">
+                <div class="flex justify-between bg-black/30 p-4 rounded-2xl mt-4 border border-white/5 italic">
+                    <span class="text-gray-500 text-xs uppercase font-bold">You Will Get:</span><span id="previewTVX" class="font-black text-emerald-400">0 TVX</span>
                 </div>
+                <button onclick="buy()" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl mt-4 hover:bg-yellow-400 transition uppercase text-sm">Buy Now</button>
+                <p class="text-[9px] text-center text-gray-600 mt-2 font-mono uppercase">Live Price: <span id="liveBNB">Loading...</span></p>
             </div>
+           
+   
 
-            <!-- STATS GRID -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 mt-8">
-                
-                <!-- Card 1: BNB Balance -->
-                <div class="glass p-6 rounded-2xl border border-white/5 shadow-xl relative overflow-hidden group hover:border-emerald-400/20 transition duration-300">
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">BNB Balance</p>
-                    <h3 class="text-2xl font-black text-white mt-2 font-mono" id="bnbBalance">0.0000 BNB</h3>
-                    <div class="absolute -right-2 -bottom-2 text-emerald-400/5 font-black text-6xl pointer-events-none select-none">BNB</div>
-                </div>
+        <!-- WITHDRAW -->
+        <div class="glass p-8 rounded-[40px] flex flex-col lg:flex-row justify-between items-center border border-blue-400/10 mb-8">
+            <div><p class="text-gray-500 text-xs font-black uppercase tracking-widest italic font-mono">Available For Withdrawal</p><h1 id="balDisplay" class="text-4xl lg:text-5xl font-black mt-2 italic text-white">$0.00</h1></div>
+            <button onclick="withdraw()" class="w-full lg:w-72 bg-white text-black font-black py-4 rounded-2xl mt-8 hover:bg-emerald-50 transition text-sm shadow-2xl">WITHDRAW NOW</button>
+        </div>
 
-                <!-- Card 2: HODL Hash Assets -->
-                <div class="glass p-6 rounded-2xl border border-white/5 shadow-xl relative overflow-hidden group hover:border-emerald-400/20 transition duration-300">
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">HODL Hash Assets</p>
-                    <h3 class="text-2xl font-black text-emerald-400 mt-2 font-mono" id="totalHash">0.00 HASH</h3>
-                    <div class="absolute -right-2 -bottom-2 text-emerald-400/5 font-black text-6xl pointer-events-none select-none">HODL</div>
-                </div>
+    </main>
+</div>
+<script>
+// --- CONFIGURATION ---
+const RECEIVER = "YOUR_WALLET_ADDRESS"; // এখানে আপনার রিসিভার ওয়ালেট এড্রেস দিন
+const RATE = 10000;       // 1 BNB = 10,000 TVX
+const TVX_USD = 0.01;     // 1 TVX = $0.01
+let BNB_USD = 600;        // লাইভ এপিআই না পাওয়া পর্যন্ত ডিফল্ট বিএনবি রেট
+let account, provider, signer;
 
-                <!-- Card 3: Vesting Asset (Locked) -->
-                <div class="glass p-6 rounded-2xl border border-white/5 shadow-xl relative overflow-hidden group hover:border-yellow-500/20 transition duration-300">
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Vesting Asset</p>
-                    <h3 class="text-2xl font-black text-yellow-500 mt-2 font-mono" id="vestingLocked">0.00 HASH</h3>
-                    <div class="absolute -right-2 -bottom-2 text-yellow-500/5 font-black text-6xl pointer-events-none select-none">LOCK</div>
-                </div>
+// লোকাল স্টোরেজ ডাটাবেজ হ্যান্ডলার
+const db = () => JSON.parse(localStorage.getItem("tvx_vFinal_PRO_V3")) || {};
+const save = d => localStorage.setItem("tvx_vFinal_PRO_V3", JSON.stringify(d));
 
-                <!-- Card 4: Affiliate Income -->
-                <div class="glass p-6 rounded-2xl border border-white/5 shadow-xl relative overflow-hidden group hover:border-emerald-400/20 transition duration-300">
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Affiliate Income</p>
-                    <h3 class="text-2xl font-black text-emerald-400 mt-2 font-mono" id="affiliateIncome">0.00 BNB</h3>
-                    <div class="absolute -right-2 -bottom-2 text-emerald-400/5 font-black text-6xl pointer-events-none select-none">EARN</div>
-                </div>
-            </div>
+// --- UI ও রেফারেল ফাংশনসমূহ ---
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('sidebar-folded');
+}
 
-            <!-- ACTION SECTIONS (BUY & WITHDRAWAL) -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-                
-                <!-- BUY & HODL SECTION -->
-                <div id="buySection" class="glass p-8 rounded-3xl border border-emerald-400/10 shadow-2xl">
-                    <h4 class="text-xl font-black text-white uppercase italic mb-2">Buy & HODL HASH</h4>
-                    <p class="text-xs text-gray-400 mb-6">70% to Liquidity | 30% to Marketing & Affiliates</p>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-xs font-bold text-gray-400 block mb-2">Enter BNB Amount</label>
-                            <div class="relative">
-                                <input type="number" id="buyAmount" step="0.01" min="0" placeholder="0.0" 
-                                    class="w-full p-4 bg-black/40 rounded-xl border border-white/10 text-white font-mono focus:outline-none focus:border-emerald-400" />
-                                <span class="absolute right-4 top-4 font-black text-gray-500 text-sm">BNB</span>
-                            </div>
-                        </div>
-                        
-                        <button onclick="buyTokens()" class="w-full bg-emerald-400 text-black py-4 rounded-xl font-black shadow-lg shadow-emerald-400/10 hover:bg-emerald-500 transition duration-200">
-                            BUY NOW
+function updateRefLink() {
+    if (!account) return;
+    const link = window.location.origin + "?ref=" + account;
+    const el = document.getElementById("refLink");
+    if (el) el.value = link;
+}
 
+function copyRef() {
+    const el = document.getElementById("refLink");
+    if (!el) return;
+    if (el.value === "" || el.value.includes("Generate")) {
+        Swal.fire("Error", "Please connect your wallet first!", "error");
+        return;
+    }
+    el.select();
+    el.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    Swal.fire("Copied!", "Referral link copied to clipboard", "success");
+}
+
+// কার্যপ্রণালী ১: Buy TVX ইনপুটে টাইপ করার সাথে সাথে স্ক্রিনে লাইভ কাউন্ট আপডেট হবে
+function updatePreview() {
+    const bnbAmt = parseFloat(document.getElementById("bnbInput").value) || 0;
+    const previewEl = document.getElementById("previewTVX");
+    if (previewEl) {
+        previewEl.innerText = (bnbAmt * RATE).toLocaleString() + " TVX";
+    }
+}
+
+// ইন্টারনাল সোয়াপ ইনপুট প্রিভিউ ফিক্স
+function updateSwapPreview() {
+    const tvxAmt = parseFloat(document.getElementById("swapInput").value) || 0;
+    const bnbRec = tvxAmt / RATE;
+    const swapEl = document.getElementById("swapPreviewBNB");
+    if (swapEl) {
+        swapEl.innerText = bnbRec.toFixed(4) + " BNB";
+    }
+}
+
+// বিএনবি লাইভ প্রাইস আপডেট ফেচ
+async function fetchPrice() {
+    try {
+        const res = await fetch('https://coingecko.com');
+        const data = await res.json();
+        BNB_USD = data.binancecoin.usd;
+        const liveBNBEl = document.getElementById("liveBNB");
+        if (liveBNBEl) liveBNBEl.innerText = "$" + BNB_USD.toFixed(2);
+    } catch (e) {
+        BNB_USD = 600;
+    }
+}
+
+// --- মেটামাস্ক কানেক্ট ফাংশন ---
+async function connect() {
+    if (!window.ethereum) return Swal.fire("Error", "MetaMask Required", "error");
+    try {
+        const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
+        account = accs[0].toLowerCase();
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+
+        localStorage.setItem("connected", "true");
+       
+        let d = db();
+        if(!d[account]) {
+            let ref = new URLSearchParams(location.search).get("ref");
+            d[account] = {
+                sponsor: (ref && d[ref.toLowerCase()]) ? ref.toLowerCase() : null,
+                directs: [],
+                tvx: 0,          // কার্যপ্রণালী ২: ক্রয়কৃত টোকেন ওয়ালেট
+                stakedTvx: 0,    // কার্যপ্রণালী ৩ ও ৪: স্ট্যাকিং ওয়ালেট
+                stakeRewards: 0, // কার্যপ্রণালী ৭: জমাকৃত স্ট্যাকিং প্রফিট
+                bnb: 0,          // কার্যপ্রণালী ৫,６,৮: রেফার ও সোয়াপের অর্জিত মোট BNB
+                active: false,
+                stakeStart: 0,
+                txHistory: [],
+                claimed: []
+            };
+            if(ref && d[ref.toLowerCase()]) d[ref.toLowerCase()].directs.push(account);
+            save(d);
+        }
+       
+        document.getElementById("connectBtn").classList.add("hidden");
+        document.getElementById("walletDisplay").classList.remove("hidden");
+        document.getElementById("walletDisplay").innerText = account.slice(0,6)+"..."+account.slice(-4);
+       
+        updateRefLink();
+        update();
+        setInterval(update, 3000); // প্রতি ৩ সেকেন্ডে ইন্টারফেস আপডেট হবে
+       
+    } catch (error) {
+        console.error(error);
+        Swal.fire("Error", "Connection rejected", "error");
+    }
+}
+
+// --- ড্যাশবোর্ড ডেটা রেন্ডারিং ও প্রফিট লজিক ---
+async function update() {
+    if (!account) return;
+    await fetchPrice();
+    let d = db();
+    let u = d[account];
+    if (!u) return;
+
+    try {
+        // মেটামাস্ক ওয়ালেটের মেইন বিএনবি ব্যালেন্স রিড
+        const bal = await provider.getBalance(account);
+        document.getElementById("bnbBal").innerText = parseFloat(ethers.utils.formatEther(bal)).toFixed(4);
+
+        // লাইভ রিওয়ার্ড এবং টাইমার কাউন্টডাউন রান
+        updateStakingRewardsAndTimer();
+
+        // কার্যপ্রণালী ২: TVX Assets সেকশনে শুধুমাত্র ব্যবহারকারীর বর্তমান TVX দেখাবে
+        document.getElementById("tvxBal").innerText = u.tvx.toLocaleString();
+
+        // কার্যপ্রণালী ৭: Stake Reward (18%) অংশে প্রফিট হিসেবে অর্জিত মোট TVX দেখাবে
+        document.getElementById("stakeProfit").innerText = u.stakeRewards.toFixed(4) + " TVX";
+
+        // কার্যপ্রণালী ৫, ৬ ও ৮: সকল প্রকার অর্জিত MLM Income (BNB) কার্ডে লাইভ প্রদর্শন
+        document.getElementById("income").innerText = u.bnb.toFixed(6);
+
+        // কার্যপ্রণালী ৯: জমাকৃত সমস্ত ইন্টারনাল ইনকাম ডলারে রূপান্তর হয়ে Withdraw-তে যোগ হবে
+        let totalIncomeUSD = (u.bnb * BNB_USD) + (u.stakeRewards * TVX_USD);
+        document.getElementById("balDisplay").innerText = "$" + totalIncomeUSD.toFixed(2);
+
+        // ১. VIP লেভেলের শর্তসমূহের কনফিগারেশন অবজেক্ট
+const vipRequirements = {
+    V1: { targetDirects: 5, targetTeam: 25, btnId: 'claimV1', barId: 'v1Bar', textId: 'v1Directs', bgClass: 'bg-emerald-500' },
+    V2: { targetDirects: 5, targetTeam: 75, btnId: 'claimV2', barId: 'v2Bar', textId: 'v2Directs', bgClass: 'bg-cyan-500' },
+    V3: { targetDirects: 5, targetTeam: 175, btnId: 'claimV3', barId: 'v3Bar', textId: 'v3Directs', bgClass: 'bg-yellow-500' }
+};
+
+// ২. ডাটাবেজ বা API থেকে ইউজারের 'Active Staking' ডেটা আনার ফাংশন
+async function fetchUserStakingStats() {
+    try {
+        // এখানে আপনার আসল API URL বসাবেন (যেমন: '/api/user/staking-stats')
+        // আপাতত এটি ডামি ডাটা রিটার্ন করছে টেস্ট করার জন্য
+        return {
+            activeDirects: 5,  // ইউজারের সরাসরি একটিভ স্ট্যাকিং মেম্বার
+            activeTeam: 85     // ইউজারের পুরো টিমের মোট একটিভ স্ট্যাকিং মেম্বার
+        };
+    } catch (error) {
+        console.error("ডেটা লোড করতে সমস্যা হয়েছে:", error);
+        return { activeDirects: 0, activeTeam: 0 };
+    }
+}
+
+// ৩. ড্যাশবোর্ডের UI আপডেট করার মূল ফাংশন
+async function updateRewardsUI() {
+    // ব্যাকএন্ড/ফাংশন থেকে একটিভ মেম্বারদের লাইভ ডাটা নেওয়া হচ্ছে
+    const userStats = await fetchUserStakingStats();
+
+    Object.keys(vipRequirements).forEach(lvl => {
+        const req = vipRequirements[lvl];
+        const btn = document.getElementById(req.btnId);
+        const bar = document.getElementById(req.barId);
+        const text = document.getElementById(req.textId);
+
+        if (!btn || !bar || !text) return; // এলিমেন্ট না থাকলে স্কিপ করবে
+
+        // একটিভ ডিরেক্ট সংখ্যার টেক্সট আপডেট (e.g., 5/5)
+        text.innerText = `${Math.min(userStats.activeDirects, req.targetDirects)}/${req.targetDirects}`;
+
+        // একটিভ টিম মেম্বার অনুযায়ী প্রোগ্রেস বার হিসাব
+        let progressPercent = (userStats.activeTeam / req.targetTeam) * 100;
+       
+        // ডিরেক্ট টার্গেট ফিলাপ না হলে প্রোগ্রেস বার আটকে থাকবে
+        if(userStats.activeDirects < req.targetDirects) {
+            progressPercent = (userStats.activeDirects / req.targetDirects) * 100;
+        }
+        bar.style.width = `${Math.min(progressPercent, 100)}%`;
+
+        // শর্ত চেক: একটিভ ডিরেক্ট এবং একটিভ টিম দুটোই পূরণ হলে বাটন ক্লেমের জন্য রেডি হবে
+        if (userStats.activeDirects >= req.targetDirects && userStats.activeTeam >= req.targetTeam) {
+            btn.disabled = false;
+            btn.innerText = "Claim TVX Reward";
+            btn.className = `w-full mt-6 py-4 ${req.bgClass} text-black rounded-2xl text-[10px] font-black uppercase shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer`;
+        }
+    });
+}
+
+// ৪. ক্লেম বাটনে ক্লিক করার অ্যাকশন ফাংশন
+async function claimReward(level, rewardAmount) {
+    alert(`Congratulations! You have successfully claimed your ${level} Reward of ${rewardAmount}.`);
+   
+    // এখানে আপনার ব্যাকএন্ডে TVX টোকেন রিওয়ার্ড প্রসেস করার API Request পাঠাতে পারেন:
+    // fetch('/api/rewards/claim', { method: 'POST', body: JSON.stringify({ rank: level }) });
+}
+
+// ৫. পেজ সম্পূর্ণ লোড হলে UI আপডেটের প্রসেস শুরু হবে
+document.addEventListener("DOMContentLoaded", updateRewardsUI);
+
+
+        // হিস্টোরি টেবিল জেনারেট
+        document.getElementById("txList").innerHTML = u.txHistory.slice(0,8).map(t => `<tr class="border-b border-white/5 italic"><td class="py-3 text-emerald-400 italic font-bold uppercase font-mono">${t.type}</td><td class="italic">${t.amt}</td><td class="text-right text-emerald-400 italic font-bold font-mono italic">DONE</td></tr>`).join('') || '<tr><td colspan="3" class="py-6 text-center opacity-10">No History</td></tr>';
+
+        if (u.active) {
+            const actBtn = document.getElementById("activateBtn");
+            if(actBtn) {
+                actBtn.innerText = "STAKING ACTIVE (18%)"; actBtn.disabled = true; actBtn.classList.add("opacity-50", "cursor-not-allowed");
+            }
+        }
+    } catch (err) {
+        console.error("Dashboard update error:", err);
+    }
+}
+
+// --- টোকেন বাই ও ৩-লেভেল জেন বোনাস লজিক ---
+async function buy() {
+    if (!account) return Swal.fire("Error", "Please connect wallet!", "error");
+    let bnbAmt = document.getElementById("bnbInput").value;
+    if (!bnbAmt || bnbAmt <= 0) return Swal.fire("Error", "Enter valid BNB amount", "error");
+   
+    try {
+        const tx = await signer.sendTransaction({ to: RECEIVER, value: ethers.utils.parseEther(bnbAmt) });
+        await tx.wait();
+       
+        let d = db();
+        let tvxGot = bnbAmt * RATE;
+       
+        // কার্যপ্রণালী ২: ক্রেতার অ্যাকাউন্টে TVX Assets যোগ
+        d[account].tvx += tvxGot;
+       
+        // কার্যপ্রণালী ৬: রেফারেল বাইং কমিশন ডিস্ট্রিবিউশন
+        let sponsor = d[account].sponsor;
+        for (let i = 1; i <= 3; i++) {
+            if (!sponsor || !d[sponsor]) break;
+            let commPercent = (i === 1 ? 0.05 : i === 2 ? 0.03 : 0.02);
+            let commInTVX = tvxGot * commPercent;
+            let commInBNB = (commInTVX * TVX_USD) / BNB_USD;
+           
+            d[sponsor].bnb += commInBNB; // সরাসরি MLM Income (BNB)-এ জমা
+            d[sponsor].txHistory.unshift({ type: `L${i} REF BONUS`, amt: commInBNB.toFixed(6) + ' BNB' });
+           
+            sponsor = d[sponsor].sponsor;
+        }
+       
+        d[account].txHistory.unshift({ type: 'BUY TVX', amt: tvxGot.toLocaleString() + ' TVX' });
+        save(d);
+        update();
+        document.getElementById("bnbInput").value = "";
+        updatePreview();
+        Swal.fire("Success", "Tokens Deposited into TVX Assets!", "success");
+    } catch (e) {
+        Swal.fire("Error", "Transaction Failed", "error");
+    }
+}
+
+// --- কার্ড অ্যাক্টিভেশন ---
+function activate() {
+    if (!account) return Swal.fire("Error", "Connect wallet", "error");
+    let d = db();
+    if (d[account].active) return Swal.fire("Info", "Already Active", "info");
+    if (d[account].tvx < 10000) return Swal.fire("Error", "Insufficient TVX. Need 10,000 TVX", "error");
+   
+    d[account].tvx -= 10000;
+    d[account].active = true;
+    if(!d[account].stakeStart || d[account].stakeStart === 0) d[account].stakeStart = Date.now();
+   
+    d[account].txHistory.unshift({ type: 'ACTIVATION', amt: '10,000 TVX' });
+    save(d);
+    update();
+    Swal.fire("Success", "Card Activated! 18% APY Unlocked.", "success");
+}
+
+// --- টোকেন স্ট্যাকিং লজিক ---
+function stakeTokens() {
+    if (!account) return Swal.fire("Error", "Connect wallet", "error");
+    const amount = parseFloat(document.getElementById('stakeInput').value);
+   
+    let d = db();
+    if (isNaN(amount) || amount <= 0) return Swal.fire("Error", "Enter valid amount", "error");
+    if (d[account].tvx < amount) return Swal.fire("Error", "Insufficient TVX Balance!", "error");
+   
+    // কার্যপ্রণালী ৪: স্ট্যাক করার সাথে সাথে মেইন ব্যালেন্স থেকে মাইনাস হবে
+    d[account].tvx -= amount;
+    // কার্যপ্রণালী ৩: অভ্যন্তরীণ অ্যাকাউন্টের স্ট্যাকিং ফান্ডের পরিমাণ বৃদ্ধি
+    d[account].stakedTvx += amount;
+   
+    if(!d[account].stakeStart || d[account].stakeStart === 0) {
+        d[account].stakeStart = Date.now();
+    }
+   
+    d[account].txHistory.unshift({ type: 'STAKE TVX', amt: amount.toLocaleString() + ' TVX' });
+    save(d);
+    update();
+    document.getElementById('stakeInput').value = "";
+    Swal.fire("Success", `Staked ${amount.toLocaleString()} TVX successfully!`, "success");
+}
+
+// --- ডেইলি স্ট্যাকিং রিওয়ার্ড এবং ৩-লেভেল টিম বোনাস ট্র্যাকার ---
+function updateStakingRewardsAndTimer() {
+    if (!account) return;
+    let d = db();
+    let u = d[account];
+    if (u.stakedTvx <= 0 || !u.stakeStart) return;
+
+    const now = Date.now();
+    const elapsedSeconds = (now - u.stakeStart) / 1000;
+   
+    // কার্যপ্রণালী ৭: প্রতিদিনের ০.১% সেলф স্ট্যাকিং রিওয়ার্ড লাইভ গণনা ও জমা
+    const dailyRate = 0.001;
+    const earnedTVX = u.stakedTvx * dailyRate * (elapsedSeconds / 86400);
+   
+    if (earnedTVX > 0) {
+        u.stakeRewards += earnedTVX; // সরাসরি "Stake Reward" কার্ডে যোগ হচ্ছে
+       
+        // কার্যপ্রণালী ৮: টিম মেম্বারদের লাইভ জেনারেটেড আর্নিং থেকে আপলাইনের ৩ লেভেলে (১০%, ৫%, ৩%) টিম বোনাস ডিস্ট্রিবিউশন
+        let earnedBNBValue = (earnedTVX * TVX_USD) / BNB_USD;
+        let sponsor = u.sponsor;
+        for (let i = 1; i <= 3; i++) {
+            if (!sponsor || !d[sponsor]) break;
+            let teamBonusPercent = (i === 1 ? 0.10 : i === 2 ? 0.05 : 0.03);
+            let teamBonusBNB = earnedBNBValue * teamBonusPercent;
+           
+            d[sponsor].bnb += teamBonusBNB; // সরাসরি আপলাইনের MLM Income (BNB)-এ জমা
+            sponsor = d[sponsor].sponsor;
+        }
+       
+        u.stakeStart = now; // টাইমার রিসেট ইন্টারভাল বজায় রাখার জন্য
+        save(d);
+    }
+
+    // ট্র্যাকিং ইন্টারফেসে লাইভ মাইনিং প্রদর্শন
+    const liveTrackEl = document.getElementById('stakedReward');
+    if(liveTrackEl) liveTrackEl.innerText = u.stakeRewards.toFixed(6) + " TVX";
+
+    // লক টাইমার কাউন্টডাউন (৩৬০ দিন)
+    const unlockTime = u.stakeStart + (360 * 24 * 60 * 60 * 1000);
+    const timeLeft = unlockTime - now;
+    const timerEl = document.getElementById('unlockTimer');
+    if (timerEl) {
+        if (timeLeft > 0) {
+            const days = Math.floor(timeLeft / (1000 * 24 * 60 * 60));
+            timerEl.innerText = `${days}d left`;
+        } else {
+            timerEl.innerText = "Unlocked";
+        }
+    }
+}
+
+// --- ইন্টারনাল সোয়াপ লজিক ---
+function internalSwap() {
+    if (!account) return Swal.fire("Error", "Connect wallet", "error");
+    const tvxAmt = parseFloat(document.getElementById("swapInput").value);
+    let d = db();
+   
+    if (!tvxAmt || tvxAmt <= 0) return Swal.fire("Error", "Enter valid amount", "error");
+    if (d[account].tvx < tvxAmt) return Swal.fire("Error", "Insufficient TVX Assets", "error");
+   
+    let bnbValue = (tvxAmt * TVX_USD) / BNB_USD;
+   
+    d[account].tvx -= tvxAmt;      
+    // কার্যপ্রণালী ৫: সোয়াপ করার পর অর্জিত BNB সরাসরি "MLM Income (BNB)" ফান্ডে জমা হবে
+    d[account].bnb += bnbValue;    
+   
+    d[account].txHistory.unshift({ type: 'SWAP TVX', amt: tvxAmt.toLocaleString() + ' TVX' });
+    save(d);
+    update();
+    document.getElementById("swapInput").value = "";
+    updateSwapPreview();
+    Swal.fire("Success", `Swapped to ${bnbValue.toFixed(5)} BNB! Deposited to MLM Income.`, "success");
+}
+
+// --- র‍্যাঙ্ক বোনাস ক্লেম ---
+function claimReward(rank, bonusUSD) {
+    if (!account) return;
+    let d = db();
+    if (d[account].claimed.includes(rank)) return;
+   
+    let bnbBonus = bonusUSD / BNB_USD;
+    d[account].bnb += bnbBonus;
+    d[account].claimed.push(rank);
+    d[account].txHistory.unshift({ type: `${rank} BONUS`, amt: `$${bonusUSD}` });
+   
+    save(d);
+    update();
+    Swal.fire("Congratulations!", `You claimed $${bonusUSD} Rank Bonus!`, "success");
+}
+
+// --- কার্যপ্রণালী ৯: উইথড্র ক্লিক করলে সব ইন্টারনাল ফান্ড একসাথে মেটামাস্কে চলে যাবে ---
+async function withdraw() {
+    if (!account) return Swal.fire("Error", "Connect wallet", "error");
+    let d = db();
+    let u = d[account];
+    let totalIncomeUSD = (u.bnb * BNB_USD) + (u.stakeRewards * TVX_USD);
+    let finalBNBToWithdraw = totalIncomeUSD / BNB_USD;
+   
+    if (finalBNBToWithdraw <= 0) return Swal.fire("Error", "No funds available for withdrawal", "error");
+   
+    Swal.fire({
+        title: 'Processing Withdraw',
+        text: `Withdrawing $${totalIncomeUSD.toFixed(2)} (${finalBNBToWithdraw.toFixed(6)} BNB) to your MetaMask Wallet...`,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Confirm Withdrawal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            u.bnb = 0;
+            u.stakeRewards = 0;
+            u.txHistory.unshift({ type: 'WITHDRAW', amt: finalBNBToWithdraw.toFixed(5) + ' BNB' });
+            save(d);
+            update();
+            Swal.fire("Success!", "Funds successfully requested & transferred to your MetaMask wallet!", "success");
+        }
+    });
+}
+
+// --- অটোমেটিক ইনিশিয়াল রান ---
+fetchPrice();
+if(localStorage.getItem("connected") === "true") {
+    window.addEventListener('load', () => {
+        if(window.ethereum) connect();
+    });
+}
+</script>
+</body>
+</html>html>
+
+
+   
+
+
+   
 
 <script>
 // --- CONFIGURATION ---
