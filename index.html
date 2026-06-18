@@ -45,22 +45,106 @@
         </div>
     </aside>
 
-   
-
-
-        <!-- BUY & SWAP -->
-        <div id="buySection" class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-            <div class="glass p-6 lg:p-8 rounded-[35px] border border-white/5">
-                <h3 class="text-xl font-black mb-6 text-emerald-400 italic"> Buy & HOLD HASH Tokens</h3>
-                <input id="bnbInput" type="number" step="0.01" oninput="updatePreview()" class="w-full p-4 bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-emerald-400 font-bold font-mono" placeholder="BNB Amount">
-                <div class="flex justify-between bg-black/30 p-4 rounded-2xl mt-4 border border-white/5 italic">
-                    <span class="text-gray-500 text-xs uppercase font-bold">You Will Get:</span><span id="previewTVX" class="font-black text-emerald-400">0 TVX</span>
+    <!-- MAIN CONTENT AREA (যা আগে বাদ পড়েছিল) -->
+    <main class="flex-1 p-4 lg:p-10 w-full overflow-x-hidden">
+        
+        <!-- TOPBAR (Referral Link, Portal Title, Wallet) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center mb-8 bg-[#0d1320]/40 p-6 rounded-3xl border border-white/5 shadow-xl">
+            
+            <!-- 1. REFERRAL LINK CARD -->
+            <div class="glass p-4 rounded-xl border border-emerald-400/10 w-full">
+                <p class="text-[10px] text-gray-400 uppercase font-black tracking-wider">Referral Link</p>
+                <div class="flex gap-2 mt-2">
+                    <input id="refLink" readonly
+                        class="w-full p-2.5 bg-black/40 rounded-lg text-emerald-400 font-mono text-xs focus:outline-none border border-white/5"
+                        placeholder="Generate link" />
+                    <button onclick="copyRef()"
+                        class="bg-emerald-400 text-black px-3 rounded-lg font-black text-xs hover:bg-emerald-500 transition duration-200">
+                        COPY
+                    </button>
                 </div>
-                <button onclick="buy()" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl mt-4 hover:bg-yellow-400 transition uppercase text-sm">Buy Now</button>
-                <p class="text-[9px] text-center text-gray-600 mt-2 font-mono uppercase">Live Price: <span id="liveBNB">Loading...</span></p>
+            </div>
+
+            <!-- 2. PORTAL TITLE & PANCAKESWAP LIVE PRICE -->
+            <div class="text-center">
+                <h2 class="text-2xl lg:text-3xl font-black uppercase italic tracking-tight text-white">Investor Portal</h2>
+                <p class="text-gray-400 text-[11px] font-medium mt-0.5">Earn 36% APY & Global Rewards</p>
+                <div class="mt-2">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        1 HASH = <span id="tokenPrice" class="font-mono">Loading...</span> USD
+                    </span>
+                </div>
+            </div>
+
+            <!-- 3. WALLET CONNECTION BUTTON -->
+            <div class="flex items-center justify-center lg:justify-end gap-3">
+                <button id="connectBtn" onclick="connect()" class="bg-emerald-400 text-black px-5 py-2.5 rounded-xl font-black shadow-lg shadow-emerald-400/20 hover:bg-emerald-500 transition duration-200 text-xs uppercase">
+                    Connect Wallet
+                </button>
+                <div id="walletDisplay" class="hidden glass px-4 py-2.5 rounded-xl text-emerald-400 text-xs font-mono border border-emerald-400/20 shadow-md">
+                    0x...
+                </div>
+            </div>
+        </div>
+
+        <!-- STATS GRID (৪টি কার্ড একদম সোজা লাইনে সাজানো) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="glass p-5 rounded-2xl border-l-4 border-white shadow-lg">
+                <p class="text-gray-500 text-[10px] font-bold uppercase tracking-wider">BNB Balance</p>
+                <h3 id="bnbBal" class="text-lg font-black mt-1 font-mono text-white">0.0000 BNB</h3>
+            </div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-emerald-400 shadow-lg">
+                <p class="text-gray-500 text-[10px] font-bold uppercase tracking-wider">HODL HASH Assets</p>
+                <h3 id="tvxBal" class="text-lg font-black mt-1 text-emerald-400 font-mono">0 HASH</h3>
+            </div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-yellow-500 bg-yellow-500/5 shadow-lg">
+                <p class="text-yellow-500 text-[10px] font-bold uppercase italic tracking-wider">Vesting Asset</p>
+                <h3 id="stakeProfit" class="text-lg font-black mt-1 text-yellow-500 font-mono">0.00 HASH</h3>
+            </div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-blue-500 shadow-lg">
+                <p class="text-gray-500 text-[10px] font-bold uppercase italic tracking-wider">Affiliate Income</p>
+                <h3 id="income" class="text-lg font-black mt-1 text-blue-400 font-mono">0.0000 BNB</h3>
+            </div>
+        </div>
+
+        <!-- BUY & SWAP AND LIVE VESTING CLAIM (পাশাপাশি ২টি প্রধান অ্যাকশন এরিয়া) -->
+        <div id="buySection" class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+            
+            <!-- BUY & HOLD HASH TOKENS (20% DISCOUNT INCLUDED) -->
+            <div class="glass p-6 lg:p-8 rounded-[35px] border border-white/5 flex flex-col justify-between shadow-2xl">
+                <div>
+                    <h3 class="text-xl font-black mb-1 text-emerald-400 italic">Buy & HOLD HASH Tokens</h3>
+                    <p class="text-[11px] text-gray-400 mb-6">Get 20% Discount off Live Price | 70% Liquidity & 30% Marketing</p>
+                    
+                    <input id="bnbInput" type="number" step="0.01" oninput="updatePreview()" 
+                        class="w-full p-4 bg-black/40 border border-white/10 rounded-2xl outline-none focus:border-emerald-400 font-bold font-mono text-white" 
+                        placeholder="BNB Amount">
+                    
+                    <div class="flex justify-between bg-black/30 p-4 rounded-2xl mt-4 border border-white/5 italic">
+                        <span class="text-gray-500 text-xs uppercase font-bold">You Will Get (+20% Disc):</span>
+                        <span id="previewTVX" class="font-black text-emerald-400 font-mono">0 HASH</span>
+                    </div>
+                </div>
+                <div>
+                    <button onclick="buy()" class="w-full bg-emerald-400 text-black font-black py-4 rounded-2xl mt-4 hover:bg-emerald-500 transition uppercase text-sm tracking-wider shadow-lg shadow-emerald-400/10">Buy Now</button>
+                    <p class="text-[9px] text-center text-gray-500 mt-2 font-mono uppercase tracking-widest">Live Price: <span id="liveBNB" class="text-emerald-400">Loading...</span></p>
+                </div>
             </div>
            
-   
+            <!-- LIVE CLAIM TO WALLET (Vesting Counter Box) -->
+            <div class="glass p-6 lg:p-8 rounded-[35px] border border-yellow-500/10 flex flex-col justify-between shadow-2xl bg-yellow-500/[0.005]">
+                <div>
+                    <h3 class="text-xl font-black mb-1 text-yellow-500 italic">Available for Claim</h3>
+                    <p class="text-[11px] text-gray-400 mb-6">Tokens release daily at a rate of 5% per month (100% unlocked over time)</p>
+                    
+                    <div class="p-6 bg-black/40 rounded-2xl border border-white/5 text-center">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Claimable HASH (Live Release Counter)</p>
+                        <h2 class="text-4xl font-black text-yellow-500 font-mono" id="claimableTokens">0.00000</h2>
+                    </div>
+                </div>
+                
+
 
         <!-- WITHDRAW -->
         <div class="glass p-8 rounded-[40px] flex flex-col lg:flex-row justify-between items-center border border-blue-400/10 mb-8">
