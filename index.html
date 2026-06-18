@@ -346,47 +346,16 @@
     </main>
 </div>
 <script>
-<!-- JAVASCRIPT MASTER CHASSIS INTEGRATION -->
+    <!-- JAVASCRIPT MASTER FOR INITIAL CORES -->
 <script>
-// --- GLOBAL MAIN INTERFACE CONFIGURATIONS ---
-const RECEIVER = "YOUR_WALLET_ADDRESS"; // Your admin wallet address
-const HASH_TOKEN_ADDRESS = "YOUR_HASH_TOKEN_CONTRACT_ADDRESS"; // Your deployed BEP-20 token contract address
-const INVESTMENT_CONTRACT_ADDRESS = "YOUR_INVESTMENT_CONTRACT_ADDRESS"; // Your main investment engine contract address
-
-// PancakeSwap Router V2 Node Configurations
-const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // USDT (BEP20) stablecoin on BSC
+// --- GLOBAL CONFIGURATIONS ---
+const HASH_TOKEN_ADDRESS = "YOUR_HASH_TOKEN_CONTRACT_ADDRESS"; // Replace with your HASH token contract address
+const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // Stablecoin address on BSC
 const PANCAKE_ROUTER_ADDRESS = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // PancakeSwap Router V2 Address
 
-// Hostinger Central Server Database Base Endpoints URL
-const BASE_SERVER_API_URL = "https://yourwebsite.com"; // Replace with your actual domain URL path
+let account, provider, signer;
 
-const MINIMUM_PURCHASE_BNB = 0.05; // Enforced purchase floor threshold limit
-const RATE = 10000;       // Base calculation rate parameter: 1 BNB = 10,000 HASH
-const TVX_USD = 0.01;     // Base pricing rate parameter: 1 HASH = $0.01
-let BNB_USD = 600;        // Fallback default BNB price asset rate calculation variable
-
-// 20 Tier precise distribution breakdown matrix array (sums to exactly 30%)
-const LEVEL_PERCENTAGES = [
-    5.0, 3.0, 2.0,            // Levels 1, 2, 3
-    1.5, 1.5,                 // Levels 4, 5
-    1.2, 1.2, 1.2, 1.2, 1.2,  // Levels 6 to 10
-    1.0, 1.0, 1.0, 1.0, 1.0,  // Levels 11 to 15
-    1.2, 1.2, 1.2, 1.2, 1.2   // Levels 16 to 20
-];
-
-// Core Reactive Global Tracking State Properties
-let account, provider, signer, contractInstance;
-let currentMarketPriceUsd = 0;
-let liveUserBnbBalance = "0.0000";
-let liveUserHoldHashAssets = "0";
-let liveUserVestingLocked = "0.00";
-let liveUserAffiliateIncomeBnb = "0.0000";
-
-// LocalStorage Fallback Profile Management Tracker Schema
-const db = () => JSON.parse(localStorage.getItem("tvx_vFinal_PRO_V3")) || {};
-const save = d => localStorage.setItem("tvx_vFinal_PRO_V3", JSON.stringify(d));
-
-// --- 1. UI NAVIGATION & RESPONSIVE LAYOUT ENGINE ---
+// --- RESPONSIVE SIDEBAR NAVIGATION ENGINE ---
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     if (sidebar) {
@@ -394,7 +363,69 @@ function toggleSidebar() {
     }
 }
 
-// --- 2. DYNAMIC REFERRAL GENERATION & CLIPBOARD API ---
+// --- SECURE WALLET SYNCHRONIZATION ENGINE ---
+async function connect() {
+    // Verify if Web3 provider (MetaMask / Trust Wallet) exists
+    if (!window.ethereum) {
+        return Swal.fire({
+            icon: "error",
+            title: "MetaMask Required",
+            text: "Please install MetaMask extension or open this website inside a dApp browser.",
+            background: "#0d1320",
+            color: "#fff"
+        });
+    }
+    
+    try {
+        // Request secure account access authorization
+        const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
+        account = accs[0].toLowerCase();
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+
+        localStorage.setItem("connected", "true");
+       
+        // Update user dashboard profile interfaces
+        const connectBtn = document.getElementById("connectBtn");
+        const walletDisplay = document.getElementById("walletDisplay");
+        
+        if (connectBtn) connectBtn.classList.add("hidden");
+        
+        if (walletDisplay) {
+            walletDisplay.classList.remove("hidden");
+            // Slice the 42 character hexadecimal address into short clean format (0x71C...3a92)
+            walletDisplay.innerText = `${account.substring(0, 6)}...${account.substring(38)}`;
+        }
+       
+        updateRefLink();
+        updateBasePriceFeed(); // Fetches live PancakeSwap pricing profile
+        
+        // Trigger 3-second routine status intervals
+        setInterval(updateBasePriceFeed, 3000); 
+
+        Swal.fire({
+            icon: "success",
+            title: "Wallet Connected",
+            text: "Your Web3 account has been securely synchronized with the core network portal.",
+            background: "#0d1320",
+            color: "#fff",
+            timer: 1500,
+            showConfirmButton: false
+        });
+       
+    } catch (error) {
+        console.error("Connection Interface Failure Exception:", error);
+        Swal.fire({
+            icon: "error",
+            title: "Connection Rejected",
+            text: error.message,
+            background: "#0d1320",
+            color: "#fff"
+        });
+    }
+}
+
+// --- DYNAMIC REFERRAL GENERATION & ASYNC CLIPBOARD ENGINE ---
 function updateRefLink() {
     if (!account) return;
     const link = window.location.origin + window.location.pathname + "?ref=" + account;
@@ -408,20 +439,20 @@ function copyRef() {
         Swal.fire({
             icon: "error",
             title: "Error",
-            text: "Please connect your wallet first to generate your custom referral tracking link matrix!",
+            text: "Please connect your wallet first to generate your custom referral tracking link!",
             background: "#0d1320",
             color: "#fff"
         });
         return;
     }
     
-    // Modern asynchronous clipboard engine (100% mobile and browser friendly)
+    // Modern asynchronous clipboard deployment (100% mobile and desktop friendly)
     navigator.clipboard.writeText(el.value);
     
     Swal.fire({
         icon: "success",
         title: "Copied!",
-        text: "Your tracking referral link has been copied to your clipboard successfully.",
+        text: "Referral verification link successfully copied to your clipboard.",
         background: "#0d1320",
         color: "#fff",
         timer: 1500,
@@ -429,152 +460,44 @@ function copyRef() {
     });
 }
 
-// --- 3. SECURE WEB3 ACCOUNT SYNCHRONIZATION ENGINE ---
-async function connect() {
-    if (!window.ethereum) {
-        return Swal.fire({
-            icon: "error",
-            title: "MetaMask Required",
-            text: "Please install MetaMask extension or open this website inside a secure dApp browser.",
-            background: "#0d1320",
-            color: "#fff"
-        });
-    }
-    
+// --- ON-CHAIN PANCAKESWAP PRICING LOOP FEED ---
+async function updateBasePriceFeed() {
     try {
-        const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
-        account = accs[0].toLowerCase();
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
-
-        // Map contract signature endpoints for write methods
-        const INVESTMENT_CONTRACT_ABI = [
-            "function buyTokens(uint256 _tokenAmountToAllocate) external payable",
-            "function withdrawAffiliate(uint256 _amountToWithdraw) external"
-        ];
-        contractInstance = new ethers.Contract(INVESTMENT_CONTRACT_ADDRESS, INVESTMENT_CONTRACT_ABI, signer);
-
-        localStorage.setItem("connected", "true");
-       
-        let d = db();
-        let ref = new URLSearchParams(location.search).get("ref");
-        if (ref) ref = ref.toLowerCase();
-
-        if (!d[account]) {
-            d[account] = { sponsor: (ref && d[ref]) ? ref : null, directs: [], tvx: 0, stakedTvx: 0, stakeRewards: 0, bnb: 0, active: false, stakeStart: 0, txHistory: [], claimed: [] };
-            if (ref && d[ref]) d[ref].directs.push(account);
-            save(d);
-
-            // Register User profile maps inside Hostinger central server schemas
-            fetch(`${BASE_SERVER_API_URL}/register_user.php`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_address: account, referrer_address: (ref && ref !== account) ? ref : null })
-            }).catch(err => console.error("Central backend server profiling sync exception log:", err));
-        }
-
-        // Alter interface display elements configuration settings
-        document.getElementById("connectBtn").classList.add("hidden");
-        const walletDisplay = document.getElementById("walletDisplay");
-        if (walletDisplay) {
-            walletDisplay.classList.remove("hidden");
-            walletDisplay.innerText = `${account.substring(0, 6)}...${account.substring(38)}`;
-        }
-       
-        updateRefLink();
-        updateDashboardStatsAndPrice(); 
-        
-        // Main synchronization metric loops execute dynamic updates every 3000ms
-        setInterval(updateDashboardStatsAndPrice, 3000); 
-
-        Swal.fire({
-            icon: "success",
-            title: "Wallet Connected",
-            text: "Your account metrics have been securely synchronized with the core network matrix.",
-            background: "#0d1320",
-            color: "#fff",
-            timer: 1500,
-            showConfirmButton: false
-        });
-       
-    } catch (error) {
-        console.error("Connection Routine Exception Interrupted Execution Stack:", error);
-        Swal.fire({ icon: "error", title: "Connection Rejected", text: error.message || "Web3 authentication failed.", background: "#0d1320", color: "#fff" });
-    }
-}
-
-// --- 4. ROUTINE INTERFACE STATISTICS & PANCAKESWAP PRICING REFRESH LOOP ---
-async function updateDashboardStatsAndPrice() {
-    try {
-        // A. Parse live pricing index data stream from PancakeSwap on-chain contracts
+        // Fallback to public node provider if wallet is not yet connected
         const rpcProvider = provider || new ethers.providers.JsonRpcProvider("https://binance.org");
         const routerABI = ["function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"];
         const routerContract = new ethers.Contract(PANCAKE_ROUTER_ADDRESS, routerABI, rpcProvider);
 
-        const amountIn = ethers.utils.parseUnits("1", 18); 
+        const amountIn = ethers.utils.parseUnits("1", 18); // Assumes 18 decimals base target token
         const path = [HASH_TOKEN_ADDRESS, USDT_ADDRESS];
 
         const amounts = await routerContract.getAmountsOut(amountIn, path);
-        const priceInUsd = ethers.utils.formatUnits(amounts, 18); 
-        currentMarketPriceUsd = parseFloat(priceInUsd);
+        const priceInUsd = ethers.utils.formatUnits(amounts[1], 18); 
         
-        // Push price feed index metrics onto the dashboard Topbar element box
         const tokenPriceEl = document.getElementById("tokenPrice");
         if (tokenPriceEl) {
-            tokenPriceEl.innerText = currentMarketPriceUsd.toFixed(4);
+            tokenPriceEl.innerText = parseFloat(priceInUsd).toFixed(4);
         }
-
-        // Push price feed index metrics onto the buy box live field label
-        const buyCardLivePriceEl = document.getElementById("liveBNB");
-        if (buyCardLivePriceEl) {
-            buyCardLivePriceEl.innerText = `$${currentMarketPriceUsd.toFixed(4)}`;
-        }
-
-        // B. Query blockchain network provider node for active user account metrics
-        if (account && provider) {
-            const rawBalance = await provider.getBalance(account);
-            liveUserBnbBalance = parseFloat(ethers.utils.formatEther(rawBalance)).toFixed(4);
-            
-            const bnbBalEl = document.getElementById("bnbBal");
-            if (bnbBalEl) bnbBalEl.innerText = `${liveUserBnbBalance} BNB`;
-
-            let d = db();
-            if (d[account]) {
-                liveUserHoldHashAssets = parseFloat(d[account].tvx || 0).toFixed(2);
-                liveUserVestingLocked = parseFloat(d[account].stakedTvx || 0).toFixed(2);
-                
-                const tvxBalEl = document.getElementById("tvxBal");
-                if (tvxBalEl) tvxBalEl.innerText = `${liveUserHoldHashAssets} HASH`;
-                
-                const stakeProfitEl = document.getElementById("stakeProfit");
-                if (stakeProfitEl) stakeProfitEl.innerText = `${liveUserVestingLocked} HASH`;
-            }
-
-            // C. Pull remote pending affiliate allocation balances from Hostinger server
-            fetch(`${BASE_SERVER_API_URL}/get_balance.php?address=${account}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && !data.error) {
-                        liveUserAffiliateIncomeBnb = parseFloat(data.pending_balance || 0).toFixed(4);
-                        const incomeEl = document.getElementById("income");
-                        if (incomeEl) incomeEl.innerText = `${liveUserAffiliateIncomeBnb} BNB`;
-                    }
-                }).catch(err => console.error("Hostinger async balance payload loop sync tracing exception:", err));
-        }
-    } catch (err) {
-        console.error("Routine Metric Update Pipeline Loop Exception Interruption:", err);
+    } catch (error) {
+        console.error("PancakeSwap On-chain Price Fetch Failure Exception:", error);
+        const tokenPriceEl = document.getElementById("tokenPrice");
+        if (tokenPriceEl) tokenPriceEl.innerText = "0.00";
     }
 }
 
-// --- 5. REAL-TIME 20% DISCOUNT PREVIEW ENGINE (Triggers on Input) ---
-function updatePreview() {
-    const bnbInputEl = document.getElementById("bnbInput");
+// --- USER SESSION DEPLOYMENT LOGOUT TERMINAL ---
+function logout() {
+    localStorage.removeItem("connected");
+    location.reload(); // Hard memory state cache clearance loop initialization
+}
+
+// --- INITIAL STATE ATTEMPT RETRIEVAL ---
+window.addEventListener('DOMContentLoaded', () => {
+    updateBasePriceFeed();
+    if (localStorage.getItem("connected") === "true") {
+        connect();
+    }
+});
+</script>
 
 </script>
-</body>
-</html>
-
-    
-
-
-    
