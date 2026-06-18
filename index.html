@@ -578,6 +578,110 @@ window.addEventListener('DOMContentLoaded', () => {
         connect();
     }
 });
+// 2. CRYPTO SMART CONTRACT TRANSACTION ENGINE (Triggers on Buy Now button click)
+async function buy() {
+    // Enforce validation check mapping for verified Web3 wallet states
+    if (!signer || !contractInstance || !account) {
+        return Swal.fire({
+            icon: 'warning',
+            title: 'Wallet Required',
+            text: 'Please connect your Web3 MetaMask account first to process investments.',
+            background: '#0d1320',
+            color: '#fff'
+        });
+    }
+
+    const bnbInputEl = document.getElementById("bnbInput");
+    if (!bnbInputEl) return;
+
+    const bnbAmount = parseFloat(bnbInputEl.value);
+    
+    // 🔴 MINIMUM BUY LIMIT CHECK (Added 0.05 BNB minimum rule)
+    if (isNaN(bnbAmount) || bnbAmount < 0.05) {
+        return Swal.fire({
+            icon: 'error',
+            title: 'Minimum Investment Required',
+            text: 'The minimum purchase amount is set to 0.05 BNB. Please enter a valid amount equal to or greater than 0.05 BNB.',
+            background: '#0d1320',
+            color: '#fff'
+        });
+    }
+
+    try {
+        Swal.fire({
+            title: 'Initializing Investment...',
+            text: 'Please authorize and sign the 70/30 smart contract gas transaction in your wallet.',
+            allowOutsideClick: false,
+            background: '#0d1320',
+            color: '#fff',
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        // Parse human-readable input strings into hexadecimal Wei units format
+        const depositValueWei = ethers.utils.parseEther(bnbAmount.toString());
+
+        // Parse target expected tokens string directly from the preview DOM element
+        const rawPreviewText = document.getElementById("previewTVX") ? document.getElementById("previewTVX").innerText : "0";
+        const estimatedTokens = parseFloat(rawPreviewText);
+        const tokensToAllocateWei = ethers.utils.parseUnits(estimatedTokens.toFixed(18), 18);
+
+        // Execute the single secure 20-level auto-split contract transaction method
+        // Note: The 70/30 split logic is fully executed securely inside this Smart Contract function
+        const tx = await contractInstance.buyTokens(tokensToAllocateWei, {
+            value: depositValueWei
+        });
+
+        Swal.fire({
+            title: 'Confirming Block...',
+            text: 'Synchronizing network logs with the blockchain nodes network ledger...',
+            allowOutsideClick: false,
+            background: '#0d1320',
+            color: '#fff',
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        // Await the network verification loop confirmation receipt
+        const receipt = await tx.wait();
+
+        // Hostinger remote central server deployment endpoint sync post trigger
+        fetch("https://yourwebsite.com", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                user_address: account.toLowerCase(),
+                bnb_amount: bnbAmount
+            })
+        })
+        .then(res => res.json())
+        .then(data => console.log("Hostinger Server 20-Level Tree Sync Success:", data))
+        .catch(err => console.error("Hostinger Network Mapping Fail Exception Log:", err));
+
+        // Flush the dashboard input structures state fields back to default
+        bnbInputEl.value = "";
+        if (document.getElementById("previewTVX")) document.getElementById("previewTVX").innerText = "0 HASH";
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Investment Successful!',
+            text: 'Funds allocated safely via smart contract. Your 20% discounted tokens are locked in vesting.',
+            background: '#0d1320',
+            color: '#fff'
+        });
+
+        // Trigger routine metrics refresh loop immediately to balance out the cards display
+        if (typeof updateDashboardStats === "function") updateDashboardStats();
+
+    } catch (error) {
+        console.error("Investment deployment chain core exception runtime capture:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Transaction Aborted',
+            text: error.message || 'The network transaction request was rejected or failed.',
+            background: '#0d1320',
+            color: '#fff'
+        });
+    }
+}
 
 </script>
 </body>
