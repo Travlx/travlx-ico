@@ -346,139 +346,53 @@
     </main>
 </div>
 <script>
-// --- GLOBAL DEPLOYMENT MATRIX CONTRACT CONSTANTS ---
-const RECEIVER_WALLET = "0x0000000000000000000000000000000000000000"; // Admin marketing/liquidity collector wallet
-const TOKEN_CONTRACT = "0x0000000000000000000000000000000000000000"; // Your custom HASH token BEP20 contract address
-const ENGINE_CONTRACT = "0x0000000000000000000000000000000000000000"; // Main MLM Investment engine contract address
+    // --- GLOBAL MATRIX CORE CONFIGURATIONS (Lines 1-50) ---
+const RECEIVER = "YOUR_WALLET_ADDRESS"; // Your admin account
+const HASH_TOKEN_ADDRESS = "YOUR_HASH_TOKEN_CONTRACT_ADDRESS";
+const INVESTMENT_CONTRACT_ADDRESS = "YOUR_INVESTMENT_CONTRACT_ADDRESS";
 
-// Deployed Binance Smart Chain Network Gateways Nodes Configuration
-const PANCAKE_ROUTER = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // Official PancakeSwap Router V2 address
-const USDT_ASSET = "0x55d398326f99059fF775485246999027B3197955"; // USDT stablecoin BEP20 token address on BSC
-const HOSTINGER_ENDPOINT = "https://yourwebsite.com"; // Your Hostinger database cPanel web address url path
+// PancakeSwap Node Router Setup Configurations
+const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
+const PANCAKE_ROUTER_ADDRESS = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
+const BASE_SERVER_API_URL = "https://yourwebsite.com";
 
-// Mathematical Calculation Constraint Multipliers Floor Limit Rules
-const INVESTMENT_FLOOR_BNB = 0.05; // Enforced programmatic minimum buy floor limit package constraint
-const BASE_CONVERSION_RATE = 10000; // System asset default indexing rate context: 1 BNB = 10,000 HASH tokens
+const MINIMUM_PURCHASE_BNB = 0.05; // Purchase threshold limit
+let BNB_USD = 600;        // Fallback default token rate asset
+let currentMarketPriceUsd = 0; // Dynamic live pool pricing rate
 
-// Dynamic Variable Runtime Tracking Caches App Properties
-let activeAccount = null;
-let networkProvider = null;
-let web3Signer = null;
-let investmentContractInstance = null;
-let liveTokenPriceUsd = 0.00;
+// Live Running Vesting Engine Properties
+let userTotalHODL = 0;
+let vestingStartDate = 0;
+let totalClaimedSoFar = 0;
 
-// Reactive LocalStorage Cache Serialization Storage Tracker Mappings
-const getProfileCache = () => JSON.parse(localStorage.getItem("hashcore_matrix_v2")) || {};
-const saveProfileCache = data => localStorage.setItem("hashcore_matrix_v2", JSON.stringify(data));
+let account, provider, signer, contractInstance;
 
-// --- 1. UI LAYER RESPONSIVE SIDEBAR TOGGLE MECHANISM ---
+// LocalStorage Fallback Database Management System Tracker
+const db = () => JSON.parse(localStorage.getItem("tvx_vFinal_PRO_V3")) || {};
+const save = d => localStorage.setItem("tvx_vFinal_PRO_V3", JSON.stringify(d));
+
+// --- 1. UI SIDEBAR LAYOUT ACTIONS CONTROLLERS ---
 function toggleSidebar() {
-    const sidebarContainer = document.getElementById('sidebar');
-    if (sidebarContainer) {
-        sidebarContainer.classList.toggle('sidebar-folded');
-    }
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) sidebar.classList.toggle('sidebar-folded');
 }
 
-// --- 2. DYNAMIC REFERRAL GENERATION METRIC POOL LINK ---
-function synchronizeReferralLink() {
-    if (!activeAccount) return;
-    const constructedLink = `${window.location.origin}${window.location.pathname}?ref=${activeAccount}`;
-    const referralInputEl = document.getElementById("refLink");
-    if (referralInputEl) {
-        referralInputEl.value = constructedLink;
-    }
+// --- 2. DYNAMIC REFERRAL GENERATION MECHANISM ---
+function updateRefLink() {
+    if (!account) return;
+    const link = window.location.origin + window.location.pathname + "?ref=" + account;
+    const el = document.getElementById("refLink");
+    if (el) el.value = link;
 }
 
-// --- 3. DYNAMIC ASYNC REFERRAL COPY ENGINE ---
 function copyRef() {
-    const referralInputEl = document.getElementById("refLink");
-    if (!referralInputEl || referralInputEl.value === "") {
-        Swal.fire({ 
-            icon: "error", 
-            title: "Wallet Required", 
-            text: "Please connect your wallet first to generate your custom tracking referral link!", 
-            background: "#0d1320", 
-            color: "#fff" 
-        });
+    const el = document.getElementById("refLink");
+    if (!el || el.value === "") {
+        Swal.fire({ icon: "error", title: "Error", text: "Please connect your wallet first to generate link!", background: "#0d1320", color: "#fff" });
         return;
     }
-    
-    // Deploy asynchronous native web clipboard writing method (100% responsive on mobile browsers)
-    navigator.clipboard.writeText(referralInputEl.value);
-    
-    Swal.fire({ 
-        icon: "success", 
-        title: "Link Copied!", 
-        text: "Your tracking network referral link has been successfully saved to your clipboard.", 
-        background: "#0d1320", 
-        color: "#fff", 
-        timer: 1500, 
-        showConfirmButton: false 
-    });
+    navigator.clipboard.writeText(el.value);
+    Swal.fire({ icon: "success", title: "Copied!", text: "Referral link copied successfully.", background: "#0d1320", color: "#fff", timer: 1500, showConfirmButton: false });
 }
 
-// --- 4. SECURE WEB3 ACCOUNT SYNCHRONIZATION ENGINE ---
-async function connect() {
-    // Assert active validation parameter checking for available browser injection extensions
-    if (!window.ethereum) {
-        return Swal.fire({ 
-            icon: "error", 
-            title: "MetaMask Required", 
-            text: "Please install the MetaMask browser extension or open this application inside a secure Web3 dApp browser.", 
-            background: "#0d1320", 
-            color: "#fff" 
-        });
-    }
-    
-    try {
-        // Authorize secure cryptographic hardware credentials extraction loop from provider window
-        const extractedAccountsArray = await window.ethereum.request({ method: "eth_requestAccounts" });
-        activeAccount = extractedAccountsArray[0].toLowerCase();
-        networkProvider = new ethers.providers.Web3Provider(window.ethereum);
-        web3Signer = networkProvider.getSigner();
-
-        // Map read/write execution signatures explicitly for the decentralised contract nodes
-        const masterEngineABI = [
-            "function buyTokens(uint256 _tokenAmountToAllocate) external payable",
-            "function claimTokens() external",
-            "function withdrawAffiliate(uint256 _amountToWithdraw) external"
-        ];
-        
-        investmentContractInstance = new ethers.Contract(ENGINE_CONTRACT, masterEngineABI, web3Signer);
-        localStorage.setItem("connected", "true");
-       
-        // Extract matrix sponsor registration path variables mapping parameters
-        let sessionCacheData = getProfileCache();
-        let URLReferrerAddress = new URLSearchParams(location.search).get("ref");
-        if (URLReferrerAddress) URLReferrerAddress = URLReferrerAddress.toLowerCase();
-
-        // Build active structural nodes if registration cache address is unmapped
-        if (!sessionCacheData[activeAccount]) {
-            sessionCacheData[activeAccount] = { 
-                sponsor: (URLReferrerAddress && sessionCacheData[URLReferrerAddress]) ? URLReferrerAddress : null, 
-                directs: [], 
-                tvx: 0, 
-                stakedTvx: 0, 
-                stakeRewards: 0, 
-                bnb: 0, 
-                active: false, 
-                stakeStart: 0, 
-                txHistory: [], 
-                claimed: [] 
-            };
-            
-            if (URLReferrerAddress && sessionCacheData[URLReferrerAddress]) {
-                sessionCacheData[URLReferrerAddress].directs.push(activeAccount);
-            }
-            saveProfileCache(sessionCacheData);
-
-            // Forward asynchronous user metadata log registration block straight to your Hostinger server database
-            fetch(`${HOSTINGER_ENDPOINT}/register_user.php`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_address: activeAccount, referrer_address: (URLReferrerAddress && URLReferrerAddress !== activeAccount) ? URLReferrerAddress : null })
-            }).catch(errorLog => console.error("Database connection fallback tracing logger exception:", errorLog));
-        }
-
 </script>
-
