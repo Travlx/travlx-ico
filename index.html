@@ -770,26 +770,160 @@ function updateTransactionReportsDisplay() {
         console.error("Routine Transaction History UI Compilation Failure Exception:", error);
     }
 }
-// --- JAVASCRIPT MASTER TEAM ENGINE - PART 1 ---
+// --- JAVASCRIPT MASTER SYSTEM ENGINE - FINAL COMPONENT (WITH CLAIM, WITHDRAW & TEAM) ---
 
-// Global runtime tracking parameters matrix configuration setup
-let currentOffset = 0; 
-const DATA_LIMIT = 10; // Enforced pagination result row depth limit constraints
-
-// --- 12. HOSTINGER 20-LEVEL MATRIX AFFILIATE NETWORKING TABLE PAGINATION ENGINE ---
-function initializeTeamLoad(walletAddress) {
-    const tableBody = document.getElementById("teamTableBody");
-    if (tableBody) {
-        tableBody.innerHTML = ""; // Clear fallback templates rows parameters cleanly
+// --- ১. লাইভ ২০% ডিসকাউন্ট প্রিভিউ হিসাব করার ইঞ্জিন ---
+function updatePreview() {
+    const bnbInput = document.getElementById("bnbInput");
+    if (!bnbInput || !document.getElementById("previewTVX")) return;
+    const bnbAmount = parseFloat(bnbInput.value);
+    if (isNaN(bnbAmount) || bnbAmount <= 0 || liveTokenPriceUsd <= 0) {
+        document.getElementById("previewTVX").innerText = "0 HASH";
+        return;
     }
-    currentOffset = 0; // Reset pagination pointer cursor back to zero base point
-    fetchTeamDataFromHostinger(walletAddress); 
+    const discountedPrice = liveTokenPriceUsd * 0.80;
+    document.getElementById("previewTVX").innerText = `${((bnbAmount * BASE_CONVERSION_RATE) / discountedPrice).toFixed(2)} HASH`;
 }
 
-function loadMoreTeamMembers() {
-    if (!activeAccount) return;
-    currentOffset += DATA_LIMIT; // Push tracking index cursor offset up by 10 units
-    fetchTeamDataFromHostinger(activeAccount);
+// --- ২. স্মার্ট কন্ট্রাক্ট বাই ইঞ্জিন (০.০৫ BNB লিমিট ফিল্টার সহ) ---
+async function buy() {
+    if (!web3Signer || !activeAccount || !investmentContractInstance) {
+        return Swal.fire({ icon: 'warning', title: 'Wallet Required', text: 'Connect wallet first!', background: '#0d1320', color: '#fff' });
+    }
+    const bnbInput = document.getElementById("bnbInput");
+    const bnbAmount = parseFloat(bnbInput ? bnbInput.value : 0);
+    if (isNaN(bnbAmount) || bnbAmount < INVESTMENT_FLOOR_BNB) {
+        return Swal.fire({ icon: 'error', title: 'Limit Error', text: `Minimum is ${INVESTMENT_FLOOR_BNB} BNB.`, background: '#0d1320', color: '#fff' });
+    }
+    
+    try {
+        Swal.fire({ title: 'Processing...', text: 'Sign inside wallet.', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => Swal.showLoading() });
+        const depositValueWei = ethers.utils.parseEther(bnbAmount.toString());
+        const rawPreviewText = document.getElementById("previewTVX") ? document.getElementById("previewTVX").innerText : "0";
+        const estimatedTokens = parseFloat(rawPreviewText);
+        const tokensToAllocateWei = ethers.utils.parseUnits(estimatedTokens.toFixed(18), 18);
+
+        const tx = await investmentContractInstance.buyTokens(tokensToAllocateWei, { value: depositValueWei });
+        await tx.wait();
+
+        let d = getProfileCache();
+        if (d[activeAccount]) {
+            d[activeAccount].tvx = (d[activeAccount].tvx || 0) + estimatedTokens;
+            d[activeAccount].stakedTvx = (d[activeAccount].stakedTvx || 0) + estimatedTokens;
+            d[activeAccount].stakeStart = Math.floor(Date.now() / 1000);
+            if (!d[activeAccount].txHistory) d[activeAccount].txHistory = [];
+            d[activeAccount].txHistory.push({ bnb: bnbAmount, tokens: estimatedTokens, timestamp: Date.now() });
+            saveProfileCache(d);
+        }
+        fetch(`${HOSTINGER_ENDPOINT}/process_investment.php`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user_address: activeAccount, bnb_amount: bnbAmount }) }).catch(e => console.error(e));
+        
+        bnbInput.value = "";
+        if (document.getElementById("previewTVX")) document.getElementById("previewTVX").innerText = "0 HASH";
+        Swal.fire({ icon: 'success', title: 'Successful!', text: 'Investment complete.', background: '#0d1320', color: '#fff' });
+        updateDashboardMetricsAndPrice();
+    } catch (e) { Swal.fire({ icon: 'error', title: 'Failed', text: e.message, background: '#0d1320', color: '#fff' }); }
 }
 
-</script>
+// --- ৩. প্রতি সেকেন্ডে টোকেন রিলিজ হওয়ার লাইভ কাউন্টার ম্যাথ লুপ ---
+function calculateLiveVesting() {
+    if (userTotalHODL === 0 || vestingStartDate === 0) return;
+    const elapsed = Math.floor(Date.now() / 1000) - vestingStartDate;
+    let unlocked = userTotalHODL * (elapsed * (0.05 / (30 * 24 * 60 * 60)));
+    if (unlocked > userTotalHODL) unlocked = userTotalHODL;
+    if (document.getElementById("claimableTokens")) {
+        document.getElementById("claimableTokens").innerText = (unlocked - totalClaimedSoFar).toFixed(5);
+    }
+    if (document.getElementById("stakeProfit")) {
+        document.getElementById("stakeProfit").innerText = `${(userTotalHODL - unlocked).toFixed(2)} HASH`;
+    }
+}
+
+// --- ৪. অন-চেইন টোকেন রিওয়ার্ড ক্লেম ফাংশন (🔴 বাদ পড়া পার্ট ফিক্সড) ---
+async function claimTokens() {
+    if (!web3Signer || !investmentContractInstance || !activeAccount) {
+        return Swal.fire({ icon: 'warning', title: 'Wallet Required', text: 'Please connect wallet first.', background: '#0d1320', color: '#fff' });
+    }
+    const claimableEl = document.getElementById("claimableTokens");
+    const availableToClaim = claimableEl ? parseFloat(claimableEl.innerText) : 0;
+    
+    if (availableToClaim <= 0) {
+        return Swal.fire({ icon: 'error', title: 'No Tokens Available', text: 'Vesting rewards are generating. Please wait.', background: '#0d1320', color: '#fff' });
+    }
+    try {
+        Swal.fire({ title: 'Claiming Tokens...', text: 'Please authorize inside your wallet.', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => { Swal.showLoading(); } });
+        const tx = await investmentContractInstance.claimTokens();
+        await tx.wait();
+
+        totalClaimedSoFar += availableToClaim;
+        if (claimableEl) claimableEl.innerText = "0.00000";
+
+        let d = getProfileCache();
+        if (!d[activeAccount].claimed) d[activeAccount].claimed = [];
+        d[activeAccount].claimed.push({ amount: availableToClaim, timestamp: Date.now() });
+        saveProfileCache(d);
+
+        Swal.fire({ icon: 'success', title: 'Claim Successful!', text: `${availableToClaim.toFixed(2)} HASH sent to wallet.`, background: '#0d1320', color: '#fff' });
+        updateDashboardMetricsAndPrice();
+    } catch (error) {
+        Swal.fire({ icon: 'error', title: 'Claim Failed', text: error.message, background: '#0d1320', color: '#fff' });
+    }
+}
+
+// --- ৫. অ্যাফিলিয়েট ইনকাম উইথড্র ফাংশন (🔴 বাদ পড়া পার্ট ফিক্সড) ---
+async function withdrawAffiliateIncome() {
+    if (!web3Signer || !investmentContractInstance || !activeAccount) {
+        return Swal.fire({ icon: 'warning', title: 'Wallet Required', text: 'Please connect wallet first.', background: '#0d1320', color: '#fff' });
+    }
+    if (isNaN(pendingAffiliateBalanceBnb) || pendingAffiliateBalanceBnb <= 0) {
+        return Swal.fire({ icon: 'error', title: 'No Earnings Available', text: 'No pending downline rewards found.', background: '#0d1320', color: '#fff' });
+    }
+    try {
+        Swal.fire({ title: 'Processing Payout...', text: 'Please sign direct payout inside wallet.', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => { Swal.showLoading(); } });
+        const withdrawValueWei = ethers.utils.parseEther(pendingAffiliateBalanceBnb.toString());
+        const tx = await investmentContractInstance.withdrawAffiliate(withdrawValueWei);
+
+        Swal.fire({ title: 'Validating Payout...', text: 'Synchronizing logs with blockchain network nodes...', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => { Swal.showLoading(); } });
+        await tx.wait(); 
+
+        fetch(`${HOSTINGER_ENDPOINT}/update_withdraw_status.php?address=${activeAccount.toLowerCase()}`).catch(err => console.error(err));
+
+        pendingAffiliateBalanceBnb = 0;
+        if (document.getElementById("incomeDisplay")) document.getElementById("incomeDisplay").innerText = "0.0000 BNB";
+        if (document.getElementById("income")) document.getElementById("income").innerText = "0.0000 BNB"; 
+
+        Swal.fire({ icon: 'success', title: 'Withdrawal Complete!', text: '100% earnings deposited with zero fees.', background: '#0d1320', color: '#fff' });
+        updateDashboardMetricsAndPrice();
+    } catch (error) {
+        Swal.fire({ icon: 'error', title: 'Withdrawal Failed', text: error.message || 'Payload crashed.', background: '#0d1320', color: '#fff' });
+    }
+}
+
+// --- ৬. হোস্টিনজার ২০ লেভেল ডাউনলাইন পেজিনেশন লুপ ---
+async function fetchTeamDataFromHostinger(walletAddress) {
+    const tableBody = document.getElementById("teamTableBody");
+    const loadMoreBtn = document.getElementById("loadMoreBtn");
+    if (!tableBody || !loadMoreBtn) return;
+
+    try {
+        loadMoreBtn.innerText = "Loading Partners..."; loadMoreBtn.disabled = true;
+        const response = await fetch(`${HOSTINGER_ENDPOINT}/get_team.php?address=${walletAddress.toLowerCase()}&limit=${DATA_LIMIT}&offset=${currentOffset}`);
+        const data = await response.json();
+        
+        loadMoreBtn.innerHTML = `<svg xmlns="http://w3.org" class="h-4 w-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 13l-7 7m0 0l-7-7m7 7V3"/></svg> Load More Partners`;
+        loadMoreBtn.disabled = false;
+
+        if (document.getElementById("totalTeam")) document.getElementById("totalTeam").innerText = `${data.total_team || 0} Users`;
+        if (currentOffset === 0) tableBody.innerHTML = "";
+
+        if (!data.members || data.members.length === 0) {
+            if (currentOffset === 0) tableBody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-gray-500 font-bold">No downline partners found in your 20-level matrix yet.</td></tr>`;
+            if (document.getElementById("loadMoreContainer")) document.getElementById("loadMoreContainer").classList.add("hidden");
+            return;
+        }
+
+        data.members.forEach(member => {
+            const shortAddress = `${member.from_address.substring(0, 6)}...${member.from_address.substring(38)}`;
+            let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+            if (member.generation_level > 5 && member.generation_level <= 12) badgeClass = "bg-blue-500/10 text-blue-400 border-blue-500/20";
+            else if (member.generation_level > 12) badgeClass = "bg-purple-500/10 text-purple-400 border-purple-500/20";
+            
