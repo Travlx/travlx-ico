@@ -770,11 +770,11 @@ function updateTransactionReportsDisplay() {
         console.error("Routine Transaction History UI Compilation Failure Exception:", error);
     }
 }
-  // --- NEW EXCLUSIVE MATRIX TEAM CONFIGURATIONS ---
+ // --- NEW INTEGRATED EXCLUSIVE TEAM ENGINE MATRIX ---
 let currentOffset = 0; 
-const DATA_LIMIT = 10; // প্রতি পেজে ১০ জন করে পার্টনার লোড হবে
+const DATA_LIMIT = 10; // Sets how many rows to load per page hit
 
-// ১. হোস্টিনজার ডাটাবেজ থেকে রিয়েল-টাইমে মেম্বার ডাটা ফেচ করার ইঞ্জিন
+// 1. HOSTINGER 20-LEVEL MATRIX AFFILIATE NETWORKING TABLE PAGINATION ENGINE
 async function fetchTeamDataFromHostinger(walletAddress) {
     const tableBody = document.getElementById("teamTableBody");
     const loadMoreBtn = document.getElementById("loadMoreBtn");
@@ -784,11 +784,11 @@ async function fetchTeamDataFromHostinger(walletAddress) {
         loadMoreBtn.innerText = "Loading Partners...";
         loadMoreBtn.disabled = true;
 
-        // হোস্টিনজার ব্যাকএন্ড এপিআই কল
+        // Fetch paginated downline results row matrices from Hostinger Central Server API
         const response = await fetch(`${HOSTINGER_ENDPOINT}/get_team.php?address=${walletAddress.toLowerCase()}&limit=${DATA_LIMIT}&offset=${currentOffset}`);
         const data = await response.json();
 
-        // লোড মোর বাটনের ভেতরের এসভিজি আইকন রিম্যাপ
+        // Standard canonical W3C namespace mapping to keep the SVG icons stable
         loadMoreBtn.innerHTML = `<svg xmlns="http://w3.org" class="h-4 w-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 13l-7 7m0 0l-7-7m7 7V3"/></svg> Load More Partners`;
         loadMoreBtn.disabled = false;
 
@@ -796,12 +796,12 @@ async function fetchTeamDataFromHostinger(walletAddress) {
             document.getElementById("totalTeam").innerText = `${data.total_team || 0} Users`;
         }
 
-        // প্রথমবার পেজ লোড হলে ডেমো বা খালি রো মুছে ফেলা
+        // Clean table rows on the very first page load initialization
         if (currentOffset === 0) tableBody.innerHTML = "";
 
         if (!data.members || data.members.length === 0) {
             if (currentOffset === 0) {
-                tableBody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-gray-500 font-bold">No downline partners found in your 20-level matrix yet.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-gray-500 font-bold">No downline partners found in your 20-level network matrix yet.</td></tr>`;
             }
             if (document.getElementById("loadMoreContainer")) {
                 document.getElementById("loadMoreContainer").classList.add("hidden");
@@ -809,11 +809,11 @@ async function fetchTeamDataFromHostinger(walletAddress) {
             return;
         }
 
-        // লুপ চালিয়ে প্রতিটি ডাউলাইন পার্টনারকে টেবিলে অ্যাপেন্ড করা
+        // Iterate through network downline nodes and push rows dynamically inside the DOM table tree
         data.members.forEach(member => {
             const shortAddress = `${member.from_address.substring(0, 6)}...${member.from_address.substring(38)}`;
             
-            // জেনারেশন লেভেল অনুযায়ী আলাদা কালার ব্যাজ সেট করা
+            // Tiered generation badge color layouts matrix configurations
             let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
             if (member.generation_level > 5 && member.generation_level <= 12) {
                 badgeClass = "bg-blue-500/10 text-blue-400 border-blue-500/20";
@@ -832,7 +832,7 @@ async function fetchTeamDataFromHostinger(walletAddress) {
             tableBody.insertAdjacentHTML('beforeend', row);
         });
 
-        // সব ডাটা লোড হয়ে গেলে 'Load More' বাটন হাইড বা লুকাতে সাহায্য করবে
+        // Hide Load More pagination container if rows satisfied saturation limits 
         const currentRowsCount = tableBody.getElementsByTagName("tr").length;
         if (document.getElementById("loadMoreContainer")) {
             if (currentRowsCount >= data.total_team) {
@@ -842,18 +842,18 @@ async function fetchTeamDataFromHostinger(walletAddress) {
             }
         }
     } catch (error) {
-        console.error("Team loading error logging context:", error);
+        console.error("Hostinger pagination pipeline processing stack crash exception mapping tracker:", error);
         loadMoreBtn.disabled = false;
     }
 }
 
-// ২. টিম টেবিল ইনিশিয়েলাইজেশন ফাংশন
+// 2. Initialize team rendering upon wallet synchronization cycles
 function initializeTeamLoad(walletAddress) { 
     currentOffset = 0; 
     fetchTeamDataFromHostinger(walletAddress); 
 }
 
-// ৩. লোড মোর পার্টনার বাটন ক্লিক করার ফাংশন
+// 3. Load more network partners rows on click trigger event parameters
 function loadMoreTeamMembers() { 
     if (activeAccount) {
         currentOffset += DATA_LIMIT; 
@@ -861,33 +861,58 @@ function loadMoreTeamMembers() {
     } 
 }
 
-// ৪. রিয়েল-টাইম সার্চ এবং ড্রপডাউন জেনারেশন লেভেল ফিল্টারিং (১০০% সেফ সংস্করণ)
+// 4. REAL-TIME MULTI-PARAMETER SEARCH AND GENERATION TIER FILTER MATRIX (🔴 FIXED BAG-FREE)
 function filterTeamTable() {
-    const textSearchQuery = document.getElementById("teamSearchInput").value.toLowerCase();
-    const dropdownLevelQuery = document.getElementById("teamLevelSelect").value;
-    const targetsTableElement = document.getElementById("affiliateTable");
-    if (!targetsTableElement) return;
-    
-    const operationalRowsArray = targetsTableElement.getElementsByTagName("tr");
-
-    for (let rowIndex = 1; rowIndex < operationalRowsArray.length; rowIndex++) {
-        const structuralColumnNodes = operationalRowsArray[rowIndex].getElementsByTagName("td");
+    try {
+        const textSearchQuery = document.getElementById("teamSearchInput").value.toLowerCase();
+        const dropdownLevelQuery = document.getElementById("teamLevelSelect").value;
+        const targetsTableElement = document.getElementById("affiliateTable");
+        if (!targetsTableElement) return;
         
-        // boundary সেফটি চেক যোগ করা হয়েছে যেন ভুল ইনপুটে স্ক্রিপ্ট ক্র্যাশ না করে
-        if (structuralColumnNodes && structuralColumnNodes.length >= 2) {
-            const userAddressColumnText = structuralColumnNodes[0].textContent || structuralColumnNodes[0].innerText;
-            const generationLevelColumnText = structuralColumnNodes[1].textContent || structuralColumnNodes[1].innerText;
+        const operationalRowsArray = targetsTableElement.getElementsByTagName("tr");
+
+        for (let rowIndex = 1; rowIndex < operationalRowsArray.length; rowIndex++) {
+            const structuralColumnNodes = operationalRowsArray[rowIndex].getElementsByTagName("td");
             
-            const isMatchOnAddressSearch = userAddressColumnText.toLowerCase().indexOf(textSearchQuery) > -1;
-            const isMatchOnGenerationTier = (dropdownLevelQuery === "ALL") || (generationLevelColumnText.trim().indexOf(dropdownLevelQuery) > -1);
-            
-            if (isMatchOnAddressSearch && isMatchOnGenerationTier) {
-                operationalRowsArray[rowIndex].style.display = "";
-            } else {
-                operationalRowsArray[rowIndex].style.display = "none";
+            // FIXED: Added absolute array index targets to safely extract content without freezing other buttons
+            if (structuralColumnNodes && structuralColumnNodes.length >= 2) {
+                const userAddressColumnText = (structuralColumnNodes[0].textContent || structuralColumnNodes[0].innerText || "").toLowerCase();
+                const generationLevelColumnText = (structuralColumnNodes[1].textContent || structuralColumnNodes[1].innerText || "").trim();
+                
+                const isMatchOnAddressSearch = userAddressColumnText.indexOf(textSearchQuery) > -1;
+                const isMatchOnGenerationTier = (dropdownLevelQuery === "ALL") || (generationLevelColumnText.indexOf(dropdownLevelQuery) > -1);
+                
+                if (isMatchOnAddressSearch && isMatchOnGenerationTier) {
+                    operationalRowsArray[rowIndex].style.display = "";
+                } else {
+                    operationalRowsArray[rowIndex].style.display = "none";
+                }
             }
         }
+    } catch (err) {
+        console.error("Filter computation calculation runtime safety trace exception:", err);
     }
 }
-  
+
+// 5. SECURE MASTER CLICK HANDLERS BINDING TIMING PIPELINE (🔴 NEW UNIFIED BINDING LISTENERS)
+// This lifecyle connector dynamically hooks team controls bypassing browser injection blocking elements safely.
+window.addEventListener('DOMContentLoaded', () => {
+    // Background execution tickers
+    setInterval(updateDashboardMetricsAndPrice, 3000);
+    setInterval(calculateLiveVesting, 1000);
+    
+    // Core layout buttons binding hooks setups mapping specifications
+    if (document.getElementById("connectBtn")) document.getElementById("connectBtn").addEventListener("click", (e) => { e.preventDefault(); connect(); });
+    if (document.getElementById("copyBtn")) document.getElementById("copyBtn").addEventListener("click", (e) => { e.preventDefault(); copyRef(); });
+    if (document.getElementById("buyBtn")) document.getElementById("buyBtn").addEventListener("click", (e) => { e.preventDefault(); buy(); });
+    if (document.getElementById("claimBtn")) document.getElementById("claimBtn").addEventListener("click", (e) => { e.preventDefault(); claimTokens(); });
+    if (document.getElementById("withdrawBtn")) document.getElementById("withdrawBtn").addEventListener("click", (e) => { e.preventDefault(); withdrawAffiliateIncome(); });
+    
+    // Team Matrix native handlers pipeline activation controllers
+    if (document.getElementById("loadMoreBtn")) document.getElementById("loadMoreBtn").addEventListener("click", (e) => { e.preventDefault(); loadMoreTeamMembers(); });
+    if (document.getElementById("teamSearchInput")) document.getElementById("teamSearchInput").addEventListener("input", filterTeamTable);
+    if (document.getElementById("teamLevelSelect")) document.getElementById("teamLevelSelect").addEventListener("change", filterTeamTable);
+    
+    if (localStorage.getItem("connected") === "true") connect();
+});
 </script>
