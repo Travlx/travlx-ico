@@ -770,6 +770,27 @@ function updateTransactionReportsDisplay() {
         console.error("Routine Transaction History UI Compilation Failure Exception:", error);
     }
 }
+// --- JAVASCRIPT MASTER TEAM ENGINE - PART 1 ---
+
+// Global runtime tracking parameters matrix configuration setup
+let currentOffset = 0; 
+const DATA_LIMIT = 10; // Enforced pagination result row depth limit constraints
+
+// --- 12. HOSTINGER 20-LEVEL MATRIX AFFILIATE NETWORKING TABLE PAGINATION ENGINE ---
+function initializeTeamLoad(walletAddress) {
+    const tableBody = document.getElementById("teamTableBody");
+    if (tableBody) {
+        tableBody.innerHTML = ""; // Clear fallback templates rows parameters cleanly
+    }
+    currentOffset = 0; // Reset pagination pointer cursor back to zero base point
+    fetchTeamDataFromHostinger(walletAddress); 
+}
+
+function loadMoreTeamMembers() {
+    if (!activeAccount) return;
+    currentOffset += DATA_LIMIT; // Push tracking index cursor offset up by 10 units
+    fetchTeamDataFromHostinger(activeAccount);
+}
 
 
 </script>
