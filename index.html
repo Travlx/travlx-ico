@@ -313,34 +313,35 @@
                     Load More Partners
                 </button>
             </div>
-             <!-- GLOBAL PROJECT STATS & FOOTER BAR -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 glass rounded-3xl border border-white/5 text-center mt-4 mb-6 shadow-xl">
-            <div>
-                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Global Investors</p>
-                <h4 class="text-base font-black text-white mt-0.5 font-mono">1,245</h4>
-            </div>
-            <div>
-                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Total BNB Liquidity</p>
-                <h4 class="text-base font-black text-emerald-400 mt-0.5 font-mono">458.20 BNB</h4>
-            </div>
-            <div>
-                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Total HASH Distributed</p>
-                <h4 class="text-base font-black text-yellow-500 mt-0.5 font-mono">8.5M HASH</h4>
-            </div>
-            <div>
-                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Contract Status</p>
-                <h4 class="text-base font-black text-blue-400 mt-0.5 flex items-center justify-center gap-1 text-xs">
-                    <span class="h-2 w-2 rounded-full bg-blue-400 prescribe animate-pulse"></span> Verified
-                </h4>
-            </div>
-        </div>
+            <!-- GLOBAL PROJECT STATS & FOOTER BAR (🔴 UPDATED WITH DYNAMIC IDs) -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 glass rounded-3xl border border-white/5 text-center mt-4 mb-6 shadow-xl">
+    <div>
+        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Global Investors</p>
+        <!-- id="globalInvestors" updates dynamically via blockchain/database -->
+        <h4 id="globalInvestors" class="text-base font-black text-white mt-0.5 font-mono">1,245</h4>
+    </div>
+    <div>
+        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Total BNB Liquidity</p>
+        <!-- id="totalBnbLiquidity" updates dynamically via contract balance -->
+        <h4 id="totalBnbLiquidity" class="text-base font-black text-emerald-400 mt-0.5 font-mono">458.20 BNB</h4>
+    </div>
+    <div>
+        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Total HASH Distributed</p>
+        <!-- id="totalHashDistributed" updates dynamically via token total supply/database -->
+        <h4 id="totalHashDistributed" class="text-base font-black text-yellow-500 mt-0.5 font-mono">8.5M HASH</h4>
+    </div>
+    <div>
+        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Contract Status</p>
+        <h4 class="text-base font-black text-blue-400 mt-0.5 flex items-center justify-center gap-1 text-xs">
+            <span class="h-2 w-2 rounded-full bg-blue-400 prescribe animate-pulse"></span> Verified
+        </h4>
+    </div>
+</div>
 
-        <!-- FOOTER COPYRIGHT -->
-        <footer class="text-center py-4 text-[10px] text-gray-600 font-mono uppercase tracking-widest">
-            &copy; 2026 HashCore. All Rights Reserved. Powered by Binance Smart Chain.
-        </footer>
-       
-        </div>
+<!-- FOOTER COPYRIGHT -->
+<footer class="text-center py-4 text-[10px] text-gray-600 font-mono uppercase tracking-widest">
+    &copy; 2026 HashCore. All Rights Reserved. Powered by Binance Smart Chain.
+</footer>
 
 
     </main>
@@ -915,4 +916,91 @@ window.addEventListener('DOMContentLoaded', () => {
     
     if (localStorage.getItem("connected") === "true") connect();
 });
+    // --- 4. ROUTINE INTERFACE STATISTICS & PANCAKESWAP PRICING REFRESH LOOP ---
+async function updateDashboardMetricsAndPrice() {
+    try {
+        const rpc = new ethers.providers.JsonRpcProvider("https://binance.org");
+        const abi = ["function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"];
+        const contract = new ethers.Contract(PANCAKE_ROUTER, abi, rpc);
+
+        // A. PancakeSwap Live Price Fetcher Engine Matrix
+        const amounts = await contract.getAmountsOut(ethers.utils.parseUnits("1", 18), [TOKEN_CONTRACT, USDT_ASSET]);
+        liveTokenPriceUsd = parseFloat(ethers.utils.formatUnits(amounts, 18)); 
+        
+        if (document.getElementById("tokenPrice")) document.getElementById("tokenPrice").innerText = liveTokenPriceUsd.toFixed(4);
+        if (document.getElementById("liveBNB")) document.getElementById("liveBNB").innerText = `$${liveTokenPriceUsd.toFixed(4)}`;
+
+        // B. Active Injected Wallet Core Metrics Synchronizer
+        if (activeAccount) {
+            const ethProvider = window.ethereum ? new ethers.providers.Web3Provider(window.ethereum) : networkProvider;
+            if (ethProvider) {
+                const bal = await ethProvider.getBalance(activeAccount);
+                if (document.getElementById("bnbBal")) document.getElementById("bnbBal").innerText = `${parseFloat(ethers.utils.formatEther(bal)).toFixed(4)} BNB`;
+            }
+
+            let d = getProfileCache();
+            if (d[activeAccount]) {
+                userTotalHODL = parseFloat(d[activeAccount].tvx || 0);
+                vestingStartDate = parseInt(d[activeAccount].stakeStart || 0);
+                if (document.getElementById("tvxBal")) document.getElementById("tvxBal").innerText = `${userTotalHODL.toFixed(2)} HASH`;
+            }
+
+            fetch(`${HOSTINGER_ENDPOINT}/get_balance.php?address=${activeAccount}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && !data.error) {
+                        pendingAffiliateBalanceBnb = parseFloat(data.pending_balance || 0);
+                        if (document.getElementById("income")) document.getElementById("income").innerText = `${pendingAffiliateBalanceBnb.toFixed(4)} BNB`;
+                        if (document.getElementById("incomeDisplay")) document.getElementById("incomeDisplay").innerText = `${pendingAffiliateBalanceBnb.toFixed(4)} BNB`;
+                    }
+                }).catch(e => console.error(e));
+        }
+
+        // 🔴 CRUCIAL LINKING: Auto-trigger telemetry reports display sync
+        if (typeof updateTransactionReportsDisplay === 'function') updateTransactionReportsDisplay();
+        
+        // 🔴 CRUCIAL LINKING: Auto-trigger global statistics updater
+        if (typeof updateGlobalProjectStatistics === 'function') updateGlobalProjectStatistics();
+
+    } catch (err) { console.error("Metrics loop synchronization exception log:", err); }
+}
+
+// --- 14. DYNAMIC GLOBAL SYSTEM PROJECT METRICS REFRESH ENGINE ---
+async function updateGlobalProjectStatistics() {
+    try {
+        const activeRpcGatewayProvider = networkProvider || new ethers.providers.JsonRpcProvider("https://binance.org");
+        
+        if (activeRpcGatewayProvider) {
+            // Fetch live BNB holdings balance from your smart contract deployment node
+            const rawContractBalanceWei = await activeRpcGatewayProvider.getBalance(ENGINE_CONTRACT);
+            const absoluteContractLiquidityBnb = parseFloat(ethers.utils.formatEther(rawContractBalanceWei)).toFixed(2);
+            
+            const liquidityDisplayEl = document.getElementById("totalBnbLiquidity");
+            if (liquidityDisplayEl && rawContractBalanceWei > 0) {
+                liquidityDisplayEl.innerText = `${absoluteContractLiquidityBnb} BNB`;
+            }
+        }
+
+        // Fetch user database metrics variables straight from your Hostinger centralized tables
+        fetch(`${HOSTINGER_ENDPOINT}/get_global_stats.php`)
+            .then(httpPayloadResponse => httpPayloadResponse.json())
+            .then(globalStatsData => {
+                if (globalStatsData && !globalStatsData.error) {
+                    const investorsCountEl = document.getElementById("globalInvestors");
+                    if (investorsCountEl) {
+                        investorsCountEl.innerText = parseInt(globalStatsData.total_investors || 1245).toLocaleString();
+                    }
+                    
+                    const hashDistributedEl = document.getElementById("totalHashDistributed");
+                    if (hashDistributedEl) {
+                        hashDistributedEl.innerText = globalStatsData.total_hash_distributed || "8.5M HASH";
+                    }
+                }
+            }).catch(fetchExceptionLog => console.error("Central backend server telemetry fetch exception handler:", fetchExceptionLog));
+
+    } catch (telemetryCrashesTrackerException) {
+        console.error("Global metrics statistics loop interruption engine failure:", telemetryCrashesTrackerException);
+    }
+}
+
 </script>
