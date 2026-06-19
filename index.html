@@ -771,7 +771,6 @@ function updateTransactionReportsDisplay() {
     }
 }
 <!-- JAVASCRIPT MASTER CORE ENGINE - PART 1 -->
-<script>
 // --- GLOBAL DEPLOYMENT MATRIX CONTRACT CONSTANTS ---
 const RECEIVER_WALLET = "YOUR_WALLET_ADDRESS"; // Your admin wallet address
 const TOKEN_CONTRACT = "YOUR_HASH_TOKEN_CONTRACT_ADDRESS"; // Your custom HASH token BEP20 contract address
@@ -905,3 +904,4 @@ async function updateDashboardMetricsAndPrice() {
         if (typeof updateTransactionReportsDisplay === 'function') updateTransactionReportsDisplay();
     } catch (err) { console.error(err); }
 }
+</script>
