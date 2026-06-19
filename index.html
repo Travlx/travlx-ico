@@ -770,160 +770,138 @@ function updateTransactionReportsDisplay() {
         console.error("Routine Transaction History UI Compilation Failure Exception:", error);
     }
 }
-// --- JAVASCRIPT MASTER SYSTEM ENGINE - FINAL COMPONENT (WITH CLAIM, WITHDRAW & TEAM) ---
+<!-- JAVASCRIPT MASTER CORE ENGINE - PART 1 -->
+<script>
+// --- GLOBAL DEPLOYMENT MATRIX CONTRACT CONSTANTS ---
+const RECEIVER_WALLET = "YOUR_WALLET_ADDRESS"; // Your admin wallet address
+const TOKEN_CONTRACT = "YOUR_HASH_TOKEN_CONTRACT_ADDRESS"; // Your custom HASH token BEP20 contract address
+const ENGINE_CONTRACT = "YOUR_INVESTMENT_CONTRACT_ADDRESS"; // Main MLM Investment engine contract address
 
-// --- ১. লাইভ ২০% ডিসকাউন্ট প্রিভিউ হিসাব করার ইঞ্জিন ---
-function updatePreview() {
-    const bnbInput = document.getElementById("bnbInput");
-    if (!bnbInput || !document.getElementById("previewTVX")) return;
-    const bnbAmount = parseFloat(bnbInput.value);
-    if (isNaN(bnbAmount) || bnbAmount <= 0 || liveTokenPriceUsd <= 0) {
-        document.getElementById("previewTVX").innerText = "0 HASH";
-        return;
-    }
-    const discountedPrice = liveTokenPriceUsd * 0.80;
-    document.getElementById("previewTVX").innerText = `${((bnbAmount * BASE_CONVERSION_RATE) / discountedPrice).toFixed(2)} HASH`;
+// Deployed Binance Smart Chain Network Gateways Nodes Configuration
+const PANCAKE_ROUTER = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // PancakeSwap Router V2 address
+const USDT_ASSET = "0x55d398326f99059fF775485246999027B3197955"; // USDT token address on BSC
+const HOSTINGER_ENDPOINT = "https://yourwebsite.com"; // Your Hostinger server domain URL
+
+const INVESTMENT_FLOOR_BNB = 0.05; // Minimum buy floor limit package constraint
+const BASE_CONVERSION_RATE = 10000; // 1 BNB = 10,000 HASH tokens
+
+// Dynamic Variable Runtime Tracking Caches App Properties
+let activeAccount = null, networkProvider = null, web3Signer = null, investmentContractInstance = null;
+let liveTokenPriceUsd = 0.00, userTotalHODL = 0, vestingStartDate = 0, totalClaimedSoFar = 0, pendingAffiliateBalanceBnb = 0;
+
+// GLOBAL VARIABLES FOR ON-CHAIN HISTORY & PAGINATION
+let globalCumulativeClaimedTokens = 0.00, lastPurchasedTokensAmount = 0.00, lastClaimedTokensAmount = 0.00;
+let currentOffset = 0; const DATA_LIMIT = 10;
+
+// LocalStorage Fallback Profile Management Tracker Schema
+const getProfileCache = () => JSON.parse(localStorage.getItem("hashcore_matrix_v2")) || {};
+const saveProfileCache = data => localStorage.setItem("hashcore_matrix_v2", JSON.stringify(data));
+
+// --- 1. UI LAYER RESPONSIVE SIDEBAR TOGGLE MECHANISM ---
+function toggleSidebar() {
+    const s = document.getElementById('sidebar');
+    if (s) s.classList.toggle('sidebar-folded');
 }
 
-// --- ২. স্মার্ট কন্ট্রাক্ট বাই ইঞ্জিন (০.০৫ BNB লিমিট ফিল্টার সহ) ---
-async function buy() {
-    if (!web3Signer || !activeAccount || !investmentContractInstance) {
-        return Swal.fire({ icon: 'warning', title: 'Wallet Required', text: 'Connect wallet first!', background: '#0d1320', color: '#fff' });
-    }
-    const bnbInput = document.getElementById("bnbInput");
-    const bnbAmount = parseFloat(bnbInput ? bnbInput.value : 0);
-    if (isNaN(bnbAmount) || bnbAmount < INVESTMENT_FLOOR_BNB) {
-        return Swal.fire({ icon: 'error', title: 'Limit Error', text: `Minimum is ${INVESTMENT_FLOOR_BNB} BNB.`, background: '#0d1320', color: '#fff' });
-    }
-    
+// --- 2. DYNAMIC REFERRAL GENERATION METRIC POOL LINK ---
+function synchronizeReferralLink() {
+    if (!activeAccount) return;
+    const l = `${window.location.origin}${window.location.pathname}?ref=${activeAccount}`;
+    if (document.getElementById("refLink")) document.getElementById("refLink").value = l;
+}
+
+// --- 3. DYNAMIC ASYNC REFERRAL COPY ENGINE ---
+function copyRef() {
+    const el = document.getElementById("refLink");
+    if (!el || el.value === "") return Swal.fire({ icon: "error", title: "Wallet Required", text: "Connect wallet first!", background: "#0d1320", color: "#fff" });
+    navigator.clipboard.writeText(el.value);
+    Swal.fire({ icon: "success", title: "Link Copied!", text: "Referral link saved to clipboard.", background: "#0d1320", color: "#fff", timer: 1500, showConfirmButton: false });
+}
+
+// --- 4. SECURE WEB3 ACCOUNT SYNCHRONIZATION ENGINE ---
+async function connect() {
+    if (!window.ethereum) return Swal.fire({ icon: "error", title: "MetaMask Required", text: "Please install MetaMask.", background: "#0d1320", color: "#fff" });
     try {
-        Swal.fire({ title: 'Processing...', text: 'Sign inside wallet.', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => Swal.showLoading() });
-        const depositValueWei = ethers.utils.parseEther(bnbAmount.toString());
-        const rawPreviewText = document.getElementById("previewTVX") ? document.getElementById("previewTVX").innerText : "0";
-        const estimatedTokens = parseFloat(rawPreviewText);
-        const tokensToAllocateWei = ethers.utils.parseUnits(estimatedTokens.toFixed(18), 18);
+        const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
+        activeAccount = accs[0].toLowerCase();
+        networkProvider = new ethers.providers.Web3Provider(window.ethereum);
+        web3Signer = networkProvider.getSigner();
 
-        const tx = await investmentContractInstance.buyTokens(tokensToAllocateWei, { value: depositValueWei });
-        await tx.wait();
+        const masterEngineABI = [
+            "function buyTokens(uint256 _tokenAmountToAllocate) external payable",
+            "function claimTokens() external",
+            "function withdrawAffiliate(uint256 _amountToWithdraw) external"
+        ];
+        investmentContractInstance = new ethers.Contract(ENGINE_CONTRACT, masterEngineABI, web3Signer);
+        localStorage.setItem("connected", "true");
+       
+        let sessionCacheData = getProfileCache();
+        let ref = new URLSearchParams(location.search).get("ref");
+        if (ref) ref = ref.toLowerCase();
 
-        let d = getProfileCache();
-        if (d[activeAccount]) {
-            d[activeAccount].tvx = (d[activeAccount].tvx || 0) + estimatedTokens;
-            d[activeAccount].stakedTvx = (d[activeAccount].stakedTvx || 0) + estimatedTokens;
-            d[activeAccount].stakeStart = Math.floor(Date.now() / 1000);
-            if (!d[activeAccount].txHistory) d[activeAccount].txHistory = [];
-            d[activeAccount].txHistory.push({ bnb: bnbAmount, tokens: estimatedTokens, timestamp: Date.now() });
-            saveProfileCache(d);
-        }
-        fetch(`${HOSTINGER_ENDPOINT}/process_investment.php`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user_address: activeAccount, bnb_amount: bnbAmount }) }).catch(e => console.error(e));
-        
-        bnbInput.value = "";
-        if (document.getElementById("previewTVX")) document.getElementById("previewTVX").innerText = "0 HASH";
-        Swal.fire({ icon: 'success', title: 'Successful!', text: 'Investment complete.', background: '#0d1320', color: '#fff' });
-        updateDashboardMetricsAndPrice();
-    } catch (e) { Swal.fire({ icon: 'error', title: 'Failed', text: e.message, background: '#0d1320', color: '#fff' }); }
-}
+        if (!sessionCacheData[activeAccount]) {
+            sessionCacheData[activeAccount] = { sponsor: (ref && sessionCacheData[ref]) ? ref : null, directs: [], tvx: 0, stakedTvx: 0, stakeRewards: 0, bnb: 0, active: false, stakeStart: 0, txHistory: [], claimed: [] };
+            if (ref && sessionCacheData[ref]) sessionCacheData[ref].directs.push(activeAccount);
+            saveProfileCache(sessionCacheData);
 
-// --- ৩. প্রতি সেকেন্ডে টোকেন রিলিজ হওয়ার লাইভ কাউন্টার ম্যাথ লুপ ---
-function calculateLiveVesting() {
-    if (userTotalHODL === 0 || vestingStartDate === 0) return;
-    const elapsed = Math.floor(Date.now() / 1000) - vestingStartDate;
-    let unlocked = userTotalHODL * (elapsed * (0.05 / (30 * 24 * 60 * 60)));
-    if (unlocked > userTotalHODL) unlocked = userTotalHODL;
-    if (document.getElementById("claimableTokens")) {
-        document.getElementById("claimableTokens").innerText = (unlocked - totalClaimedSoFar).toFixed(5);
-    }
-    if (document.getElementById("stakeProfit")) {
-        document.getElementById("stakeProfit").innerText = `${(userTotalHODL - unlocked).toFixed(2)} HASH`;
-    }
-}
-
-// --- ৪. অন-চেইন টোকেন রিওয়ার্ড ক্লেম ফাংশন (🔴 বাদ পড়া পার্ট ফিক্সড) ---
-async function claimTokens() {
-    if (!web3Signer || !investmentContractInstance || !activeAccount) {
-        return Swal.fire({ icon: 'warning', title: 'Wallet Required', text: 'Please connect wallet first.', background: '#0d1320', color: '#fff' });
-    }
-    const claimableEl = document.getElementById("claimableTokens");
-    const availableToClaim = claimableEl ? parseFloat(claimableEl.innerText) : 0;
-    
-    if (availableToClaim <= 0) {
-        return Swal.fire({ icon: 'error', title: 'No Tokens Available', text: 'Vesting rewards are generating. Please wait.', background: '#0d1320', color: '#fff' });
-    }
-    try {
-        Swal.fire({ title: 'Claiming Tokens...', text: 'Please authorize inside your wallet.', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => { Swal.showLoading(); } });
-        const tx = await investmentContractInstance.claimTokens();
-        await tx.wait();
-
-        totalClaimedSoFar += availableToClaim;
-        if (claimableEl) claimableEl.innerText = "0.00000";
-
-        let d = getProfileCache();
-        if (!d[activeAccount].claimed) d[activeAccount].claimed = [];
-        d[activeAccount].claimed.push({ amount: availableToClaim, timestamp: Date.now() });
-        saveProfileCache(d);
-
-        Swal.fire({ icon: 'success', title: 'Claim Successful!', text: `${availableToClaim.toFixed(2)} HASH sent to wallet.`, background: '#0d1320', color: '#fff' });
-        updateDashboardMetricsAndPrice();
-    } catch (error) {
-        Swal.fire({ icon: 'error', title: 'Claim Failed', text: error.message, background: '#0d1320', color: '#fff' });
-    }
-}
-
-// --- ৫. অ্যাফিলিয়েট ইনকাম উইথড্র ফাংশন (🔴 বাদ পড়া পার্ট ফিক্সড) ---
-async function withdrawAffiliateIncome() {
-    if (!web3Signer || !investmentContractInstance || !activeAccount) {
-        return Swal.fire({ icon: 'warning', title: 'Wallet Required', text: 'Please connect wallet first.', background: '#0d1320', color: '#fff' });
-    }
-    if (isNaN(pendingAffiliateBalanceBnb) || pendingAffiliateBalanceBnb <= 0) {
-        return Swal.fire({ icon: 'error', title: 'No Earnings Available', text: 'No pending downline rewards found.', background: '#0d1320', color: '#fff' });
-    }
-    try {
-        Swal.fire({ title: 'Processing Payout...', text: 'Please sign direct payout inside wallet.', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => { Swal.showLoading(); } });
-        const withdrawValueWei = ethers.utils.parseEther(pendingAffiliateBalanceBnb.toString());
-        const tx = await investmentContractInstance.withdrawAffiliate(withdrawValueWei);
-
-        Swal.fire({ title: 'Validating Payout...', text: 'Synchronizing logs with blockchain network nodes...', allowOutsideClick: false, background: '#0d1320', color: '#fff', didOpen: () => { Swal.showLoading(); } });
-        await tx.wait(); 
-
-        fetch(`${HOSTINGER_ENDPOINT}/update_withdraw_status.php?address=${activeAccount.toLowerCase()}`).catch(err => console.error(err));
-
-        pendingAffiliateBalanceBnb = 0;
-        if (document.getElementById("incomeDisplay")) document.getElementById("incomeDisplay").innerText = "0.0000 BNB";
-        if (document.getElementById("income")) document.getElementById("income").innerText = "0.0000 BNB"; 
-
-        Swal.fire({ icon: 'success', title: 'Withdrawal Complete!', text: '100% earnings deposited with zero fees.', background: '#0d1320', color: '#fff' });
-        updateDashboardMetricsAndPrice();
-    } catch (error) {
-        Swal.fire({ icon: 'error', title: 'Withdrawal Failed', text: error.message || 'Payload crashed.', background: '#0d1320', color: '#fff' });
-    }
-}
-
-// --- ৬. হোস্টিনজার ২০ লেভেল ডাউনলাইন পেজিনেশন লুপ ---
-async function fetchTeamDataFromHostinger(walletAddress) {
-    const tableBody = document.getElementById("teamTableBody");
-    const loadMoreBtn = document.getElementById("loadMoreBtn");
-    if (!tableBody || !loadMoreBtn) return;
-
-    try {
-        loadMoreBtn.innerText = "Loading Partners..."; loadMoreBtn.disabled = true;
-        const response = await fetch(`${HOSTINGER_ENDPOINT}/get_team.php?address=${walletAddress.toLowerCase()}&limit=${DATA_LIMIT}&offset=${currentOffset}`);
-        const data = await response.json();
-        
-        loadMoreBtn.innerHTML = `<svg xmlns="http://w3.org" class="h-4 w-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 13l-7 7m0 0l-7-7m7 7V3"/></svg> Load More Partners`;
-        loadMoreBtn.disabled = false;
-
-        if (document.getElementById("totalTeam")) document.getElementById("totalTeam").innerText = `${data.total_team || 0} Users`;
-        if (currentOffset === 0) tableBody.innerHTML = "";
-
-        if (!data.members || data.members.length === 0) {
-            if (currentOffset === 0) tableBody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-gray-500 font-bold">No downline partners found in your 20-level matrix yet.</td></tr>`;
-            if (document.getElementById("loadMoreContainer")) document.getElementById("loadMoreContainer").classList.add("hidden");
-            return;
+            fetch(`${HOSTINGER_ENDPOINT}/register_user.php`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_address: activeAccount, referrer_address: (ref && ref !== activeAccount) ? ref : null })
+            }).catch(e => console.error(e));
         }
 
-        data.members.forEach(member => {
-            const shortAddress = `${member.from_address.substring(0, 6)}...${member.from_address.substring(38)}`;
-            let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-            if (member.generation_level > 5 && member.generation_level <= 12) badgeClass = "bg-blue-500/10 text-blue-400 border-blue-500/20";
-            else if (member.generation_level > 12) badgeClass = "bg-purple-500/10 text-purple-400 border-purple-500/20";
-            
+        if (document.getElementById("connectBtn")) document.getElementById("connectBtn").classList.add("hidden");
+        if (document.getElementById("walletDisplay")) {
+            document.getElementById("walletDisplay").classList.remove("hidden");
+            document.getElementById("walletDisplay").innerText = `${activeAccount.substring(0, 6)}...${activeAccount.substring(38)}`;
+        }
+       
+        synchronizeReferralLink();
+        updateDashboardMetricsAndPrice(); 
+        if (typeof initializeTeamLoad === 'function') initializeTeamLoad(activeAccount);
+    } catch (e) {
+        Swal.fire({ icon: "error", title: "Authorization Failed", text: e.message, background: "#0d1320", color: "#fff" });
+    }
+}
+
+// --- 5. ROUTINE INTERFACE STATISTICS & PANCAKESWAP PRICING REFRESH LOOP ---
+async function updateDashboardMetricsAndPrice() {
+    try {
+        const rpc = new ethers.providers.JsonRpcProvider("https://binance.org");
+        const abi = ["function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"];
+        const contract = new ethers.Contract(PANCAKE_ROUTER, abi, rpc);
+
+        const amounts = await contract.getAmountsOut(ethers.utils.parseUnits("1", 18), [TOKEN_CONTRACT, USDT_ASSET]);
+        liveTokenPriceUsd = parseFloat(ethers.utils.formatUnits(amounts, 18)); 
+        
+        if (document.getElementById("tokenPrice")) document.getElementById("tokenPrice").innerText = liveTokenPriceUsd.toFixed(4);
+        if (document.getElementById("liveBNB")) document.getElementById("liveBNB").innerText = `$${liveTokenPriceUsd.toFixed(4)}`;
+
+        if (activeAccount) {
+            const ethProvider = window.ethereum ? new ethers.providers.Web3Provider(window.ethereum) : networkProvider;
+            if (ethProvider) {
+                const bal = await ethProvider.getBalance(activeAccount);
+                if (document.getElementById("bnbBal")) document.getElementById("bnbBal").innerText = `${parseFloat(ethers.utils.formatEther(bal)).toFixed(4)} BNB`;
+            }
+
+            let d = getProfileCache();
+            if (d[activeAccount]) {
+                userTotalHODL = parseFloat(d[activeAccount].tvx || 0);
+                vestingStartDate = parseInt(d[activeAccount].stakeStart || 0);
+                if (document.getElementById("tvxBal")) document.getElementById("tvxBal").innerText = `${userTotalHODL.toFixed(2)} HASH`;
+            }
+
+            fetch(`${HOSTINGER_ENDPOINT}/get_balance.php?address=${activeAccount}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && !data.error) {
+                        pendingAffiliateBalanceBnb = parseFloat(data.pending_balance || 0);
+                        if (document.getElementById("income")) document.getElementById("income").innerText = `${pendingAffiliateBalanceBnb.toFixed(4)} BNB`;
+                        if (document.getElementById("incomeDisplay")) document.getElementById("incomeDisplay").innerText = `${pendingAffiliateBalanceBnb.toFixed(4)} BNB`;
+                    }
+                }).catch(e => console.error(e));
+        }
+        if (typeof updateTransactionReportsDisplay === 'function') updateTransactionReportsDisplay();
+    } catch (err) { console.error(err); }
+}
